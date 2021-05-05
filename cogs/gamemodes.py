@@ -10,8 +10,6 @@ class Gamemodes(commands.Cog):
         # Multiple users stored in bot, reload doesn't erase gamestate
         if not hasattr(bot, "games"):
             bot.games = {}
-        if not hasattr(bot, "boards"):
-            bot.boards = {}
 
     @commands.command(aliases=["cl"])
     async def classic(self, ctx):
@@ -23,10 +21,10 @@ class Gamemodes(commands.Cog):
         """
 
         if ctx.author not in self.bot.games:
-            self.bot.games[ctx.author] = Classic()
-            self.bot.boards[ctx.author] = f"\n{ctx.author}'s Game\n\n"
-            print(self.bot.games[ctx.author].answer)
+            self.bot.games[ctx.author] = Classic(ctx.author)
             await ctx.send("Ready to play")
+        else:
+            await ctx.send("User is already in a game")
 
 
 def setup(bot):

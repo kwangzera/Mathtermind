@@ -19,7 +19,7 @@ class Gameplay(commands.Cog):
             game = self.bot.games[ctx.author]
             # board = self.bot.boards[ctx.author]
 
-            print("args", nums)
+            print("args", nums, type(game))
 
             if not game.valid_guess(nums):
                 await ctx.send(game.log_msg)
@@ -28,7 +28,7 @@ class Gameplay(commands.Cog):
             game.add_round(nums)
             guess_str = f"Guess {game.round_number}: {', '.join(map(str, game.rounds[-1]))}"
             match_str = f"{game.matches[-1]} match(es)"
-            self.bot.boards[ctx.author] += f"{guess_str}\n{match_str}\n"
+            game.board += f"{guess_str}\n{match_str}\n"
 
             # TODO better code for this error thing
             if game.game_over:
@@ -43,7 +43,7 @@ class Gameplay(commands.Cog):
         """Shows the full guess history of the user's current game"""
 
         if ctx.author in self.bot.games:
-            await ctx.send(f"```{self.bot.boards[ctx.author]}```")
+            await ctx.send(f"```{self.bot.games[ctx.author].board}```")
         else:
             await ctx.send("User is not in a game")
 
@@ -57,15 +57,8 @@ class Gameplay(commands.Cog):
         else:
             await ctx.send("User is not in a game")
 
-    @commands.command()
-    async def dd(self, ctx):
-        await ctx.send(f"{self.bot.games}\n{self.bot.boards}")
-
-    # TODO ;identify or smth for lie gamemode
-
     def reset_game(self, ctx):
         self.bot.games.pop(ctx.author)
-        self.bot.boards.pop(ctx.author)
 
 
 def setup(bot):

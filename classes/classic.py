@@ -3,13 +3,14 @@ from random import sample
 
 ## TODO move board to this class
 class Classic:
-    def __init__(self):
+    def __init__(self, discord_tag):
         self.answer = sample(range(1, 16), 3)
         self.rounds = []
         self.matches = []
         self.round_number = 0
-        self.game_over = 0  # 1 - win, 2 - lose
+        self.game_over = 0  # 1: win, 2: lose
         self.log_msg = ""
+        self.board = f"{discord_tag}'s Game\n\n"
 
     def add_round(self, guess):
         """Updates this Classic game class with a new round. Assumes `guess` is valid"""
@@ -54,7 +55,6 @@ class Classic:
 
         if not flag:
             self.log_msg = "Invalid guess bruv"
-
 
         if self.round_number == 7 and len(guess) != 3 and flag:
             self.log_msg = "Please input 3 numbers as your final guess"

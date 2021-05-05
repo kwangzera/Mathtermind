@@ -25,4 +25,5 @@ async def on_command_error(ctx, error):
     await ctx.send(f"Oops, an error occurred: `{error!r}`")
 
 
-bot.run("TOKEN")
+# Token saved to environment variable
+bot.run(os.environ["MTM_TOKEN"])
