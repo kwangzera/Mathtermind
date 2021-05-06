@@ -2,7 +2,6 @@ from discord.ext import commands
 
 from classes.classic import Classic
 
-
 class Gamemodes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

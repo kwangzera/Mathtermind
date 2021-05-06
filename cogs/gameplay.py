@@ -1,6 +1,8 @@
 from discord.ext import commands
 
 
+from classes.classic_solver import ClassicSolver
+
 class Gameplay(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -56,6 +58,17 @@ class Gameplay(commands.Cog):
             self.reset_game(ctx)
         else:
             await ctx.send("User is not in a game")
+
+    @commands.command(aliases=["sv"])
+    async def solve(self, ctx):
+        ## TODO fix keyerror bug
+        solution = ClassicSolver(self.bot.games[ctx.author].rounds, self.bot.games[ctx.author].matches)
+        solution.solve()
+
+        if len(solution.valid) > 100:
+            await ctx.send("greater than 100 sols")
+        else:
+            await ctx.send(f"{solution.valid}")
 
     def reset_game(self, ctx):
         self.bot.games.pop(ctx.author)

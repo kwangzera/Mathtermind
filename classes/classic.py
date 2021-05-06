@@ -1,7 +1,6 @@
 from random import sample
 
 
-## TODO move board to this class
 class Classic:
     def __init__(self, discord_tag):
         self.answer = sample(range(1, 16), 3)
@@ -40,6 +39,7 @@ class Classic:
 
     def valid_guess(self, guess):
         flag = True
+
         # Check length
         if len(guess) > 4:
             flag = False
