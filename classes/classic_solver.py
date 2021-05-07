@@ -8,6 +8,7 @@ class ClassicSolver:
         self.matches = matches
         self.combos = list(c(range(1, 16), 3))
         self.valid = []
+        self.valid_cnt = 0
 
     def solve(self):
         for i, j, k in self.combos:
@@ -20,6 +21,7 @@ class ClassicSolver:
 
             if flag:
                 self.valid.append((i, j, k))
+                self.valid_cnt += 1
 
             # print()
 

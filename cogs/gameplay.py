@@ -62,11 +62,12 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["sv"])
     async def solve(self, ctx):
         ## TODO fix keyerror bug
+        print(ctx)
         solution = ClassicSolver(self.bot.games[ctx.author].rounds, self.bot.games[ctx.author].matches)
         solution.solve()
 
-        if len(solution.valid) > 100:
-            await ctx.send("greater than 100 sols")
+        if solution.valid_cnt > 50:
+            await ctx.send(f"Solutions ({solution.valid_cnt} in current gamestate) will not be listed since there are over 50 possible valid combos")
         else:
             await ctx.send(f"{solution.valid}")
 

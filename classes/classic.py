@@ -3,7 +3,7 @@ from random import sample
 
 class Classic:
     def __init__(self, discord_tag):
-        self.answer = sample(range(1, 16), 3)
+        self.answer = sorted(sample(range(1, 16), 3))
         self.rounds = []
         self.matches = []
         self.round_number = 0
