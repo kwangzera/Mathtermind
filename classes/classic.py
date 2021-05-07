@@ -1,3 +1,4 @@
+import discord
 from random import sample
 
 
@@ -9,7 +10,7 @@ class Classic:
         self.round_number = 0
         self.game_over = 0  # 1: win, 2: lose
         self.log_msg = ""
-        self.board = f"{discord_tag}'s Game\n\n"
+        self.board = discord.Embed(title=f"{discord_tag}'s Classic Game")
 
     def add_round(self, guess):
         """Updates this Classic game class with a new round. Assumes `guess` is valid"""

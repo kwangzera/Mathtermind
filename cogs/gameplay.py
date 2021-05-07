@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 
 
@@ -28,9 +29,10 @@ class Gameplay(commands.Cog):
                 return
 
             game.add_round(nums)
-            guess_str = f"Guess {game.round_number}: {', '.join(map(str, game.rounds[-1]))}"
+            guess_str = f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`"
             match_str = f"{game.matches[-1]} match(es)"
-            game.board += f"{guess_str}\n{match_str}\n"
+            game.board.add_field(name=guess_str, value=match_str, inline=False)
+            # game.board += f"{guess_str}\n{match_str}\n"
 
             # TODO better code for this error thing
             if game.game_over:
@@ -38,14 +40,14 @@ class Gameplay(commands.Cog):
                 self.reset_game(ctx)
                 return
 
-            await ctx.send(f"```{match_str}```")
+            await ctx.send(embed=discord.Embed(title=f"Guess {game.round_number}", description=f"{game.matches[-1]} of guessed numbers match the winning combo"))
 
     @commands.command(aliases=["sh"])
     async def show(self, ctx):
         """Shows the full guess history of the user's current game"""
 
         if ctx.author in self.bot.games:
-            await ctx.send(f"```{self.bot.games[ctx.author].board}```")
+            await ctx.send(embed=self.bot.games[ctx.author].board)
         else:
             await ctx.send("User is not in a game")
 
@@ -65,11 +67,7 @@ class Gameplay(commands.Cog):
         print(ctx)
         solution = ClassicSolver(self.bot.games[ctx.author].rounds, self.bot.games[ctx.author].matches)
         solution.solve()
-
-        if solution.valid_cnt > 50:
-            await ctx.send(f"Solutions ({solution.valid_cnt} in current gamestate) will not be listed since there are over 50 possible valid combos")
-        else:
-            await ctx.send(f"{solution.valid}")
+        await ctx.send(embed=solution.sol_panel)
 
     def reset_game(self, ctx):
         self.bot.games.pop(ctx.author)

@@ -1,4 +1,4 @@
-from pprint import pprint
+import discord
 from itertools import combinations as c
 
 
@@ -9,6 +9,7 @@ class ClassicSolver:
         self.combos = list(c(range(1, 16), 3))
         self.valid = []
         self.valid_cnt = 0
+        self.sol_panel = discord.Embed(title="Possible Combiations")
 
     def solve(self):
         for i, j, k in self.combos:
@@ -20,12 +21,14 @@ class ClassicSolver:
                     break
 
             if flag:
-                self.valid.append((i, j, k))
+                self.valid.append(f"`{i} {j} {k}`")
                 self.valid_cnt += 1
 
-            # print()
+        self.gen_embed()
 
-# cs = ClassicSolver([(1, 2, 3, 4), (2, 7, 8), (9, 10, 11, 12), (13, 14, 15), (3,7,8), (4,8), (1,)], [2,1,0,0,2,0,1])
-#
-# cs.solve()
-# pprint(cs.valid)
+    def gen_embed(self):
+        if self.valid_cnt > 50:
+            self.sol_panel.description = f"Solutions ({self.valid_cnt} in current gamestate) will not be listed since there are over 50 possible valid combos"
+        else:
+            tmpstr = ", ".join(self.valid)
+            self.sol_panel.description = f"Foind {self.valid_cnt} valid solution(s):\n||{tmpstr}||"
