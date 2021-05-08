@@ -9,7 +9,7 @@ class ClassicSolver:
         self.combos = list(c(range(1, 16), 3))
         self.valid = []
         self.valid_cnt = 0
-        self.sol_panel = discord.Embed(title="Possible Combiations")
+        self.sol_panel = discord.Embed()
 
     def solve(self):
         for i, j, k in self.combos:
@@ -27,8 +27,9 @@ class ClassicSolver:
         self.gen_embed()
 
     def gen_embed(self):
-        if self.valid_cnt > 50:
-            self.sol_panel.description = f"Solutions ({self.valid_cnt} in current gamestate) will not be listed since there are over 50 possible valid combos"
+        self.sol_panel.title = f"{self.valid_cnt} Valid Solutions"
+
+        if self.valid_cnt > 64:
+            self.sol_panel.description = f"Solutions will not be listed since there are over 64 possible valid combos"
         else:
-            tmpstr = ", ".join(self.valid)
-            self.sol_panel.description = f"Foind {self.valid_cnt} valid solution(s):\n||{tmpstr}||"
+            self.sol_panel.description = f"||{', '.join(self.valid)}||"

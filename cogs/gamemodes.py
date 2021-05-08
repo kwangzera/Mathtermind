@@ -1,4 +1,5 @@
 import discord
+from discord import Colour
 from discord.ext import commands
 
 from classes.classic import Classic
@@ -23,9 +24,10 @@ class Gamemodes(commands.Cog):
 
         if ctx.author not in self.bot.games:
             self.bot.games[ctx.author] = Classic(ctx.author)
-            await ctx.send("Ready to play")
+            print(self.bot.games[ctx.author].answer)
+            await ctx.send(embed=discord.Embed(description="Ready to play", color=Colour.green()))
         else:
-            await ctx.send("User is already in a game")
+            await ctx.send(embed=discord.Embed(description="User is already in a game", color=Colour.red()))
 
 
 def setup(bot):
