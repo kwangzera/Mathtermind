@@ -10,8 +10,9 @@ class Classic:
         self.matches = []
         self.round_number = 0
         self.game_over = 0  # 1: win, 2: lose
-        self.log_msg = None
-        self.board = discord.Embed(title=f"{discord_tag}'s Classic Game")
+        self.log_msg = discord.Embed()
+        self.board = discord.Embed()
+        self.board_items = [f"{discord_tag}'s Classic Game"]
 
     def add_round(self, guess):
         """Updates this Classic game class with a new round. Assumes `guess` is valid"""
@@ -21,15 +22,30 @@ class Classic:
         self.matches.append(self.match_ans(guess))
 
         if self.matches[-1] == len(guess) == 3:
-            # self.log_msg = "you won. GG"
-            self.log_msg = discord.Embed(title="Final Guess", description=":tada: You won. GG.", colour=Colour.green())
+            self.log_msg = discord.Embed(
+                title=self.board_items[0],
+                description=":tada: Contratulations! You won!",
+                colour=Colour.green()
+            )
             self.game_over = 1
             return
 
         if self.round_number == 8:
-            self.log_msg = discord.Embed(title="Final Guess", description=f":monkey: You lost. The answer was `{', '.join(map(str, self.answer))}`.", colour=Colour.red())
+            self.log_msg = discord.Embed(
+                title=self.board_items[0],
+                description=f":monkey: You lost. The answer was `{', '.join(map(str, self.answer))}`.",
+                colour=Colour.red()
+            )
             self.game_over = 2
             return
+
+    def create_board(self):
+        embed = discord.Embed(title=self.board_items[0])
+
+        for elem in self.board_items[1:]:
+            embed.add_field(name=elem[0], value=elem[1], inline=False)
+
+        return embed
 
     def match_ans(self, guess):
         match = 0
@@ -57,10 +73,16 @@ class Classic:
                 flag = False
 
         if not flag:
-            self.log_msg = discord.Embed(description="Please input a valid guess", colour=Colour.red())
+            self.log_msg = discord.Embed(
+                description="Please input a valid guess",
+                colour=Colour.red()
+            )
 
         if self.round_number == 7 and len(guess) != 3 and flag:
-            self.log_msg = discord.Embed(description="Please input 3 numbers as your final guess", colour=Colour.red())
+            self.log_msg = discord.Embed(
+                description="Please input 3 numbers as your final guess",
+                colour=Colour.red()
+            )
             flag = False
 
         return flag

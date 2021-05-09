@@ -1,5 +1,6 @@
-import discord
 from itertools import combinations as c
+
+import discord
 
 
 class ClassicSolver:
@@ -27,7 +28,7 @@ class ClassicSolver:
         self.gen_embed()
 
     def gen_embed(self):
-        self.sol_panel.title = f"{self.valid_cnt} Valid Solutions"
+        self.sol_panel.title = f"{self.valid_cnt} Valid Solution{'s'*(self.valid_cnt != 1)}"
 
         if self.valid_cnt > 64:
             self.sol_panel.description = f"Solutions will not be listed since there are over 64 possible valid combos"
