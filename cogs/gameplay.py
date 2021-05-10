@@ -3,6 +3,7 @@ from discord import Colour
 from discord.ext import commands
 
 from classes.classic_solver import ClassicSolver
+from classes.repeat_solver import RepeatSolver
 
 
 class Gameplay(commands.Cog):
@@ -36,7 +37,7 @@ class Gameplay(commands.Cog):
             game.add_round(nums)
             game.board_items.append((
                 f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-                f"{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
+                f"{game.matches[-1]} match{'es' * (game.matches[-1] != 1)}"
             ))
 
             if game.game_over:
@@ -46,7 +47,7 @@ class Gameplay(commands.Cog):
 
             await ctx.send(embed=discord.Embed(
                 title=f"Guess {game.round_number}",
-                description=f"{game.matches[-1]} of user's guessed numbers match the winning combo")
+                description=f"{game.matches[-1]} numbers from the winning combo match the user's guess")
             )
 
         else:
@@ -84,16 +85,21 @@ class Gameplay(commands.Cog):
 
         if self.key(ctx) in self.bot.games:
             game = self.bot.games[self.key(ctx)]
-            solution = ClassicSolver(game.rounds, game.matches)
+
+            if game.__class__.__name__ == "Repeat":
+                solution = RepeatSolver(game.rounds, game.matches)
+            else:
+                solution = ClassicSolver(game.rounds, game.matches)
+
             solution.solve()
             await ctx.send(embed=solution.sol_panel)
+
         else:
             await ctx.send(embed=self.not_in_game)
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))
 
-    # key is used multiple times in this file
     def key(self, ctx):
         """Each game is unique based on the player and the guild"""
 

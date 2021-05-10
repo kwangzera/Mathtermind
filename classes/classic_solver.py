@@ -13,16 +13,24 @@ class ClassicSolver:
         self.sol_panel = discord.Embed()
 
     def solve(self):
-        for i, j, k in self.combos:
+        for cb in self.combos:
             flag = True
 
             for rnd, mt in zip(self.rounds, self.matches):
-                if (i in rnd) + (j in rnd) + (k in rnd) != mt:
+                tmp_rnd = list(rnd)
+                cnt = 0
+
+                for val in cb:
+                    if val in tmp_rnd:
+                        cnt += 1
+                        tmp_rnd.remove(val)
+
+                if cnt != mt:
                     flag = False
                     break
 
             if flag:
-                self.valid.append(f"`{i} {j} {k}`")
+                self.valid.append(f"`{cb[0]} {cb[1]} {cb[2]}`")
                 self.valid_cnt += 1
 
         self.gen_embed()

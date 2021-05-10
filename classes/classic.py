@@ -14,6 +14,12 @@ class Classic:
         self.board = discord.Embed()
         self.board_items = [f"{discord_tag}'s Classic Game"]
 
+    def win(self, guess):
+        return self.matches[-1] == len(guess) == 3
+
+    def lose(self):
+        return self.round_number == 8
+
     def add_round(self, guess):
         """Updates this Classic game class with a new round. Assumes `guess` is valid"""
 
@@ -21,7 +27,7 @@ class Classic:
         self.rounds.append(guess)
         self.matches.append(self.match_ans(guess))
 
-        if self.matches[-1] == len(guess) == 3:
+        if self.win(guess):
             self.log_msg = discord.Embed(
                 title=self.board_items[0],
                 description=":tada: Contratulations! You won!",
@@ -30,7 +36,7 @@ class Classic:
             self.game_over = 1
             return
 
-        if self.round_number == 8:
+        if self.lose():
             self.log_msg = discord.Embed(
                 title=self.board_items[0],
                 description=f":monkey: You lost. The answer was `{', '.join(map(str, self.answer))}`.",
@@ -48,29 +54,34 @@ class Classic:
         return embed
 
     def match_ans(self, guess):
+        tmp_guess = list(guess)
         match = 0
 
-        for num in guess:
-            if num in self.answer:
+        for num in self.answer:
+            if num in tmp_guess:
+                tmp_guess.remove(num)
                 match += 1
 
         return match
 
+    def valid_len(self, guess):
+        return guess and len(guess) <= 4
+
+    def is_unique(self, guess):
+        return sorted(set(guess)) == sorted(guess)
+
+    def in_range(self, guess):
+        for g in guess:
+            if g < 1 or g > 15:
+                return False
+
+        return True
+
     def valid_guess(self, guess):
         flag = True
 
-        # Check length
-        if not guess or len(guess) > 4:
+        if not (self.valid_len(guess) and self.is_unique(guess) and self.in_range(guess)):
             flag = False
-
-        # Check uniqueness
-        if sorted(list(set(guess))) != sorted(guess):
-            flag = False
-
-        # Check ranges
-        for g in guess:
-            if g < 1 or g > 15:
-                flag = False
 
         if not flag:
             self.log_msg = discord.Embed(

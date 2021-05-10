@@ -3,6 +3,7 @@ from discord import Colour
 from discord.ext import commands
 
 from classes.classic import Classic
+from classes.repeat import Repeat
 
 
 class Gamemodes(commands.Cog):
@@ -19,7 +20,7 @@ class Gamemodes(commands.Cog):
             color=Colour.red()
         )
 
-        # Multiple users stored in bot, reload doesn't erase gamestate
+        # Storing dict of users in bot, also reload doesn't erase gamestates
         if not hasattr(bot, "games"):
             bot.games = {}
 
@@ -28,20 +29,33 @@ class Gamemodes(commands.Cog):
         """Starts a Mathtermind game in classic mode
 
         7 Guesses to find winning combo, 8th Guess to determine it
-        Each guess consists of 1-4 unique nubmers
+        Each guess consists of 1-4 unique numbers
         Winning combo consists of 3 unique numbers from 1-15
         """
 
-        # TODO make this a function when more gamemodes added
-        key = (ctx.author.id, ctx.guild.id)
+        await self.create_game(ctx, Classic(ctx.author))
 
-        # TODO make this a function maybe
-        if key not in self.bot.games:
-            self.bot.games[key] = Classic(ctx.author)
-            print(self.bot.games[key].answer)
+    @commands.command(aliases=["rp"])
+    async def repeat(self, ctx):
+        """Starts a Mathtermind game in repeat mode
+
+        The winning combo and user's Guesses do not have to contain unique numbers
+        Otherwise, the same rules follow for classic mode [;help classic]
+        """
+
+        await self.create_game(ctx, Repeat(ctx.author))
+
+    async def create_game(self, ctx, gametype):
+        if self.key(ctx) not in self.bot.games:
+            self.bot.games[self.key(ctx)] = gametype
             await ctx.send(embed=self.ready_play)
         else:
             await ctx.send(embed=self.in_game)
+
+    def key(self, ctx):
+        """Each game is unique based on the player and the guild"""
+
+        return ctx.author.id, ctx.guild.id
 
 
 def setup(bot):
