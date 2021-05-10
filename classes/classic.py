@@ -1,15 +1,18 @@
+from random import sample
+
 import discord
 from discord import Colour
-from random import sample
 
 
 class Classic:
     def __init__(self, discord_tag):
-        self.answer = sorted(sample(range(1, 16), 3))
         self.rounds = []
         self.matches = []
         self.round_number = 0
         self.game_over = 0  # 1: win, 2: lose
+        self.answer = sorted(sample(range(1, 16), 3))
+
+        # Embeds
         self.log_msg = discord.Embed()
         self.board = discord.Embed()
         self.board_items = [f"{discord_tag}'s Classic Game"]
@@ -77,6 +80,9 @@ class Classic:
 
         return True
 
+    def last_guess(self, guess, flag):
+        return self.round_number == 7 and len(guess) != 3 and flag
+
     def valid_guess(self, guess):
         flag = True
 
@@ -89,7 +95,7 @@ class Classic:
                 colour=Colour.red()
             )
 
-        if self.round_number == 7 and len(guess) != 3 and flag:
+        if self.last_guess(guess, flag):
             self.log_msg = discord.Embed(
                 description="Please input 3 numbers as your final guess",
                 colour=Colour.red()

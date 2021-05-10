@@ -15,5 +15,7 @@ async def on_ready():
             bot.load_extension(f"cogs.{filename[:-3]}")
             print(f"Loaded {filename}")
 
+    print("All extensions loaded successfully")
+
 # Token saved to environment variable
 bot.run(os.environ["MTM_TOKEN"])
