@@ -4,19 +4,25 @@ import discord
 
 
 class ClassicSolver:
-    def __init__(self, rounds, matches):
+    def __init__(self, rounds, matches, verified):
         self.rounds = rounds
         self.matches = matches
+        self.verified = verified
         self.valid = []
         self.valid_cnt = 0
         self.combos = list(c(range(1, 16), 3))
         self.sol_panel = discord.Embed()
 
     def solve(self):
+        print(self.rounds)
+        print(self.matches)
+        print(self.verified)
         for cb in self.combos:
-            flag = True
+            flag = False
 
-            for rnd, mt in zip(self.rounds, self.matches):
+            for rnd, mt, vr in zip(self.rounds, self.matches, self.verified):
+                flag |= vr # TODO deal with this
+
                 tmp_rnd = list(rnd)
                 cnt = 0
 

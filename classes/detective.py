@@ -9,7 +9,7 @@ class Detective(Classic):
         self.board_items = [f"{discord_tag}'s Detective Game"]
         self.lie_guess = randint(1, 4)  # Index of the lie
         self.actual = 0  # Real number of matches
-        print(self.lie_guess)
+        print(self.lie_guess, self.answer)
 
     def match_ans(self, guess):
         tmp_guess = list(guess)
@@ -26,8 +26,23 @@ class Detective(Classic):
         else:
             return match
 
+    def win(self, guess):
+        return (self.matches[-1] == len(guess) == 3) and self.round_number > 4
+
     def lose(self):
         return self.round_number == 9
+
+    def update_stats(self, guess):
+        self.round_number += 1
+        self.rounds.append(guess)
+        self.matches.append(self.match_ans(guess))
+
+        if self.round_number <= 4:
+            print(self.board_items[-1])
+            # self.board_items[self.round_number][1] += "_"
+            self.verified.append(True)
+
+        self.verified.append(False)
 
     def last_guess(self, guess, flag):
         return self.round_number == 8 and len(guess) != 3 and flag
@@ -35,5 +50,5 @@ class Detective(Classic):
     def create_lie(self, actual, guess_len):
         """Returns a random number from 0 to `guess_len` that is not `actual`"""
 
-        st = set(range(guess_len+1)) - {actual}
+        st = set(range(guess_len)) - {actual}
         return choice(list(st))

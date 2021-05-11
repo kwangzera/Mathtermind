@@ -8,7 +8,7 @@ class Classic:
     def __init__(self, discord_tag):
         self.rounds = []
         self.matches = []
-        self.true_guess = []
+        self.verified = []
         self.round_number = 0
         self.game_over = 0  # 1: win, 2: lose
         self.answer = sorted(sample(range(1, 16), 3))
@@ -24,13 +24,16 @@ class Classic:
     def lose(self):
         return self.round_number == 8
 
-    def add_round(self, guess, is_true_guess):
-        """Updates this Classic game class with a new round. Assumes `guess` is valid"""
-
+    def update_stats(self, guess):
         self.round_number += 1
         self.rounds.append(guess)
         self.matches.append(self.match_ans(guess))
-        self.true_guess.append(is_true_guess)
+        self.verified.append(True)
+
+    def add_round(self, guess):
+        """Updates this Classic game class with a new round. Assumes `guess` is valid"""
+
+        self.update_stats(guess)
 
         if self.win(guess):
             self.log_msg = discord.Embed(

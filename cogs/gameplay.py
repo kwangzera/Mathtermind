@@ -32,6 +32,7 @@ class Gameplay(commands.Cog):
             return
 
         game = self.bot.games[self.key(ctx)]
+        name = game.__class__.__name__
         print("args", nums, type(game))
 
         if not game.valid_guess(nums):
@@ -41,7 +42,7 @@ class Gameplay(commands.Cog):
         game.add_round(nums)
         game.board_items.append((
             f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-            f"{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
+            f"{'❓ '*(name == 'Detective')}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
         ))
 
         if game.game_over:
@@ -52,7 +53,7 @@ class Gameplay(commands.Cog):
         await ctx.send(embed=discord.Embed(
             title=f"Guess {game.round_number}",
             description=f"{game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combo "
-                        f"match{'es'*(game.matches[-1] == 1)} the user's guess"
+                        f"match{'es'*(game.matches[-1] == 1)} the user's guess{'❓'*(name == 'Detective')}"
         ))
 
     @commands.command(aliases=["sh"])
@@ -93,11 +94,11 @@ class Gameplay(commands.Cog):
         name = game.__class__.__name__
 
         if name == "Classic":
-            solution = ClassicSolver(game.rounds, game.matches)
+            solution = ClassicSolver(game.rounds, game.matches, game.verified)
         elif name == "Repeat":
-            solution = RepeatSolver(game.rounds, game.matches)
+            solution = RepeatSolver(game.rounds, game.matches, game.verified)
         else:
-            solution = DetectiveSolver(game.rounds, game.matches)
+            solution = DetectiveSolver(game.rounds, game.matches, game.verified)
 
         solution.solve()
         await ctx.send(embed=solution.sol_panel)
