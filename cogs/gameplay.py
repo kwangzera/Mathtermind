@@ -32,7 +32,8 @@ class Gameplay(commands.Cog):
             return
 
         game = self.bot.games[self.key(ctx)]
-        name = game.__class__.__name__
+        #uncert = game.game_id == 2 and game.round_number <= 4
+
         print("args", nums, type(game))
 
         if not game.valid_guess(nums):
@@ -40,10 +41,11 @@ class Gameplay(commands.Cog):
             return
 
         game.add_round(nums)
-        game.board_items.append((
+        uncert = game.game_id == 2 and game.round_number <= 4
+        game.board_items.append([
             f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-            f"{'❓ '*(name == 'Detective')}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
-        ))
+            f"{'❓ '*uncert}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
+        ])
 
         if game.game_over:
             await ctx.send(embed=game.log_msg)
@@ -53,7 +55,7 @@ class Gameplay(commands.Cog):
         await ctx.send(embed=discord.Embed(
             title=f"Guess {game.round_number}",
             description=f"{game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combo "
-                        f"match{'es'*(game.matches[-1] == 1)} the user's guess{'❓'*(name == 'Detective')}"
+                        f"match{'es'*(game.matches[-1] == 1)} the user's guess{'?'*uncert }"
         ))
 
     @commands.command(aliases=["sh"])
@@ -91,11 +93,10 @@ class Gameplay(commands.Cog):
             return
 
         game = self.bot.games[self.key(ctx)]
-        name = game.__class__.__name__
 
-        if name == "Classic":
+        if game.game_id == 0:
             solution = ClassicSolver(game.rounds, game.matches, game.verified)
-        elif name == "Repeat":
+        elif game.game_id == 1:
             solution = RepeatSolver(game.rounds, game.matches, game.verified)
         else:
             solution = DetectiveSolver(game.rounds, game.matches, game.verified)
@@ -104,13 +105,36 @@ class Gameplay(commands.Cog):
         await ctx.send(embed=solution.sol_panel)
 
     @commands.command(aliases=["id"])
-    async def identify(self, ctx):
+    async def identify(self, ctx, target: int):
         """Help
 
         Description
         """
 
-        await ctx.send("identifies the lie")
+        if self.key(ctx) not in self.bot.games:
+            await ctx.send(embed=self.not_in_game)
+            return
+
+        game = self.bot.games[self.key(ctx)]
+
+        if game.game_id != 2:
+            await ctx.send("This command is not available for the current gamemode")
+            return
+
+        if game.found_lie:
+            await ctx.send("User has already attempted to determine the lie")
+            return
+
+        if game.round_number < 4:
+            await ctx.send("User is only permitted to identify guesses 1-4 for a lie after the 4th guess")
+            return
+
+        game.found_lie = True
+
+        if target == game.lie_guess:
+            await ctx.send(f"User successfully found the lie -> {game.actual} for guess {game.lie_guess}")
+        else:
+            await ctx.send("User failed to find the lie")
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))

@@ -6,9 +6,12 @@ from classes.classic import Classic
 class Detective(Classic):
     def __init__(self, discord_tag):
         super().__init__(discord_tag)
+        self.game_id = 2
         self.board_items = [f"{discord_tag}'s Detective Game"]
+        # TODO change variable name below to lie_index
         self.lie_guess = randint(1, 4)  # Index of the lie
         self.actual = 0  # Real number of matches
+        self.found_lie = False
         print(self.lie_guess, self.answer)
 
     def match_ans(self, guess):
@@ -40,9 +43,9 @@ class Detective(Classic):
         if self.round_number <= 4:
             print(self.board_items[-1])
             # self.board_items[self.round_number][1] += "_"
+            self.verified.append(False)
+        else:
             self.verified.append(True)
-
-        self.verified.append(False)
 
     def last_guess(self, guess, flag):
         return self.round_number == 8 and len(guess) != 3 and flag

@@ -6,6 +6,7 @@ from discord import Colour
 
 class Classic:
     def __init__(self, discord_tag):
+        self.game_id = 0
         self.rounds = []
         self.matches = []
         self.verified = []
