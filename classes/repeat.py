@@ -7,7 +7,7 @@ class Repeat(Classic):
     def __init__(self, discord_tag):
         super().__init__(discord_tag)
         self.board_items = [f"{discord_tag}'s Repeat Game"]
-        self.create_answer()
+        self.answer = self.create_answer()
         print(self.answer)
 
     # Uniqueness doesn't matter for repeat mode
@@ -19,6 +19,6 @@ class Repeat(Classic):
         a, b = sample(range(1, 16), 2)
 
         if rng == 1:
-            self.answer = sorted((a, a, b))
+            return sorted((a, a, b))
         elif rng == 2:
-            self.answer = sorted((a, a, a))
+            return sorted((a, a, a))

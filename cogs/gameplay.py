@@ -27,33 +27,33 @@ class Gameplay(commands.Cog):
             ;g 10 7 8 4 -> guesses 10, 7, 8 and 4
         """
 
-        if self.key(ctx) in self.bot.games:
-            game = self.bot.games[self.key(ctx)]
-            print("args", nums, type(game))
-
-            if not game.valid_guess(nums):
-                await ctx.send(embed=game.log_msg)
-                return
-
-            game.add_round(nums)
-            game.board_items.append((
-                f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-                f"{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
-            ))
-
-            if game.game_over:
-                await ctx.send(embed=game.log_msg)
-                self.reset_game(ctx)
-                return
-
-            await ctx.send(embed=discord.Embed(
-                title=f"Guess {game.round_number}",
-                description=f"{game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combo "
-                            f"match{'es'*(game.matches[-1] == 1)} the user's guess")
-            )
-
-        else:
+        if self.key(ctx) not in self.bot.games:
             await ctx.send(embed=self.not_in_game)
+            return
+
+        game = self.bot.games[self.key(ctx)]
+        print("args", nums, type(game))
+
+        if not game.valid_guess(nums):
+            await ctx.send(embed=game.log_msg)
+            return
+
+        game.add_round(nums)
+        game.board_items.append((
+            f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
+            f"{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
+        ))
+
+        if game.game_over:
+            await ctx.send(embed=game.log_msg)
+            self.reset_game(ctx)
+            return
+
+        await ctx.send(embed=discord.Embed(
+            title=f"Guess {game.round_number}",
+            description=f"{game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combo "
+                        f"match{'es'*(game.matches[-1] == 1)} the user's guess"
+        ))
 
     @commands.command(aliases=["sh"])
     async def show(self, ctx):
@@ -85,25 +85,30 @@ class Gameplay(commands.Cog):
         there are 64 or less
         """
 
-        if self.key(ctx) in self.bot.games:
-            game = self.bot.games[self.key(ctx)]
-            name = game.__class__.__name__
-
-            if name == "Classic":
-                solution = ClassicSolver(game.rounds, game.matches)
-            elif name == "Repeat":
-                solution = RepeatSolver(game.rounds, game.matches)
-            else:
-                solution = DetectiveSolver(game.rounds, game.matches)
-
-            solution.solve()
-            await ctx.send(embed=solution.sol_panel)
-
-        else:
+        if self.key(ctx) not in self.bot.games:
             await ctx.send(embed=self.not_in_game)
+            return
+
+        game = self.bot.games[self.key(ctx)]
+        name = game.__class__.__name__
+
+        if name == "Classic":
+            solution = ClassicSolver(game.rounds, game.matches)
+        elif name == "Repeat":
+            solution = RepeatSolver(game.rounds, game.matches)
+        else:
+            solution = DetectiveSolver(game.rounds, game.matches)
+
+        solution.solve()
+        await ctx.send(embed=solution.sol_panel)
 
     @commands.command(aliases=["id"])
     async def identify(self, ctx):
+        """Help
+
+        Description
+        """
+
         await ctx.send("identifies the lie")
 
     def reset_game(self, ctx):
