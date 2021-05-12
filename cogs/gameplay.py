@@ -11,11 +11,9 @@ class Gameplay(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        # Frequently used embed
-        self.not_in_game = discord.Embed(
-            description="User is not in a game",
-            color=Colour.red()
-        )
+        # Frequently used embeds for untitled reponses
+        self.valid_emb = discord.Embed(color=Colour.green())
+        self.invalid_emb = discord.Embed(color=Colour.red())
 
     @commands.command(aliases=["g"])
     async def guess(self, ctx, *nums: int):
@@ -25,14 +23,16 @@ class Gameplay(commands.Cog):
             ;g 1        -> guesses 1
             ;g 5 6      -> guesses 5 and 6
             ;g 10 7 8 4 -> guesses 10, 7, 8 and 4
+        Notes:
+            ;g with repeating numbers is valid in repeat mode
         """
 
         if self.key(ctx) not in self.bot.games:
-            await ctx.send(embed=self.not_in_game)
+            self.invalid_emb.description = "USer is not in a game"
+            await ctx.send(embed=self.valid_emb)
             return
 
         game = self.bot.games[self.key(ctx)]
-        #uncert = game.game_id == 2 and game.round_number <= 4
 
         print("args", nums, type(game))
 
@@ -54,8 +54,8 @@ class Gameplay(commands.Cog):
 
         await ctx.send(embed=discord.Embed(
             title=f"Guess {game.round_number}",
-            description=f"{game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combo "
-                        f"match{'es'*(game.matches[-1] == 1)} the user's guess{'?'*uncert }"
+            description=f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning "
+                        f"combo match{'es'*(game.matches[-1] == 1)} the user's guess "
         ))
 
     @commands.command(aliases=["sh"])
@@ -65,20 +65,20 @@ class Gameplay(commands.Cog):
         if self.key(ctx) in self.bot.games:
             await ctx.send(embed=self.bot.games[self.key(ctx)].create_board())
         else:
-            await ctx.send(embed=self.not_in_game)
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
 
     @commands.command(aliases=["lv"])
     async def leave(self, ctx):
         """Leaves the user's current game"""
 
         if self.key(ctx) in self.bot.games:
-            await ctx.send(embed=discord.Embed(
-                description="User successfully left the game",
-                color=Colour.green()
-            ))
+            self.valid_emb.description = "User successfully left the game"
+            await ctx.send(embed=self.valid_emb)
             self.reset_game(ctx)
         else:
-            await ctx.send(embed=self.not_in_game)
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
 
     @commands.command(aliases=["sv"])
     async def solve(self, ctx):
@@ -89,7 +89,8 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) not in self.bot.games:
-            await ctx.send(embed=self.not_in_game)
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
             return
 
         game = self.bot.games[self.key(ctx)]
@@ -106,50 +107,59 @@ class Gameplay(commands.Cog):
 
     @commands.command(aliases=["id"])
     async def identify(self, ctx, target: int):
-        """Help
+        """Identifies a lie in detective mode
 
-        Description
+        Examples:
+            ;id 1 -> attempts to identify guess 1 as the lie
+            ;id 4 -> attempts to identify guess 4 as the lie
+        Notes:
+            This command can be only used once per game
         """
 
         if self.key(ctx) not in self.bot.games:
-            await ctx.send(embed=self.not_in_game)
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
             return
 
         game = self.bot.games[self.key(ctx)]
 
         if game.game_id != 2:
-            await ctx.send(embed=discord.Embed(
-                description="This command is not available for the current gamemode",
-                color=Colour.red()
-            ))
+            self.invalid_emb.description = "The identify command is not available for the current gamemode"
+            await ctx.send(embed=self.invalid_emb)
             return
 
         if game.round_number < 4 or not (1 <= target <= 4):
-            await ctx.send(embed=discord.Embed(
-                description="User only permitted to identify guesses 1-4 as a lie after the 4th guess",
-                color=Colour.red()
-            ))
+            self.invalid_emb.description = "User can only identify guesses from 1 to 4 as a lie after the 4th guess"
+            await ctx.send(embed=self.invalid_emb)
             return
 
         if game.found_lie:
-            await ctx.send(embed=discord.Embed(
-                description="User has already attempted to determine the lie",
-                color=Colour.red()
-            ))
+            self.invalid_emb.description = "The identify command can only be used once per game"
+            await ctx.send(embed=self.invalid_emb)
             return
 
         game.found_lie = True
 
-        if target == game.lie_guess:
-            await ctx.send(embed=discord.Embed(
-                description=f"User successfully found the lie -> {game.actual} for guess {game.lie_guess}",
-                color=Colour.green()
-            ))
+        if target == game.lie_index:
+            self.valid_emb.description = f"User successfully identified the lie"
+            await ctx.send(embed=self.valid_emb)
+
+            for idx in range(1, 5):
+                itm = game.board_items[idx][1]
+
+                if idx == game.lie_index:
+                    itm = f"~~{itm}~~\n✅ {game.actual} match{'es'*(game.actual != 1)}"
+                    game.board_items[idx][1] = itm
+                else:
+                    game.board_items[idx][1] = "✅" + itm[1:]
+
         else:
-            await ctx.send(embed=discord.Embed(
-                description="User failed to find the lie",
-                color=Colour.red()
-            ))
+            self.invalid_emb.description = "User failed to identify the lie"
+            await ctx.send(embed=self.invalid_emb)
+
+            # Know that this is right
+            itm = game.board_items[target][1]
+            game.board_items[target][1] = "✅" + itm[1:]
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))

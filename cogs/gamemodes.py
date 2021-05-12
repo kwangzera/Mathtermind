@@ -11,16 +11,6 @@ class Gamemodes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        # Frequently used embeds
-        self.ready_play = discord.Embed(
-            description="Ready to play",
-            color=Colour.green()
-        )
-        self.in_game = discord.Embed(
-            description="User is already in a game",
-            color=Colour.red()
-        )
-
         # Storing dict of users in bot, also reload doesn't erase gamestates
         if not hasattr(bot, "games"):
             bot.games = {}
@@ -30,8 +20,8 @@ class Gamemodes(commands.Cog):
         """Starts a Mathtermind game in classic mode
 
         7 guesses to find the winning combo, 8th guess to determine it
-        Each guess consists of 1-4 unique numbers
-        Winning combo consists of 3 unique numbers from 1-15
+        Each guess consists of 1 to 4 unique numbers
+        Winning combo consists of 3 unique numbers from 1 to 15
         """
 
         await self.create_game(ctx, Classic(ctx.author))
@@ -57,9 +47,15 @@ class Gamemodes(commands.Cog):
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
             self.bot.games[self.key(ctx)] = gametype
-            await ctx.send(embed=self.ready_play)
+            await ctx.send(embed=discord.Embed(
+                description="Ready to play",
+                color=Colour.green()
+            ))
         else:
-            await ctx.send(embed=self.in_game)
+            await ctx.send(embed=discord.Embed(
+                description="User is already in a game",
+                color=Colour.red()
+            ))
 
     def key(self, ctx):
         """Each game is unique based on the player and the guild"""

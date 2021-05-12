@@ -8,11 +8,10 @@ class Detective(Classic):
         super().__init__(discord_tag)
         self.game_id = 2
         self.board_items = [f"{discord_tag}'s Detective Game"]
-        # TODO change variable name below to lie_index
-        self.lie_guess = randint(1, 4)  # Index of the lie
+        self.lie_index = randint(1, 4)  # Index of the lie
         self.actual = 0  # Real number of matches
         self.found_lie = False
-        print(self.lie_guess, self.answer)
+        print(self.lie_index, self.answer)
 
     def match_ans(self, guess):
         tmp_guess = list(guess)
@@ -23,7 +22,7 @@ class Detective(Classic):
                 tmp_guess.remove(num)
                 match += 1
 
-        if self.round_number == self.lie_guess:
+        if self.round_number == self.lie_index:
             self.actual = match
             return self.create_lie(match, len(guess))
         else:
