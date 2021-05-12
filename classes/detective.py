@@ -53,5 +53,6 @@ class Detective(Classic):
     def create_lie(self, actual, guess_len):
         """Returns a random number from 0 to `guess_len` that is not `actual`"""
 
-        st = set(range(guess_len)) - {actual}
+        guess_len = 3 if guess_len == 4 else guess_len
+        st = set(range(guess_len+1)) - {actual}
         return choice(list(st))

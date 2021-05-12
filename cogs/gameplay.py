@@ -118,23 +118,38 @@ class Gameplay(commands.Cog):
         game = self.bot.games[self.key(ctx)]
 
         if game.game_id != 2:
-            await ctx.send("This command is not available for the current gamemode")
+            await ctx.send(embed=discord.Embed(
+                description="This command is not available for the current gamemode",
+                color=Colour.red()
+            ))
+            return
+
+        if game.round_number < 4 or not (1 <= target <= 4):
+            await ctx.send(embed=discord.Embed(
+                description="User only permitted to identify guesses 1-4 as a lie after the 4th guess",
+                color=Colour.red()
+            ))
             return
 
         if game.found_lie:
-            await ctx.send("User has already attempted to determine the lie")
-            return
-
-        if game.round_number < 4:
-            await ctx.send("User is only permitted to identify guesses 1-4 for a lie after the 4th guess")
+            await ctx.send(embed=discord.Embed(
+                description="User has already attempted to determine the lie",
+                color=Colour.red()
+            ))
             return
 
         game.found_lie = True
 
         if target == game.lie_guess:
-            await ctx.send(f"User successfully found the lie -> {game.actual} for guess {game.lie_guess}")
+            await ctx.send(embed=discord.Embed(
+                description=f"User successfully found the lie -> {game.actual} for guess {game.lie_guess}",
+                color=Colour.green()
+            ))
         else:
-            await ctx.send("User failed to find the lie")
+            await ctx.send(embed=discord.Embed(
+                description="User failed to find the lie",
+                color=Colour.red()
+            ))
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))
