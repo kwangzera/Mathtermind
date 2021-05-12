@@ -18,10 +18,11 @@ class ClassicSolver:
         print(self.matches)
         print(self.verified)
         for cb in self.combos:
-            flag = False
+            flag = True
 
             for rnd, mt, vr in zip(self.rounds, self.matches, self.verified):
-                flag |= vr # TODO deal with this
+                if not vr:
+                    continue
 
                 tmp_rnd = list(rnd)
                 cnt = 0

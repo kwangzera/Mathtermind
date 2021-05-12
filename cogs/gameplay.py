@@ -28,8 +28,8 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) not in self.bot.games:
-            self.invalid_emb.description = "USer is not in a game"
-            await ctx.send(embed=self.valid_emb)
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
             return
 
         game = self.bot.games[self.key(ctx)]
@@ -146,8 +146,10 @@ class Gameplay(commands.Cog):
 
             for idx in range(1, 5):
                 itm = game.board_items[idx][1]
+                game.verified[idx-1] = True
 
                 if idx == game.lie_index:
+                    game.matches[idx-1] = game.actual
                     itm = f"~~{itm}~~\n✅ {game.actual} match{'es'*(game.actual != 1)}"
                     game.board_items[idx][1] = itm
                 else:
@@ -158,6 +160,7 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=self.invalid_emb)
 
             # Know that this is right
+            game.verified[target-1] = True
             itm = game.board_items[target][1]
             game.board_items[target][1] = "✅" + itm[1:]
 
