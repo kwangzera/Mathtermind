@@ -15,9 +15,10 @@ class Classic:
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
-        self.log_msg = discord.Embed()
-        self.board = discord.Embed()
-        self.board_items = [f"{discord_tag}'s Classic Game"]
+        self.log_msg = discord.Embed(color=Colour.red())
+        self.game_over_msg = discord.Embed()
+        self.board = discord.Embed(title=f"{discord_tag}'s Classic Game")
+        self.board_items = "placeholder"
 
     def win(self, guess):
         return self.matches[-1] == len(guess) == 3
@@ -37,30 +38,16 @@ class Classic:
         self.update_stats(guess)
 
         if self.win(guess):
-            self.log_msg = discord.Embed(
-                title=self.board_items[0],
-                description=":tada: Contratulations! You won!",
-                colour=Colour.green()
-            )
+            self.game_over_msg.description = ":tada: Contratulations! You won!"
+            self.game_over_msg.colour = Colour.green()
             self.game_over = 1
             return
 
         if self.lose():
-            self.log_msg = discord.Embed(
-                title=self.board_items[0],
-                description=f":monkey: You lost. The answer was `{', '.join(map(str, self.answer))}`.",
-                colour=Colour.red()
-            )
+            self.game_over_msg.description = f":monkey: You lost. The answer was `{', '.join(map(str, self.answer))}`."
+            self.game_over_msg.colour = Colour.red()
             self.game_over = 2
             return
-
-    def create_board(self):
-        embed = discord.Embed(title=self.board_items[0])
-
-        for elem in self.board_items[1:]:
-            embed.add_field(name=elem[0], value=elem[1], inline=False)
-
-        return embed
 
     def match_ans(self, guess):
         tmp_guess = list(guess)
@@ -92,20 +79,16 @@ class Classic:
     def valid_guess(self, guess):
         flag = True
 
-        if not (self.valid_len(guess) and self.is_unique(guess) and self.in_range(guess)):
+        if not self.valid_len(guess) or not self.in_range(guess):
+            self.log_msg.description = "Please input 1 to 4 numbers from 1 to 15"
             flag = False
 
-        if not flag:
-            self.log_msg = discord.Embed(
-                description="Please input a valid guess",
-                colour=Colour.red()
-            )
+        if not self.is_unique(guess):
+            self.log_msg.description = "Please make sure all numbers in the guess are unique"
+            flag = False
 
         if self.last_guess(guess, flag):
-            self.log_msg = discord.Embed(
-                description="Please input 3 numbers as your final guess",
-                colour=Colour.red()
-            )
+            self.log_msg.description = "Please input 3 numbers as your final guess"
             flag = False
 
         return flag

@@ -1,5 +1,7 @@
 from random import choice, sample, choices
 
+import discord
+
 from classes.classic import Classic
 
 
@@ -7,8 +9,8 @@ class Repeat(Classic):
     def __init__(self, discord_tag):
         super().__init__(discord_tag)
         self.game_id = 1
-        self.board_items = [f"{discord_tag}'s Repeat Game"]
         self.answer = self.create_answer()
+        self.board = discord.Embed(title=f"{discord_tag}'s Repeat Game")
         print(self.answer)
 
     # Uniqueness doesn't matter for repeat mode

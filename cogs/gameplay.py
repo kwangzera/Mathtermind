@@ -42,20 +42,21 @@ class Gameplay(commands.Cog):
 
         game.add_round(nums)
         uncert = game.game_id == 2 and game.round_number <= 4
-        game.board_items.append([
-            f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-            f"{'❓ '*uncert}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"
-        ])
+        game.board.add_field(
+            name=f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
+            value=f"{'❓ '*uncert}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
+            inline=False
+        )
 
         if game.game_over:
-            await ctx.send(embed=game.log_msg)
+            await ctx.send(embed=game.game_over_msg)
             self.reset_game(ctx)
             return
 
         await ctx.send(embed=discord.Embed(
             title=f"Guess {game.round_number}",
             description=f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning "
-                        f"combo match{'es'*(game.matches[-1] == 1)} the user's guess "
+                        f"combo match{'es'*(game.matches[-1] == 1)} the user's guess"
         ))
 
     @commands.command(aliases=["sh"])
@@ -63,7 +64,7 @@ class Gameplay(commands.Cog):
         """Shows the full guess history of the user's current game"""
 
         if self.key(ctx) in self.bot.games:
-            await ctx.send(embed=self.bot.games[self.key(ctx)].create_board())
+            await ctx.send(embed=self.bot.games[self.key(ctx)].board)
         else:
             self.invalid_emb.description = "User is not in a game"
             await ctx.send(embed=self.invalid_emb)
@@ -139,30 +140,33 @@ class Gameplay(commands.Cog):
             return
 
         game.found_lie = True
-
+        fields = game.board.fields
         if target == game.lie_index:
             self.valid_emb.description = f"User successfully identified the lie"
             await ctx.send(embed=self.valid_emb)
 
-            for idx in range(1, 5):
-                itm = game.board_items[idx][1]
-                game.verified[idx-1] = True
+            for idx in range(4):
+                name, value = fields[idx].name, fields[idx].value
 
-                if idx == game.lie_index:
-                    game.matches[idx-1] = game.actual
-                    itm = f"~~{itm}~~\n✅ {game.actual} match{'es'*(game.actual != 1)}"
-                    game.board_items[idx][1] = itm
+                # print(itm)
+                game.verified[idx] = True
+
+                if idx == game.lie_index - 1:
+                    game.matches[idx] = game.actual
+                    value = f"~~{value}~~\n✅ {game.actual} match{'es'*(game.actual != 1)}"
+                    game.board.set_field_at(idx, name=name, value=value, inline=False)
                 else:
-                    game.board_items[idx][1] = "✅" + itm[1:]
-
+                    game.board.set_field_at(idx, name=name, value=f"✅ {value[1:]}", inline=False)
+        # TODO confirm run restore
         else:
+            target -= 1
             self.invalid_emb.description = "User failed to identify the lie"
             await ctx.send(embed=self.invalid_emb)
 
             # Know that this is right
-            game.verified[target-1] = True
-            itm = game.board_items[target][1]
-            game.board_items[target][1] = "✅" + itm[1:]
+            game.verified[target] = True
+            name, value = fields[target].name, fields[target].value
+            game.board.set_field_at(target, name=name, value=f"✅ {value[1:]}", inline=False)
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))
