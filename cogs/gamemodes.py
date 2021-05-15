@@ -11,9 +11,16 @@ class Gamemodes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        self.valid_emb = discord.Embed(title="Success", color=Colour.green())
+        self.invalid_emb = discord.Embed(title="Error", color=Colour.red())
+
         # Storing dict of users in bot, also reload doesn't erase gamestates
         if not hasattr(bot, "games"):
             bot.games = {}
+
+    async def cog_before_invoke(self, ctx):
+        self.valid_emb.set_footer(text=ctx.author)
+        self.invalid_emb.set_footer(text=ctx.author)
 
     @commands.command(aliases=["cl"])
     async def classic(self, ctx):
@@ -24,7 +31,7 @@ class Gamemodes(commands.Cog):
         Winning combo consists of 3 unique numbers from 1 to 15
         """
 
-        await self.create_game(ctx, Classic(ctx.author))
+        await self.create_game(ctx, Classic(ctx))
 
     @commands.command(aliases=["rp"])
     async def repeat(self, ctx):
@@ -34,7 +41,7 @@ class Gamemodes(commands.Cog):
         Otherwise, the same rules follow for classic mode [;help classic]
         """
 
-        await self.create_game(ctx, Repeat(ctx.author))
+        await self.create_game(ctx, Repeat(ctx))
 
     @commands.command(aliases=["lie"])
     async def detective(self, ctx):
@@ -42,20 +49,16 @@ class Gamemodes(commands.Cog):
 
         Description
         """
-        await self.create_game(ctx, Detective(ctx.author))
+        await self.create_game(ctx, Detective(ctx))
 
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
             self.bot.games[self.key(ctx)] = gametype
-            await ctx.send(embed=discord.Embed(
-                description="Ready to play",
-                color=Colour.green()
-            ))
+            self.valid_emb.description = "Ready to play"
+            await ctx.send(embed=self.valid_emb)
         else:
-            await ctx.send(embed=discord.Embed(
-                description="User is already in a game",
-                color=Colour.red()
-            ))
+            self.invalid_emb.description = "User is already in a game"
+            await ctx.send(embed=self.invalid_emb)
 
     def key(self, ctx):
         """Each game is unique based on the player and the guild"""

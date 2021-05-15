@@ -4,14 +4,16 @@ import discord
 
 
 class ClassicSolver:
-    def __init__(self, rounds, matches, verified):
+    def __init__(self, rounds, matches, verified, ctx):
         self.rounds = rounds
         self.matches = matches
         self.verified = verified
         self.valid = []
         self.valid_cnt = 0
         self.combos = list(c(range(1, 16), 3))
+
         self.sol_panel = discord.Embed()
+        self.sol_panel.set_footer(text=ctx.author)
 
     def solve(self):
         print(self.rounds)

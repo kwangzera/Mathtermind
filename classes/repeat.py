@@ -10,7 +10,7 @@ class Repeat(Classic):
         super().__init__(discord_tag)
         self.game_id = 1
         self.answer = self.create_answer()
-        self.board = discord.Embed(title=f"{discord_tag}'s Repeat Game")
+        self.board.title = "Repeat Gamemode"
         print(self.answer)
 
     # Uniqueness doesn't matter for repeat mode

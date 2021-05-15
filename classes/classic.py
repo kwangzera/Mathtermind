@@ -5,7 +5,7 @@ from discord import Colour
 
 
 class Classic:
-    def __init__(self, discord_tag):
+    def __init__(self, ctx):
         self.game_id = 0
         self.rounds = []
         self.matches = []
@@ -15,9 +15,15 @@ class Classic:
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
-        self.log_msg = discord.Embed(color=Colour.red())
-        self.game_over_msg = discord.Embed()
-        self.board = discord.Embed(title=f"{discord_tag}'s Classic Game")
+        self.log_msg = discord.Embed(title="Error", color=Colour.red())
+        self.log_msg.set_footer(text=ctx.author)
+
+        self.game_over_msg = discord.Embed(title="Game Ended")
+        self.game_over_msg.set_footer(text=ctx.author)
+
+        self.board = discord.Embed(title="Classic Gamemode")
+        self.board.set_footer(text=ctx.author)
+
         self.board_items = "placeholder"
 
     def win(self, guess):

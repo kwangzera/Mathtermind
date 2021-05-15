@@ -9,7 +9,7 @@ class Detective(Classic):
     def __init__(self, discord_tag):
         super().__init__(discord_tag)
         self.game_id = 2
-        self.board = discord.Embed(title=f"{discord_tag}'s Detective Game")
+        self.board.title = "Repeat Gamemode"
         self.lie_index = randint(1, 4)  # Index of the lie
         self.actual = 0  # Real number of matches
         self.found_lie = False

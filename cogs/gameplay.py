@@ -12,8 +12,14 @@ class Gameplay(commands.Cog):
         self.bot = bot
 
         # Frequently used embeds for untitled reponses
-        self.valid_emb = discord.Embed(color=Colour.green())
-        self.invalid_emb = discord.Embed(color=Colour.red())
+        self.valid_emb = discord.Embed(title="Success", color=Colour.green())
+        self.invalid_emb = discord.Embed(title="Error", color=Colour.red())
+        self.guess_emb = discord.Embed()
+
+    async def cog_before_invoke(self, ctx):
+        self.valid_emb.set_footer(text=ctx.author)
+        self.invalid_emb.set_footer(text=ctx.author)
+        self.guess_emb.set_footer(text=ctx.author)
 
     @commands.command(aliases=["g"])
     async def guess(self, ctx, *nums: int):
@@ -53,11 +59,10 @@ class Gameplay(commands.Cog):
             self.reset_game(ctx)
             return
 
-        await ctx.send(embed=discord.Embed(
-            title=f"Guess {game.round_number}",
-            description=f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning "
-                        f"combo match{'es'*(game.matches[-1] == 1)} the user's guess"
-        ))
+        self.guess_emb.title = f"Guess {game.round_number}"
+        self.guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from " \
+                                     f"the winning "f"combo match{'es'*(game.matches[-1] == 1)} the user's guess "
+        await ctx.send(embed=self.guess_emb)
 
     @commands.command(aliases=["sh"])
     async def show(self, ctx):
@@ -74,7 +79,7 @@ class Gameplay(commands.Cog):
         """Leaves the user's current game"""
 
         if self.key(ctx) in self.bot.games:
-            self.valid_emb.description = "User successfully left the game"
+            self.valid_emb.description = "User left the game. Results are not saved"
             await ctx.send(embed=self.valid_emb)
             self.reset_game(ctx)
         else:
@@ -97,11 +102,11 @@ class Gameplay(commands.Cog):
         game = self.bot.games[self.key(ctx)]
 
         if game.game_id == 0:
-            solution = ClassicSolver(game.rounds, game.matches, game.verified)
+            solution = ClassicSolver(game.rounds, game.matches, game.verified, ctx)
         elif game.game_id == 1:
-            solution = RepeatSolver(game.rounds, game.matches, game.verified)
+            solution = RepeatSolver(game.rounds, game.matches, game.verified, ctx)
         else:
-            solution = DetectiveSolver(game.rounds, game.matches, game.verified)
+            solution = DetectiveSolver(game.rounds, game.matches, game.verified, ctx)
 
         solution.solve()
         await ctx.send(embed=solution.sol_panel)
