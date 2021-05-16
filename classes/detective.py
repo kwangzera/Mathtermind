@@ -6,10 +6,11 @@ from classes.classic import Classic
 
 
 class Detective(Classic):
-    def __init__(self, discord_tag):
-        super().__init__(discord_tag)
+    def __init__(self, ctx):
+        super().__init__(ctx)
         self.game_id = 2
-        self.board.title = "Repeat Gamemode"
+        self.game_over_msg.title = f"{ctx.author}'s Detective Game"
+        self.board.title = f"{ctx.author}'s Detective Game"
         self.lie_index = randint(1, 4)  # Index of the lie
         self.actual = 0  # Real number of matches
         self.found_lie = False

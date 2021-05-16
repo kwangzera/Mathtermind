@@ -13,18 +13,12 @@ class Classic:
         self.round_number = 0
         self.game_over = 0  # 1: win, 2: lose
         self.answer = sorted(sample(range(1, 16), 3))
+        self.logging = True
 
         # Embeds
-        self.log_msg = discord.Embed(title="Error", color=Colour.red())
-        self.log_msg.set_footer(text=ctx.author)
-
-        self.game_over_msg = discord.Embed(title="Game Ended")
-        self.game_over_msg.set_footer(text=ctx.author)
-
-        self.board = discord.Embed(title="Classic Gamemode")
-        self.board.set_footer(text=ctx.author)
-
-        self.board_items = "placeholder"
+        self.log_msg = discord.Embed(color=Colour.red())
+        self.game_over_msg = discord.Embed(title=f"{ctx.author}'s Classic Game")
+        self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
 
     def win(self, guess):
         return self.matches[-1] == len(guess) == 3

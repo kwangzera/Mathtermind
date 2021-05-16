@@ -6,11 +6,12 @@ from classes.classic import Classic
 
 
 class Repeat(Classic):
-    def __init__(self, discord_tag):
-        super().__init__(discord_tag)
+    def __init__(self, ctx):
+        super().__init__(ctx)
         self.game_id = 1
         self.answer = self.create_answer()
-        self.board.title = "Repeat Gamemode"
+        self.game_over_msg.title = f"{ctx.author}'s Repeat Game"
+        self.board.title = f"{ctx.author}'s Repeat Game"
         print(self.answer)
 
     # Uniqueness doesn't matter for repeat mode

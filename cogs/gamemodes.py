@@ -11,35 +11,22 @@ class Gamemodes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        self.valid_emb = discord.Embed(title="Success", color=Colour.green())
-        self.invalid_emb = discord.Embed(title="Error", color=Colour.red())
+        self.valid_emb = discord.Embed(color=Colour.green())
+        self.invalid_emb = discord.Embed(color=Colour.red())
 
         # Storing dict of users in bot, also reload doesn't erase gamestates
         if not hasattr(bot, "games"):
             bot.games = {}
 
-    async def cog_before_invoke(self, ctx):
-        self.valid_emb.set_footer(text=ctx.author)
-        self.invalid_emb.set_footer(text=ctx.author)
-
     @commands.command(aliases=["cl"])
     async def classic(self, ctx):
-        """Starts a Mathtermind game in classic mode
-
-        7 guesses to find the winning combo, 8th guess to determine it
-        Each guess consists of 1 to 4 unique numbers
-        Winning combo consists of 3 unique numbers from 1 to 15
-        """
+        """Starts a Mathtermind game in classic mode"""
 
         await self.create_game(ctx, Classic(ctx))
 
     @commands.command(aliases=["rp"])
     async def repeat(self, ctx):
-        """Starts a Mathtermind game in repeat mode
-
-        The winning combo and user's guesses do not have to contain unique numbers
-        Otherwise, the same rules follow for classic mode [;help classic]
-        """
+        """Starts a Mathtermind game in repeat mode"""
 
         await self.create_game(ctx, Repeat(ctx))
 
@@ -47,7 +34,7 @@ class Gamemodes(commands.Cog):
     async def detective(self, ctx):
         """Starts a Mathtermind game in detective mode
 
-        Description
+
         """
         await self.create_game(ctx, Detective(ctx))
 
