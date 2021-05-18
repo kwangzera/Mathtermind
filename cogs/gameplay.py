@@ -144,11 +144,19 @@ class Gameplay(commands.Cog):
     async def identify(self, ctx, target: int = None):
         """Identifies a lie in detective mode
 
-        Examples:
-            ;id 1 -> attempts to identify guess 1 as the lie
-            ;id 4 -> attempts to identify guess 4 as the lie
-        Notes:
-            This command can be only used once per game
+        The identify command can be used as follows:
+            ;identify 1 -> attempts to identify guess 1 as the lie
+            ;identify 4 -> attempts to identify guess 4 as the lie
+
+        This detective mode exclusive command can be only used when the user has made at
+        least 4 guesses, can only identify unverified guesses (those preceded by a ❓)
+        to be a lie or not, and can be only used once per game.
+
+        The bot will then tell you if you correctly identified the lie or not. If you
+        did, guesses from 1 to 4 will all be verified and the game will cross out the
+        former incorrect number of matches and replace it with the correct one.
+        Otherwise, only the guess that was falsely identified as a lie could be
+        verified as true.
         """
 
         if self.key(ctx) not in self.bot.games:
