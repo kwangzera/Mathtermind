@@ -1,4 +1,4 @@
-from collections import Counter as Cnt
+from collections import Counter
 from itertools import combinations as c
 
 import discord
@@ -21,7 +21,7 @@ class ClassicSolver:
                     continue
 
                 # TODO explain this
-                cnt = sum((Cnt(cb) & Cnt(rnd)).values())
+                cnt = sum((Counter(cb) & Counter(rnd)).values())
 
                 if cnt != mt:
                     break

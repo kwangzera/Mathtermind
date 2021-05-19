@@ -1,4 +1,4 @@
-from collections import Counter as Cnt
+from collections import Counter
 from random import randint, choice
 
 import discord
@@ -54,8 +54,12 @@ class Detective(Classic):
     def create_lie(self, actual, guess_len):
         """Returns a random number from 0 to `guess_len` that is not `actual`"""
 
-        probs = {0: 7, 1: 7, 2: 5, 3: 1}
+        # Probabilities for all matches
+        probs = {0: 6, 1: 9, 2: 4, 3: 1}
         guess_len = 3 if guess_len == 4 else guess_len
-        Cnt({i: probs[i] for i in range(0, guess_len+1)}) - Cnt({actual:99})
-        st = set(range(guess_len+1)) - {actual}
-        return choice(list(st))
+
+        # Filtering out the true match
+        ret_probs = Counter({i: probs[i] for i in range(0, guess_len+1)})
+        del ret_probs[actual]
+        print(list(ret_probs.elements()))
+        return choice(list(ret_probs.elements()))
