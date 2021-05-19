@@ -1,3 +1,4 @@
+from collections import Counter as Cnt
 from itertools import combinations as c
 
 import discord
@@ -14,29 +15,17 @@ class ClassicSolver:
         self.sol_panel = discord.Embed()
 
     def solve(self):
-        print(self.rounds)
-        print(self.matches)
-        print(self.verified)
         for cb in self.combos:
-            flag = True
-
             for rnd, mt, vr in zip(self.rounds, self.matches, self.verified):
                 if not vr:
                     continue
 
-                tmp_rnd = list(rnd)
-                cnt = 0
-
-                for val in cb:
-                    if val in tmp_rnd:
-                        cnt += 1
-                        tmp_rnd.remove(val)
+                # TODO explain this
+                cnt = sum((Cnt(cb) & Cnt(rnd)).values())
 
                 if cnt != mt:
-                    flag = False
                     break
-
-            if flag:
+            else:
                 self.valid.append(f"`{cb[0]} {cb[1]} {cb[2]}`")
                 self.valid_cnt += 1
 

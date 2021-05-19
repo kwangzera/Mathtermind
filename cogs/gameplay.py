@@ -173,7 +173,7 @@ class Gameplay(commands.Cog):
             return
 
         if target is None or game.round_number < 4 or not (1 <= target <= 4):
-            self.invalid_emb.description = "The user can only identify one of guesses 1 to 4 as a lie only after guess 4"
+            self.invalid_emb.description = "The user can only identify one of guesses 1 to 4 as a lie after making at least 4 guesses"
             await ctx.send(embed=self.invalid_emb)
             return
 
