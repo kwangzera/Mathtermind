@@ -16,6 +16,7 @@ class Detective(Classic):
         self.actual = 0  # Real number of matches
         self.found_lie = False
 
+    ## TODO use counter for this?
     def match_ans(self, guess):
         tmp_guess = list(guess)
         match = 0
