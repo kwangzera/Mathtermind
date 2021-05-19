@@ -15,7 +15,6 @@ class Detective(Classic):
         self.lie_index = randint(1, 4)  # Index of the lie
         self.actual = 0  # Real number of matches
         self.found_lie = False
-        print(self.lie_index, self.answer)
 
     def match_ans(self, guess):
         tmp_guess = list(guess)
@@ -61,5 +60,5 @@ class Detective(Classic):
         # Filtering out the true match
         ret_probs = Counter({i: probs[i] for i in range(0, guess_len+1)})
         del ret_probs[actual]
-        print(list(ret_probs.elements()))
+
         return choice(list(ret_probs.elements()))
