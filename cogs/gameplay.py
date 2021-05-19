@@ -24,18 +24,17 @@ class Gameplay(commands.Cog):
             ;guess 10 7 8 4 -> guesses 10, 7, 8, and 4
 
         Duplicate guesses are allowed in repeat mode:
-            ;guess 12 5 5   -> guesses 12 once and 5 twice
-            ;guess 7 7 7    -> guesses 7 three times
+            ;guess 12 5 5   -> guesses one 12 and two 5s
+            ;guess 7 7 7    -> guesses three 7s
 
         The bot will respond with the number of numbers from the winning combination
         that matches the user's guess. This is a one-for-one match, and can be
         visualized as follows: Imagine 2 sets of numbers, the winning combination and
         the user's guess. Numbers appearing in both sets are removed from both sets, and
-        the removal process continues until nothing can be removed. The number of pairs
+        the removal process repeats until nothing can be removed. The number of pairs
         removed is the number of matches.
 
-        After the user makes their final guess the bot will respond with a win/lose
-        message.
+        After the user's final guess, the bot will respond with a win/lose message.
         """
 
         if self.key(ctx) not in self.bot.games:
@@ -73,13 +72,13 @@ class Gameplay(commands.Cog):
         """Shows the full guess history of the user's current game
 
         Every single round except for the one where the user makes their final guess
-        will be tabulated, containing the guess number, the sequence of guessed numbers,
+        will be displayed, containing the guess number, the sequence of guessed numbers,
         and the number of matches.
 
         In detective mode the first 4 guesses will be preceded by a ❓ since the user
-        doesn't know which guess contains a false number of matches (the lie). Guesses
-        (specifically the first 4 in detective mode) where the user knows the number of
-        matches for certain will be preceded by a ✅ instead.
+        doesn't know which guess contains a false number of matches (the lie). Those
+        first 4 guesses will be preceded by a ✅ instead if the user knows for certain
+        the number of matches (see ;help id for more details).
         """
 
         if self.key(ctx) in self.bot.games:
@@ -104,7 +103,7 @@ class Gameplay(commands.Cog):
         else:
             self.invalid_emb.description = "User is not in a game"
             await ctx.send(embed=self.invalid_emb)
-    # TODO combo or combination, for this change comb to sol
+
     @commands.command(aliases=["sv"])
     async def solve(self, ctx):
         """Lists out all the possible solutions for the user's current game
@@ -112,15 +111,14 @@ class Gameplay(commands.Cog):
         A possible solution consists of 3 numbers that could be the winning combination
         for a given gamestate. For classic and detective mode, possible solutions may
         include (1, 2, 3), (1, 2, 4), (1, 2, 5), ... (13, 14, 15). For repeat mode,
-        (1, 1, 1), (1, 1, 2), (1, 1, 3), ... (15, 15, 15).
-
-        The possible solutions for any Mathtermind gamemode in its current gamestate
-        will be listed out in sorted order if there are 64 or less.
+        (1, 1, 1), (1, 1, 2), (1, 1, 3), ... (15, 15, 15). The possible solutions will
+        not be listed out in sorted order if there are more than 64.
 
         In detective mode, possible solutions are generated based on verified guesses
         (where the user is certain that the number of matches is true). Verified guesses
-        include guesses 5 to 8 and guesses 1 to 4 preceded by a ✅. All guesses are
-        verified in classic and repeat mode.
+        include guesses 5 to 8 and guesses 1 to 4 preceded by a ✅.
+
+        All guesses are verified in classic and repeat mode.
         """
 
         if self.key(ctx) not in self.bot.games:
@@ -157,6 +155,9 @@ class Gameplay(commands.Cog):
         former incorrect number of matches and replace it with the correct one.
         Otherwise, only the guess that was falsely identified as a lie could be
         verified as true.
+
+        Unverified guesses that are verified to be true will be updated to be preceded
+        by a ✅.
         """
 
         if self.key(ctx) not in self.bot.games:

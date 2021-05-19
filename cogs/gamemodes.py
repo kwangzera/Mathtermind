@@ -26,18 +26,18 @@ class Gamemodes(commands.Cog):
         goal is to guess those numbers. The user is given 7 guesses to try to figure out
         what the winning combination is and an 8th to determine it.
 
-        For this gamemode, the user is allowed to guess from a minimum of 1 up to a
-        maximum of 4 unique numbers each turn. After each guess the game will respond
-        with the number of numbers in the winning combination that match those in the
-        user's guess.
+        For this gamemode, the user is allowed to guess 1 to 4 unique numbers each turn.
+        After each guess the game will respond with the number of numbers in the winning
+        combination that match those in the user's guess.
 
         On the final guess, the user is required to guess 3 unique numbers. If all 3 of
         the user's numbers (in any particular order) match the winning combination, then
         the user wins. Otherwise, the user loses.
 
-        Enter ;classic to start the game or ;help guess for more detailed information
-        about guessing.
+        Enter ;classic to start the game or see ;help guess for more detailed
+        information about guessing.
         """
+
 
         await self.create_game(ctx, Classic(ctx))
 
@@ -49,16 +49,16 @@ class Gamemodes(commands.Cog):
         and the user's goal is to guess those numbers. The user is given 7 guesses to
         try to figure out what the winning combination is and an 8th to determine it.
 
-        For this gamemode, the user is allowed to guess from a minimum of 1 up to a
-        maximum of 4 numbers (remember, they don't have to be unique) each turn. After
-        each guess the game will respond with the number of numbers in the winning
-        combination that match those in the user's guess.
+        For this gamemode, the user is allowed to guess 1 to 4 numbers (remember, they
+        don't have to be unique) each turn. After each guess the game will respond with
+        the number of numbers in the winning combination that match those in the user's
+        guess.
 
         On the final guess, the user is required to guess 3 unique numbers. If all 3 of
         the user's numbers (in any particular order) match the winning combination, then
         the use wins. Otherwise, the user loses.
 
-        Enter ;repeat to start the game in ;help guess for more detailed information
+        Enter ;repeat to start the game or see ;help guess for more detailed information
         about guessing.
         """
 
@@ -73,22 +73,21 @@ class Gamemodes(commands.Cog):
         what the winning combination is and a 9th to determine it. However, with an
         extra guess comes with a twist.
 
-        For this gamemode, the user is allowed to guess from a minimum of 1 up to a
-        maximum of 4 unique numbers each turn. After each guess the game will tell the
-        user the number of numbers in the winning combination that match those in the
-        user's guess.
+        For this gamemode, the user is allowed to guess 1 to 4 unique numbers each turn.
+        After each guess the game will tell the user the number of numbers in the
+        winning combination that match those in the user's guess.
 
         In one of the first 4 guesses, the game will deliberately try to trick the user
         by returning an incorrect number of matches. However, the game gives the user a
-        chance to try to identify which guess had an incorrect number of matches
-        (for more details enter ;help identify)
+        chance to try to identify which guess had an incorrect number of matches (see
+        ;help identify for more details)
 
         On the final guess, the user is required to guess 3 unique numbers. If all 3 of
         the user's numbers (in any particular order) match the winning combination, then
         the user wins. Otherwise, the user loses.
 
-        Enter ;detective to start the game or ;help guess for more detailed information
-        about guessing.
+        Enter ;detective to start the game or see ;help guess for more detailed
+        information about guessing.
         """
 
         await self.create_game(ctx, Detective(ctx))
