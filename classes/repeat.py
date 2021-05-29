@@ -10,6 +10,7 @@ class Repeat(Classic):
         self.game_over_msg.title = f"{ctx.author}'s Repeat Game"
         self.board.title = f"{ctx.author}'s Repeat Game"
         self.create_answer()
+        print("REPEAT", self.answer)
 
     # Uniqueness doesn't matter for repeat mode
     def is_unique(self, guess):

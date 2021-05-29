@@ -94,6 +94,8 @@ class Gameplay(commands.Cog):
         Leaving a game will not effect the user's number of wins and losses. However,
         the number of times the user leaves a game may be logged, thus negatively
         impacting the user's score.
+
+        The user will automatically leave the game when it is finished.
         """
 
         if self.key(ctx) in self.bot.games:

@@ -1,3 +1,4 @@
+from collections import Counter
 from random import sample
 
 import discord
@@ -19,6 +20,8 @@ class Classic:
         self.log_msg = discord.Embed(color=Colour.red())
         self.game_over_msg = discord.Embed(title=f"{ctx.author}'s Classic Game")
         self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
+
+        print("CLASSIC", self.answer)
 
     def win(self, guess):
         return self.matches[-1] == len(guess) == 3
@@ -50,15 +53,8 @@ class Classic:
             return
 
     def match_ans(self, guess):
-        tmp_guess = list(guess)
-        match = 0
-
-        for num in self.answer:
-            if num in tmp_guess:
-                tmp_guess.remove(num)
-                match += 1
-
-        return match
+        # TODO explain again?
+        return sum((Counter(guess) & Counter(self.answer)).values())
 
     def valid_len(self, guess):
         return guess and len(guess) <= 4

@@ -15,6 +15,7 @@ class Detective(Classic):
         self.lie_index = randint(1, 4)  # Index of the lie
         self.actual = 0  # Real number of matches
         self.found_lie = False
+        print("DETECTIVE", self.answer)
 
     ## TODO use counter for this?
     def match_ans(self, guess):
