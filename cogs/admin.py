@@ -29,5 +29,6 @@ class Admin(commands.Cog):
         await ctx.send(f"Shutting Mathermind down")
         await ctx.bot.logout()
 
+
 def setup(bot):
     bot.add_cog(Admin(bot))

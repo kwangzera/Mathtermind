@@ -67,79 +67,6 @@ class Gameplay(commands.Cog):
                                 f"winning combination match{'es'*(game.matches[-1] == 1)} the user's guess"
         await ctx.send(embed=guess_emb)
 
-    @commands.command(aliases=["sh"])
-    async def show(self, ctx):
-        """Shows the full guess history of the user's current game
-
-        Every single round except for the one where the user makes their final guess
-        will be displayed, containing the guess number, the sequence of guessed numbers,
-        and the number of matches.
-
-        In detective mode the first 4 guesses will be preceded by a ❓ since the user
-        doesn't know which guess contains a false number of matches (the lie). Those
-        first 4 guesses will be preceded by a ✅ instead if the user knows for certain
-        the number of matches (see ;help id for more details).
-        """
-
-        if self.key(ctx) in self.bot.games:
-            await ctx.send(embed=self.bot.games[self.key(ctx)].board)
-        else:
-            self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
-
-    @commands.command(aliases=["lv"])
-    async def leave(self, ctx):
-        """Leaves the user's current game
-
-        Leaving a game will not effect the user's number of wins and losses. However,
-        the number of times the user leaves a game may be logged, thus negatively
-        impacting the user's score.
-
-        The user will automatically leave the game when it is finished.
-        """
-
-        if self.key(ctx) in self.bot.games:
-            self.valid_emb.description = "User successfully left the game"
-            await ctx.send(embed=self.valid_emb)
-            self.reset_game(ctx)
-        else:
-            self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
-
-    @commands.command(aliases=["sv"])
-    async def solve(self, ctx):
-        """Lists out all the possible solutions for the user's current game
-
-        A possible solution consists of 3 numbers that could be the winning combination
-        for a given gamestate. For classic and detective mode, possible solutions may
-        include (1, 2, 3), (1, 2, 4), (1, 2, 5), ... (13, 14, 15). For repeat mode,
-        (1, 1, 1), (1, 1, 2), (1, 1, 3), ... (15, 15, 15). The possible solutions will
-        not be listed out in sorted order if there are more than 64.
-
-        In detective mode, possible solutions are generated based on verified guesses
-        (where the user is certain that the number of matches is true). Verified guesses
-        include guesses 5 to 8 and guesses 1 to 4 preceded by a ✅.
-
-        All guesses are verified in classic and repeat mode.
-        """
-
-        if self.key(ctx) not in self.bot.games:
-            self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
-            return
-
-        game = self.bot.games[self.key(ctx)]
-
-        if game.game_id == 0:
-            solution = ClassicSolver(game.rounds, game.matches, game.verified)
-        elif game.game_id == 1:
-            solution = RepeatSolver(game.rounds, game.matches, game.verified)
-        else:
-            solution = DetectiveSolver(game.rounds, game.matches, game.verified)
-
-        solution.solve()
-        await ctx.send(embed=solution.sol_panel)
-
     @commands.command(aliases=["id"])
     async def identify(self, ctx, target: int = None):
         """Identifies a lie in detective mode
@@ -211,6 +138,79 @@ class Gameplay(commands.Cog):
             game.verified[target] = True
             name, value = fields[target].name, fields[target].value
             game.board.set_field_at(target, name=name, value=f"✅ {value[1:]}", inline=False)
+
+    @commands.command(aliases=["lv"])
+    async def leave(self, ctx):
+        """Leaves the user's current game
+
+        Leaving a game will not effect the user's number of wins and losses. However,
+        the number of times the user leaves a game may be logged, thus negatively
+        impacting the user's score.
+
+        The user will automatically leave the game when it is finished.
+        """
+
+        if self.key(ctx) in self.bot.games:
+            self.valid_emb.description = "User successfully left the game"
+            await ctx.send(embed=self.valid_emb)
+            self.reset_game(ctx)
+        else:
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
+
+    @commands.command(aliases=["sh"])
+    async def show(self, ctx):
+        """Shows the full guess history of the user's current game
+
+        Every single round except for the one where the user makes their final guess
+        will be displayed, containing the guess number, the sequence of guessed numbers,
+        and the number of matches.
+
+        In detective mode the first 4 guesses will be preceded by a ❓ since the user
+        doesn't know which guess contains a false number of matches (the lie). Those
+        first 4 guesses will be preceded by a ✅ instead if the user knows for certain
+        the number of matches (see ;help id for more details).
+        """
+
+        if self.key(ctx) in self.bot.games:
+            await ctx.send(embed=self.bot.games[self.key(ctx)].board)
+        else:
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
+
+    @commands.command(aliases=["sv"])
+    async def solve(self, ctx):
+        """Lists out all the possible solutions for the user's current game
+
+        A possible solution consists of 3 numbers that could be the winning combination
+        for a given gamestate. For classic and detective mode, possible solutions may
+        include (1, 2, 3), (1, 2, 4), (1, 2, 5), ... (13, 14, 15). For repeat mode,
+        (1, 1, 1), (1, 1, 2), (1, 1, 3), ... (15, 15, 15). The possible solutions will
+        not be listed out in sorted order if there are more than 64.
+
+        In detective mode, possible solutions are generated based on verified guesses
+        (where the user is certain that the number of matches is true). Verified guesses
+        include guesses 5 to 8 and guesses 1 to 4 preceded by a ✅.
+
+        All guesses are verified in classic and repeat mode.
+        """
+
+        if self.key(ctx) not in self.bot.games:
+            self.invalid_emb.description = "User is not in a game"
+            await ctx.send(embed=self.invalid_emb)
+            return
+
+        game = self.bot.games[self.key(ctx)]
+
+        if game.game_id == 0:
+            solution = ClassicSolver(game.rounds, game.matches, game.verified)
+        elif game.game_id == 1:
+            solution = RepeatSolver(game.rounds, game.matches, game.verified)
+        else:
+            solution = DetectiveSolver(game.rounds, game.matches, game.verified)
+
+        solution.solve()
+        await ctx.send(embed=solution.sol_panel)
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))
