@@ -17,15 +17,9 @@ class Detective(Classic):
         self.found_lie = False
         print("DETECTIVE", self.answer)
 
-    ## TODO use counter for this?
     def match_ans(self, guess):
-        tmp_guess = list(guess)
-        match = 0
-
-        for num in self.answer:
-            if num in tmp_guess:
-                tmp_guess.remove(num)
-                match += 1
+        # TODO comment here agian
+        match = sum((Counter(guess) & Counter(self.answer)).values())
 
         if self.round_number == self.lie_index:
             self.actual = match

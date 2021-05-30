@@ -63,8 +63,8 @@ class Gameplay(commands.Cog):
 
         guess_emb = discord.Embed()
         guess_emb.title = f"Guess {game.round_number}"
-        guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from " \
-                                     f"the winning "f"combination match{'es'*(game.matches[-1] == 1)} the user's guess"
+        guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the " \
+                                f"winning combination match{'es'*(game.matches[-1] == 1)} the user's guess"
         await ctx.send(embed=guess_emb)
 
     @commands.command(aliases=["sh"])
@@ -88,7 +88,7 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=self.invalid_emb)
 
     @commands.command(aliases=["lv"])
-    async def leave(self, ctx):  # TODO visit ;logging
+    async def leave(self, ctx):
         """Leaves the user's current game
 
         Leaving a game will not effect the user's number of wins and losses. However,
@@ -216,7 +216,7 @@ class Gameplay(commands.Cog):
         self.bot.games.pop(self.key(ctx))
 
     def key(self, ctx):
-        """Each game is unique based on the player and the guild"""
+        """Returns unique identification key: (user id, server id)"""
 
         return ctx.author.id, ctx.guild.id
 

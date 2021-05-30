@@ -38,7 +38,6 @@ class Gamemodes(commands.Cog):
         information about guessing.
         """
 
-
         await self.create_game(ctx, Classic(ctx))
 
     @commands.command(aliases=["rp"])
@@ -102,7 +101,7 @@ class Gamemodes(commands.Cog):
             await ctx.send(embed=self.invalid_emb)
 
     def key(self, ctx):
-        """Each game is unique based on the player and the guild"""
+        """Returns unique identification key: (user id, server id)"""
 
         return ctx.author.id, ctx.guild.id
 
