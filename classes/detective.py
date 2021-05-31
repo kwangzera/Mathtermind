@@ -1,8 +1,6 @@
 from collections import Counter
 from random import randint, choice
 
-import discord
-
 from classes.classic import Classic
 
 
@@ -13,16 +11,15 @@ class Detective(Classic):
         self.game_over_msg.title = f"{ctx.author}'s Detective Game"
         self.board.title = f"{ctx.author}'s Detective Game"
         self.lie_index = randint(1, 4)  # Index of the lie
-        self.actual = 0  # Real number of matches
-        self.found_lie = False
-        print("DETECTIVE", self.answer)
+        self.actual_match = -1  # Real number of matches
+        self.used_identify = False
 
     def match_ans(self, guess):
         # TODO comment here agian
         match = sum((Counter(guess) & Counter(self.answer)).values())
 
         if self.round_number == self.lie_index:
-            self.actual = match
+            self.actual_match = match
             return self.create_lie(match, len(guess))
         else:
             return match

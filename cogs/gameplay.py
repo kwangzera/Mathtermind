@@ -79,10 +79,10 @@ class Gameplay(commands.Cog):
         least 4 guesses, can only identify unverified guesses (those preceded by a ❓)
         to be a lie or not, and can be only used once per game.
 
-        The bot will then tell you if you correctly identified the lie or not. If you
+        The bot will then tell you if you correctly used_identify the lie or not. If you
         did, guesses from 1 to 4 will all be verified and the game will cross out the
         former incorrect number of matches and replace it with the correct one.
-        Otherwise, only the guess that was falsely identified as a lie could be
+        Otherwise, only the guess that was falsely used_identify as a lie could be
         verified as true.
 
         Unverified guesses that are verified to be true will be updated to be preceded
@@ -106,16 +106,16 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=self.invalid_emb)
             return
 
-        if game.found_lie:
+        if game.used_identify:
             self.invalid_emb.description = "This command can only be used once per game"
             await ctx.send(embed=self.invalid_emb)
             return
 
-        game.found_lie = True
+        game.used_identify = True
         fields = game.board.fields
 
         if target == game.lie_index:
-            self.valid_emb.description = f"User successfully identified the lie"
+            self.valid_emb.description = f"User successfully used_identify the lie"
             await ctx.send(embed=self.valid_emb)
 
             for idx in range(4):
@@ -123,8 +123,8 @@ class Gameplay(commands.Cog):
                 game.verified[idx] = True
 
                 if idx == game.lie_index - 1:
-                    game.matches[idx] = game.actual
-                    value = f"~~{value}~~\n✅ {game.actual} match{'es'*(game.actual != 1)}"
+                    game.matches[idx] = game.actual_match
+                    value = f"~~{value}~~\n✅ {game.actual_match} match{'es' * (game.actual_match != 1)}"
                     game.board.set_field_at(idx, name=name, value=value, inline=False)
                 else:
                     game.board.set_field_at(idx, name=name, value=f"✅ {value[1:]}", inline=False)
@@ -211,6 +211,15 @@ class Gameplay(commands.Cog):
 
         solution.solve()
         await ctx.send(embed=solution.sol_panel)
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def gamedata(self, ctx):
+        """Prints out all instance variables of a game (for debugging)"""
+
+        info = self.bot.games[self.key(ctx)].__dict__
+        str_format = "\n".join(f"{var}: {value}" for var, value in sorted(info.items()))
+        await ctx.send(f"```{str_format}```")
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))

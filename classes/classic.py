@@ -21,8 +21,6 @@ class Classic:
         self.game_over_msg = discord.Embed(title=f"{ctx.author}'s Classic Game")
         self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
 
-        print("CLASSIC", self.answer)
-
     def win(self, guess):
         return self.matches[-1] == len(guess) == 3
 
