@@ -212,15 +212,6 @@ class Gameplay(commands.Cog):
         solution.solve()
         await ctx.send(embed=solution.sol_panel)
 
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def gamedata(self, ctx):
-        """Prints out all instance variables of a game (for debugging)"""
-
-        info = self.bot.games[self.key(ctx)].__dict__
-        str_format = "\n".join(f"{var}: {value}" for var, value in sorted(info.items()))
-        await ctx.send(f"```{str_format}```")
-
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))
 
