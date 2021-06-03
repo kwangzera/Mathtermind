@@ -25,19 +25,19 @@ class Admin(commands.Cog):
         self.bot.reload_extension(f"cogs.{extension}")
         await ctx.send(f"Extension {extension} reloaded")
 
+    @commands.command(hidden=True)
+    async def debug(self, ctx, user_id: int = None):
+        if user_id is None:
+            user_id = ctx.author.id
+
+        pprint(self.bot.games[(user_id, ctx.guild.id)].__dict__)
+        await ctx.send("Debug info printed in terminal")
+
     # May be diff when hosted
     @commands.command(hidden=True)
     async def shutdown(self, ctx):
         await ctx.send(f"Shutting Mathermind down")
         await ctx.bot.logout()
-
-    @commands.command(hidden=True)
-    async def debuginfo(self, ctx, author_id: int = None):
-        if author_id is None:
-            author_id = ctx.author.id
-
-        pprint(self.bot.games[(author_id, ctx.guild.id)].__dict__)
-        await ctx.send("Debug info printed in terminal")
 
 
 def setup(bot):
