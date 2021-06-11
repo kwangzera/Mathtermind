@@ -26,12 +26,13 @@ class Admin(commands.Cog):
         await ctx.send(f"Extension {extension} reloaded")
 
     @commands.command(hidden=True)
-    async def debug(self, ctx, user_id: int = None):
-        if user_id is None:
-            user_id = ctx.author.id
+    async def dbgame(self, ctx, user_id: int = None):
+        pprint(self.bot.games[(ctx.author.id if user_id is None else user_id, ctx.guild.id)].__dict__)
+        await ctx.send("Game debug info printed in terminal")
 
-        pprint(self.bot.games[(user_id, ctx.guild.id)].__dict__)
-        await ctx.send("Debug info printed in terminal")
+    @commands.command(hidden=True)
+    async def dbstats(self, ctx, user_id: int = None):
+        ...
 
     # May be diff when hosted
     @commands.command(hidden=True)
