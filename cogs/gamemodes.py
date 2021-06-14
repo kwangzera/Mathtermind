@@ -95,10 +95,10 @@ class Gamemodes(commands.Cog):
         if self.key(ctx) not in self.bot.games:
             self.bot.games[self.key(ctx)] = gametype
             self.valid_emb.description = "Ready to play"
-            await ctx.send(embed=self.valid_emb)
+            await ctx.reply(embed=self.valid_emb, mention_author=False)
         else:
             self.invalid_emb.description = "User is already in a game"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
 
     def key(self, ctx):
         """Returns unique identification key: (user id, server id)"""
