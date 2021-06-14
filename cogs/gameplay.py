@@ -39,14 +39,14 @@ class Gameplay(commands.Cog):
 
         if self.key(ctx) not in self.bot.games:
             self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
 
         game = self.bot.games[self.key(ctx)]
         uncert = game.game_id == 2 and game.round_number < 4
 
         if not game.valid_guess(nums):
-            await ctx.send(embed=game.log_msg)
+            await ctx.reply(embed=game.log_msg, mention_author=False)
             return
 
         game.add_round(nums)
@@ -57,7 +57,7 @@ class Gameplay(commands.Cog):
         )
 
         if game.game_over:
-            await ctx.send(embed=game.game_over_msg)
+            await ctx.reply(embed=game.game_over_msg, mention_author=False)
             self.reset_game(ctx)
             return
 
@@ -65,7 +65,7 @@ class Gameplay(commands.Cog):
         guess_emb.title = f"Guess {game.round_number}"
         guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the " \
                                 f"winning combination match{'es'*(game.matches[-1] == 1)} the user's guess"
-        await ctx.send(embed=guess_emb)
+        await ctx.reply(embed=guess_emb, mention_author=False)
 
     @commands.command(aliases=["id"])
     async def identify(self, ctx, target: int = None):
@@ -91,24 +91,24 @@ class Gameplay(commands.Cog):
 
         if self.key(ctx) not in self.bot.games:
             self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
 
         game = self.bot.games[self.key(ctx)]
 
         if game.game_id != 2:
             self.invalid_emb.description = "This command is not available for the current gamemode"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
 
         if target is None or game.round_number < 4 or not (1 <= target <= 4):
             self.invalid_emb.description = "The user can only identify one of guesses 1 to 4 as a lie after making at least 4 guesses"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
 
         if game.used_identify:
             self.invalid_emb.description = "This command can only be used once per game"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
 
         game.used_identify = True
@@ -116,7 +116,7 @@ class Gameplay(commands.Cog):
 
         if target == game.lie_index:
             self.valid_emb.description = f"User successfully used_identify the lie"
-            await ctx.send(embed=self.valid_emb)
+            await ctx.reply(embed=self.valid_emb, mention_author=False)
 
             for idx in range(4):
                 name, value = fields[idx].name, fields[idx].value
@@ -132,7 +132,7 @@ class Gameplay(commands.Cog):
         else:
             target -= 1
             self.invalid_emb.description = "User failed to identify the lie"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
 
             # Know that this is right
             game.verified[target] = True
@@ -152,11 +152,11 @@ class Gameplay(commands.Cog):
 
         if self.key(ctx) in self.bot.games:
             self.valid_emb.description = "User successfully left the game"
-            await ctx.send(embed=self.valid_emb)
+            await ctx.reply(embed=self.valid_emb, mention_author=False)
             self.reset_game(ctx)
         else:
             self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
 
     @commands.command(aliases=["sh"])
     async def show(self, ctx):
@@ -173,10 +173,10 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) in self.bot.games:
-            await ctx.send(embed=self.bot.games[self.key(ctx)].board)
+            await ctx.reply(embed=self.bot.games[self.key(ctx)].board, mention_author=False)
         else:
             self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
 
     @commands.command(aliases=["sv"])
     async def solve(self, ctx):
@@ -197,7 +197,7 @@ class Gameplay(commands.Cog):
 
         if self.key(ctx) not in self.bot.games:
             self.invalid_emb.description = "User is not in a game"
-            await ctx.send(embed=self.invalid_emb)
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
 
         game = self.bot.games[self.key(ctx)]
@@ -210,7 +210,7 @@ class Gameplay(commands.Cog):
             solution = DetectiveSolver(game.rounds, game.matches, game.verified)
 
         solution.solve()
-        await ctx.send(embed=solution.sol_panel)
+        await ctx.reply(embed=solution.sol_panel, mention_author=False)
 
     def reset_game(self, ctx):
         self.bot.games.pop(self.key(ctx))
