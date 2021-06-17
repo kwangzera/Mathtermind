@@ -57,7 +57,7 @@ class Gameplay(commands.Cog):
         )
 
         if game.game_over:
-            await ctx.reply(embed=game.game_over_msg, mention_author=False)
+            await ctx.reply(embed=game.game_over_msg)
             self.reset_game(ctx)
             return
 
@@ -79,10 +79,10 @@ class Gameplay(commands.Cog):
         least 4 guesses, can only identify unverified guesses (those preceded by a ❓)
         to be a lie or not, and can be only used once per game.
 
-        The bot will then tell you if you correctly used_identify the lie or not. If you
+        The bot will then tell you if you correctly identified the lie or not. If you
         did, guesses from 1 to 4 will all be verified and the game will cross out the
         former incorrect number of matches and replace it with the correct one.
-        Otherwise, only the guess that was falsely used_identify as a lie could be
+        Otherwise, only the guess that was falsely identified as a lie could be
         verified as true.
 
         Unverified guesses that are verified to be true will be updated to be preceded
@@ -115,7 +115,7 @@ class Gameplay(commands.Cog):
         fields = game.board.fields
 
         if target == game.lie_index:
-            self.valid_emb.description = f"User successfully used_identify the lie"
+            self.valid_emb.description = f"User successfully identified the lie"
             await ctx.reply(embed=self.valid_emb, mention_author=False)
 
             for idx in range(4):
