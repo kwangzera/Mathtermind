@@ -3,7 +3,8 @@ from contextlib import closing
 import discord
 from discord import Colour
 from discord.ext import commands
-from psycopg2.errors import DuplicateTable
+# from psycopg2.errors import DuplicateTable
+
 
 class Gamestats(commands.Cog):
     def __init__(self, bot):
@@ -18,32 +19,28 @@ class Gamestats(commands.Cog):
     @commands.command()
     async def initstats(self, ctx):
         with closing(self.bot.con.cursor()) as cur:
-            try:
-                cur.execute(f"""
-                    CREATE TABLE {self.key(ctx)} (
-                        game_id             INT PRIMARY KEY,
-                        wins                INT,
-                        losses              INT,
-                        longest_win_streak  INT,
-                        longest_loss_streak INT,
-                        current_streak      INT,
-                        times_quit          INT,
-                        prev_operation      INT,
-                        logging             BOOL,
-                    );
-                """)
-                cur.execute(f"""
-                    CREATE TABLE {self.key(ctx)}r (
-                        game_id  INT PRIMARY KEY,
-                        raw_data TEXT,
-                    );
-                """)
-            except DuplicateTable:
-                await ctx.reply("duplicate")
-
+            cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {self.key(ctx)} (
+                    game_id             INT PRIMARY KEY,
+                    wins                INT,
+                    losses              INT,
+                    longest_win_streak  INT,
+                    longest_loss_streak INT,
+                    current_streak      INT,
+                    times_quit          INT,
+                    prev_operation      INT,
+                    logging             BOOL,
+                );
+            """)
+            cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {self.key(ctx)}r (
+                    game_id  INT PRIMARY KEY,
+                    raw_data TEXT,
+                );
+            """)
             # for gid in range(3):
             #     print(gid)
-                # cur.execute(f"INSERT INTO {self.key(ctx)}")
+            # cur.execute(f"INSERT INTO {self.key(ctx)}")
         self.invalid_emb.description = "User is not in a game"
         await ctx.reply()
         print(type(self.bot.con))

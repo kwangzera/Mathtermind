@@ -10,6 +10,7 @@ bot = commands.Bot(command_prefix=";")
 conn = psycopg2.connect(database="postgres", user="numgameadmin", password="numbergame1234", host="127.0.0.1", port="5432")
 print("Database opened successfully")
 
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -21,6 +22,7 @@ async def on_ready():
             print(f"Loaded {filename}")
 
     print("All extensions loaded successfully")
+
 
 # Whole database connection stored in bot
 if not hasattr(bot, "con"):
