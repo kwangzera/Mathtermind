@@ -27,7 +27,7 @@ class Admin(commands.Cog):
 
     @commands.command(hidden=True)
     async def dbgame(self, ctx, user_id: int = None):
-        pprint(self.bot.games[(ctx.author.id if user_id is None else user_id, ctx.guild.id)].__dict__)
+        pprint(self.bot.games[f"{ctx.author.id if user_id is None else user_id}{ctx.guild.id}"].__dict__)
         await ctx.reply("Game debug info printed in terminal", mention_author=False)
 
     @commands.command(hidden=True)

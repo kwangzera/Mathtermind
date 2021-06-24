@@ -1,7 +1,9 @@
+from contextlib import closing
+
 import discord
 from discord import Colour
 from discord.ext import commands
-
+from psycopg2.errors import DuplicateTable
 
 class Gamestats(commands.Cog):
     def __init__(self, bot):
@@ -12,6 +14,40 @@ class Gamestats(commands.Cog):
 
         # Storing dict of users in bot, also reload doesn't erase gamestates
         # TODO hasattr another dict for stats
+
+    @commands.command()
+    async def initstats(self, ctx):
+        with closing(self.bot.con.cursor()) as cur:
+            try:
+                cur.execute(f"""
+                    CREATE TABLE {self.key(ctx)} (
+                        game_id             INT PRIMARY KEY,
+                        wins                INT,
+                        losses              INT,
+                        longest_win_streak  INT,
+                        longest_loss_streak INT,
+                        current_streak      INT,
+                        times_quit          INT,
+                        prev_operation      INT,
+                        logging             BOOL,
+                    );
+                """)
+                cur.execute(f"""
+                    CREATE TABLE {self.key(ctx)}r (
+                        game_id  INT PRIMARY KEY,
+                        raw_data TEXT,
+                    );
+                """)
+            except DuplicateTable:
+                await ctx.reply("duplicate")
+
+            # for gid in range(3):
+            #     print(gid)
+                # cur.execute(f"INSERT INTO {self.key(ctx)}")
+        self.invalid_emb.description = "User is not in a game"
+        await ctx.reply()
+        print(type(self.bot.con))
+        ...
 
     @commands.command(aliases=["lg"])
     async def logging(self, ctx, toggle: bool = None):
@@ -34,9 +70,9 @@ class Gamestats(commands.Cog):
         ...
 
     def key(self, ctx):
-        """Returns unique identification key: (user id, server id)"""
+        """Returns unique identification key containing user id and server id"""
 
-        return ctx.author.id, ctx.guild.id
+        return f"{ctx.author.id}{ctx.guild.id}"
 
 
 def setup(bot):

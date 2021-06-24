@@ -101,9 +101,9 @@ class Gamemodes(commands.Cog):
             await ctx.reply(embed=self.invalid_emb, mention_author=False)
 
     def key(self, ctx):
-        """Returns unique identification key: (user id, server id)"""
+        """Returns unique identification key containing user id and server id"""
 
-        return ctx.author.id, ctx.guild.id
+        return f"{ctx.author.id}{ctx.guild.id}"
 
 
 def setup(bot):
