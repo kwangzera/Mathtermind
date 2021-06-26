@@ -1,9 +1,10 @@
 from contextlib import closing
 
-import psycopg2
 import discord
 from discord import Colour
 from discord.ext import commands
+
+from classes.stat_manager import StatManager
 
 
 class Gamestats(commands.Cog):
@@ -12,19 +13,17 @@ class Gamestats(commands.Cog):
 
         self.valid_emb = discord.Embed(color=Colour.green())
         self.invalid_emb = discord.Embed(color=Colour.red())
+        self.manager = StatManager(self.bot.con)
 
     @commands.command()
     async def initstats(self, ctx):
+        # Cannot use command if table already initialized
+        if self.manager.table_exists(ctx):
+            self.invalid_emb.description = "User already exists in the database"
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return
+
         with closing(self.bot.con.cursor()) as cur:
-            # Check if the table exists
-            cur.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'mtm_user');")
-            exists = cur.fetchone()[0]
-
-            # Cannot use command if already initialized
-            if exists:
-                await ctx.send("ur alreadi in the db bruv", author_mention=False)
-                return
-
             cur.execute(f"""
                 CREATE TABLE IF NOT EXISTS mtm_user (
                     author_id           TEXT,
@@ -51,23 +50,54 @@ class Gamestats(commands.Cog):
                 );
             """)
 
-            for g_id in range(3):
+            for game_id in range(3):
                 cur.execute(f"""
-                    INSERT INTO mtm_user (author_id, guild_id, game_id, wins, losses, longest_win_streak, longest_loss_streak, current_streak, times_quit, prev_result, logging)
-                    VALUES ('{ctx.author.id}', '{ctx.guild.id}', {g_id}, 0, 0, 0, 0, 0, 0, -1, f);
+                    INSERT INTO mtm_user (
+                        author_id,
+                        guild_id,
+                        game_id,
+                        wins,
+                        losses,
+                        longest_win_streak,
+                        longest_loss_streak,
+                        current_streak,
+                        times_quit,
+                        prev_result,
+                        logging
+                    ) VALUES ('{ctx.author.id}', '{ctx.guild.id}', {game_id}, 0, 0, 0, 0, 0, 0, -1, 'f');
                 """)
                 cur.execute(f"""
-                    INSERT INTO mtm_user_raw (author_id, guild_id, game_id, raw_data)
-                    VALUES ('{ctx.author.id}', '{ctx.guild.id}', {g_id}, '');
+                    INSERT INTO mtm_user_raw (
+                        author_id,
+                        guild_id,
+                        game_id,
+                        raw_data
+                    ) VALUES ('{ctx.author.id}', '{ctx.guild.id}', {game_id}, '');
                 """)
 
             self.bot.con.commit()
-            await ctx.reply("success, committed", mention_author=False)
+
+            self.valid_emb.description = "User has been successfully added to the database"
+            await ctx.reply(embed=self.valid_emb)
 
     @commands.command(aliases=["lg"])
     async def logging(self, ctx, toggle: bool = None):
-        """Shows user's data logging status or toggles it on or off"""
-        ...
+        """Toggles user's data logging status on or off"""
+
+        if toggle is None:
+            self.invalid_emb.description = "Please input a boolean value"
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return
+
+        if not self.manager.toggle_log(ctx, toggle):
+            self.invalid_emb.description = "User does not exist in the database"
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return
+
+        self.manager.update_log_status(ctx, toggle)
+
+        self.valid_emb.description = f"Logging status updated to `{toggle}`"
+        await ctx.reply(embed=self.valid_emb)
 
     @commands.command()
     async def raw(self, ctx):
