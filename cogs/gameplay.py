@@ -5,7 +5,7 @@ from discord.ext import commands
 from classes.classic_solver import ClassicSolver
 from classes.repeat_solver import RepeatSolver
 from classes.detective_solver import DetectiveSolver
-
+from classes.stat_manager import StatManager
 
 class Gameplay(commands.Cog):
     def __init__(self, bot):
@@ -14,6 +14,8 @@ class Gameplay(commands.Cog):
         # Frequently used embeds for responses
         self.valid_emb = discord.Embed(color=Colour.green())
         self.invalid_emb = discord.Embed(color=Colour.red())
+
+        self.manager = StatManager(self.bot.con)
 
     @commands.command(aliases=["g"])
     async def guess(self, ctx, *nums: int):
@@ -57,6 +59,13 @@ class Gameplay(commands.Cog):
         )
 
         if game.game_over:
+            # Updating database
+            if self.manager.table_exists(ctx) and self.manager.query(ctx, 0, "logging"):
+                game.game_over_msg.description += " Relevant data has been logged."
+                self.manager.calc_streak(ctx, game.game_id, game.game_over-1)
+            else:
+                game.game_over_msg.description += " No data has been logged."
+
             await ctx.reply(embed=game.game_over_msg)
             self.reset_game(ctx)
             return
@@ -151,7 +160,15 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) in self.bot.games:
-            self.valid_emb.description = "User successfully left the game"
+            self.valid_emb.description = "User successfully left the game. No data has been logged."
+            # await ctx.reply(embed=self.valid_emb, mention_author=False)
+
+            # Updating database
+            if self.manager.table_exists(ctx) and self.manager.query(ctx, 0, "logging"):
+                self.valid_emb.description = "User successfully left the game. Relevant data has been logged."
+                gid = self.bot.games[self.key(ctx)].game_id
+                self.manager.increment(ctx, gid, "times_quit")
+
             await ctx.reply(embed=self.valid_emb, mention_author=False)
             self.reset_game(ctx)
         else:

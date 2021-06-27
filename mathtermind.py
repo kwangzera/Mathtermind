@@ -28,6 +28,36 @@ async def on_ready():
 if not hasattr(bot, "con"):
     bot.con = conn
 
+with bot.con.cursor() as cur:
+    cur.execute(f"""
+        CREATE TABLE IF NOT EXISTS mtm_user (
+            author_id           TEXT,
+            guild_id            TEXT,
+            game_id             INT,
+            wins                INT,
+            losses              INT,
+            cur_win             INT,
+            cur_loss            INT,
+            longest_win_streak  INT,
+            longest_loss_streak INT,
+            current_streak      INT,
+            times_quit          INT,
+            prev_result         INT,
+            logging             BOOL,
+            PRIMARY KEY (author_id, guild_id, game_id)
+        );
+    """)
+    cur.execute(f"""
+        CREATE TABLE IF NOT EXISTS mtm_user_raw (
+            author_id TEXT,
+            guild_id  TEXT,
+            game_id   INT,
+            raw_data  TEXT,
+            PRIMARY KEY (author_id, guild_id, game_id)
+        );
+    """)
+    bot.con.commit()
+
 # Token saved to environment variable
 bot.run(os.environ["MTM_TOKEN"])
 bot.con.close()

@@ -12,7 +12,7 @@ class Classic:
         self.matches = []
         self.verified = []
         self.round_number = 0
-        self.game_over = 0  # 1: win, 2: lose
+        self.game_over = 0  # 1: lose, 2: win
         self.answer = sorted(sample(range(1, 16), 3))
         self.logging = True
 
@@ -41,13 +41,13 @@ class Classic:
         if self.win(guess):
             self.game_over_msg.description = ":tada: Contratulations! You won!"
             self.game_over_msg.colour = Colour.green()
-            self.game_over = 1
+            self.game_over = 2
             return
 
         if self.lose():
             self.game_over_msg.description = f":monkey: You lost. The answer was `{', '.join(map(str, self.answer))}`."
             self.game_over_msg.colour = Colour.red()
-            self.game_over = 2
+            self.game_over = 1
             return
 
     def match_ans(self, guess):
