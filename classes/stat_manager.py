@@ -48,9 +48,7 @@ class StatManager:
         self.update(ctx, gid, longest_loss_streak=max(self.query(ctx, gid, "longest_loss_streak"), cur_loss))
         self.update(ctx, gid, prev_result=result)
 
-    def table_exists(self, ctx):
-        """If `mtm_user` exists, `mtm_user_raw` exists and stats for any also exists"""
-
+    def user_in_db(self, ctx):
         with self.con.cursor() as cur:
             cur.execute(f"SELECT EXISTS (SELECT 1 FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}' LIMIT 1);")
             return cur.fetchone()[0]

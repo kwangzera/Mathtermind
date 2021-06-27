@@ -14,10 +14,19 @@ class Gamestats(commands.Cog):
         self.neutral_emb = discord.Embed()
         self.manager = StatManager(self.bot.con)
 
+    async def cog_check(self, ctx):
+        if not self.manager.user_in_db(ctx) and str(ctx.command) != "add":
+            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return False
+
+        return True
+
     @commands.command()
     async def add(self, ctx):
+        """Adds the user to the database"""
         # Cannot use command if table already initialized
-        if self.manager.table_exists(ctx):
+        if self.manager.user_in_db(ctx):
             self.invalid_emb.description = "User already exists in the database"
             await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
@@ -57,17 +66,12 @@ class Gamestats(commands.Cog):
 
     @commands.command(aliases=["lg"])
     async def logging(self, ctx, toggle: bool = None):
-        """Shows user's data logging status or toggles it on or off"""
+        """Shows the user's data logging status or toggles it on or off"""
 
         if toggle is None:
             cur_log = self.manager.query(ctx, 0, "logging")
             self.neutral_emb.description = f"Current logging status set to `{cur_log}`"
             await ctx.reply(embed=self.neutral_emb, mention_author=False)
-            return
-
-        if not self.manager.table_exists(ctx):
-            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
             return
 
         self.manager.update(ctx, 0, logging=toggle)
@@ -81,9 +85,15 @@ class Gamestats(commands.Cog):
         ...
 
     @commands.command(aliases=["rs"])
-    async def reset(self, ctx):
-        """Resets the user's game data"""
-        ...
+    async def remove(self, ctx):
+        """Removes the user from the database"""
+
+        with self.bot.con.cursor() as cur:
+            cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
+            cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
+
+        self.valid_emb.description = "User has been successfully removed from the database"
+        await ctx.reply(embed=self.valid_emb)
 
     @commands.command(aliases=["st"])
     async def stats(self, ctx):

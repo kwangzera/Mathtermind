@@ -60,7 +60,7 @@ class Gameplay(commands.Cog):
 
         if game.game_over:
             # Updating database
-            if self.manager.table_exists(ctx) and self.manager.query(ctx, 0, "logging"):
+            if self.manager.user_in_db(ctx) and self.manager.query(ctx, 0, "logging"):
                 game.game_over_msg.description += " Relevant data has been logged."
                 self.manager.calc_streak(ctx, game.game_id, game.game_over-1)
             else:
@@ -164,7 +164,7 @@ class Gameplay(commands.Cog):
             # await ctx.reply(embed=self.valid_emb, mention_author=False)
 
             # Updating database
-            if self.manager.table_exists(ctx) and self.manager.query(ctx, 0, "logging"):
+            if self.manager.user_in_db(ctx) and self.manager.query(ctx, 0, "logging"):
                 self.valid_emb.description = "User successfully left the game. Relevant data has been logged."
                 gid = self.bot.games[self.key(ctx)].game_id
                 self.manager.increment(ctx, gid, "times_quit")
