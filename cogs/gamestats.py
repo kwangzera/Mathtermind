@@ -4,7 +4,6 @@ from discord.ext import commands
 
 from classes.stat_manager import StatManager
 
-
 class Gamestats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -33,7 +32,7 @@ class Gamestats(commands.Cog):
 
         with self.bot.con.cursor() as cur:
             for gid in range(3):
-                cur.execute(f"""
+                sql = f"""
                     INSERT INTO mtm_user (
                         author_id,
                         guild_id,
@@ -48,16 +47,13 @@ class Gamestats(commands.Cog):
                         times_quit,
                         prev_result,
                         logging
-                    ) VALUES ('{ctx.author.id}', '{ctx.guild.id}', {gid}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'f');
-                """)
-                cur.execute(f"""
-                    INSERT INTO mtm_user_raw (
-                        author_id,
-                        guild_id,
-                        game_id,
-                        raw_data
-                    ) VALUES ('{ctx.author.id}', '{ctx.guild.id}', {gid}, '');
-                """)
+                    ) VALUES ({', '.join('%s' for _ in range(13))})"""
+                data = (str(ctx.author.id), str(ctx.guild.id), gid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'f')
+                cur.execute(sql, data)
+
+                sql_r = "INSERT INTO mtm_user_raw (author_id, guild_id, game_id, raw_data) VALUES (%s, %s, %s, %s);"
+                data_r = (str(ctx.author.id), str(ctx.guild.id), gid, '')
+                cur.execute(sql_r, data_r)
 
             self.bot.con.commit()
 
@@ -87,12 +83,14 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["rs"])
     async def remove(self, ctx):
         """Removes the user from the database"""
-
+        # TODO confirm the process
         with self.bot.con.cursor() as cur:
             cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
             cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
 
         self.valid_emb.description = "User has been successfully removed from the database"
+        self.bot.con.commit()
+
         await ctx.reply(embed=self.valid_emb)
 
     @commands.command(aliases=["st"])

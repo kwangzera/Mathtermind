@@ -167,7 +167,8 @@ class Gameplay(commands.Cog):
             if self.manager.user_in_db(ctx) and self.manager.query(ctx, 0, "logging"):
                 self.valid_emb.description = "User successfully left the game. Relevant data has been logged."
                 gid = self.bot.games[self.key(ctx)].game_id
-                self.manager.increment(ctx, gid, "times_quit")
+                quits = self.manager.query(ctx, gid, "times_quit")
+                self.manager.update(ctx, gid, times_quit=quits+1)
 
             await ctx.reply(embed=self.valid_emb, mention_author=False)
             self.reset_game(ctx)
