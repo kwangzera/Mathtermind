@@ -62,10 +62,18 @@ class Gamestats(commands.Cog):
         await ctx.reply(embed=self.valid_emb)
 
     @commands.command()
-    async def raw(self, ctx):
-        """Outputs the user's raw game data as a .txt file"""
-        self.manager.incr_stats(ctx, 0, "1")
-        ...
+    async def raw(self, ctx, gmode: str = None):
+        """Outputs the user's raw game data of any gamemode as a .txt file"""
+
+        if gmode in {"classic", "cl"}:
+            await self.gen_file(ctx, 0, "classic")
+        elif gmode in {"repeat", "rp"}:
+            await self.gen_file(ctx, 1, "repeat")
+        elif gmode in {"detective", "lie"}:
+            await self.gen_file(ctx, 2, "detective")
+        else:
+            self.invalid_emb.description = "Please input the name of a proper gamemode for raw file generation"
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
 
     @commands.command(aliases=["rs"])
     async def remove(self, ctx):
@@ -84,6 +92,13 @@ class Gamestats(commands.Cog):
     async def stats(self, ctx):
         """Displays a detailed table of the user's game stats"""
         ...
+
+    async def gen_file(self, ctx, game_id, filename):
+        with open(f"{filename}.txt", "w") as f:
+            f.write(self.manager.query_raw(ctx, game_id))
+
+        with open(f"{filename}.txt", "rb") as f:
+            await ctx.reply(file=discord.File(f, f"{filename}.txt"))
 
 
 def setup(bot):
