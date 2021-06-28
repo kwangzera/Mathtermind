@@ -32,22 +32,8 @@ class Gamestats(commands.Cog):
 
         with self.bot.con.cursor() as cur:
             for gid in range(3):
-                sql = f"""
-                    INSERT INTO mtm_user (
-                        author_id,
-                        guild_id,
-                        game_id,
-                        wins,
-                        losses,
-                        cur_win,
-                        cur_loss,
-                        longest_win_streak,
-                        longest_loss_streak,
-                        current_streak,
-                        times_quit,
-                        prev_result,
-                        logging
-                    ) VALUES ({', '.join('%s' for _ in range(13))})"""
+                sql = f"INSERT INTO mtm_user (author_id, guild_id, game_id, wins, losses, cur_win, cur_loss, longest_win_streak, longest_loss_streak, current_streak, times_quit, prev_result, logging)\
+                        VALUES ({', '.join('%s' for _ in range(13))})"
                 data = (str(ctx.author.id), str(ctx.guild.id), gid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'f')
                 cur.execute(sql, data)
 
@@ -72,12 +58,13 @@ class Gamestats(commands.Cog):
 
         self.manager.update(ctx, 0, logging=toggle)
 
-        self.valid_emb.description = f"Successfully set logging status updated to `{toggle}`"
+        self.valid_emb.description = f"Successfully set logging status to `{toggle}`"
         await ctx.reply(embed=self.valid_emb)
 
     @commands.command()
     async def raw(self, ctx):
         """Outputs the user's raw game data as a .txt file"""
+        self.manager.incr_stats(ctx, 0, "1")
         ...
 
     @commands.command(aliases=["rs"])

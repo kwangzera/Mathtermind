@@ -61,10 +61,9 @@ class Gameplay(commands.Cog):
         if game.game_over:
             # Updating database
             if self.manager.user_in_db(ctx) and self.manager.query(ctx, 0, "logging"):
-                game.game_over_msg.description += " Relevant data has been logged."
                 self.manager.calc_streak(ctx, game.game_id, game.game_over-1)
-            else:
-                game.game_over_msg.description += " No data has been logged."
+                self.manager.incr_raw(ctx, game.game_id, game.game_over-1)
+                game.game_over_msg.set_footer(text="Logging is on")
 
             await ctx.reply(embed=game.game_over_msg)
             self.reset_game(ctx)
@@ -160,17 +159,16 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) in self.bot.games:
-            self.valid_emb.description = "User successfully left the game. No data has been logged."
-            # await ctx.reply(embed=self.valid_emb, mention_author=False)
+            game = self.bot.games[self.key(ctx)]
+            game.game_over_msg.description = ":arrow_left: User has left the game"
 
             # Updating database
             if self.manager.user_in_db(ctx) and self.manager.query(ctx, 0, "logging"):
-                self.valid_emb.description = "User successfully left the game. Relevant data has been logged."
                 gid = self.bot.games[self.key(ctx)].game_id
-                quits = self.manager.query(ctx, gid, "times_quit")
-                self.manager.update(ctx, gid, times_quit=quits+1)
+                self.manager.increment(ctx, gid, "times_quit")
+                game.game_over_msg.set_footer(text="Logging is on")
 
-            await ctx.reply(embed=self.valid_emb, mention_author=False)
+            await ctx.reply(embed=game.game_over_msg, mention_author=False)
             self.reset_game(ctx)
         else:
             self.invalid_emb.description = "User is not in a game"
