@@ -11,23 +11,20 @@ class Gamestats(commands.Cog):
 
         self.valid_emb = discord.Embed(color=Colour.green())
         self.invalid_emb = discord.Embed(color=Colour.red())
-        self.confirm_emb = discord.Embed(color=Colour.gold())
-        self.neutral_emb = discord.Embed()
+        self.stat_emb = discord.Embed()
 
         self.manager = StatManager(self.bot.con)
         self.rm_flag = False
 
-    async def cog_check(self, ctx):
-        if not self.manager.user_in_db(ctx) and str(ctx.command) != "add":
-            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
-            return False
-
-        return True
-
     @commands.command()
     async def add(self, ctx):
-        """Adds the user to the database"""
+        """Adds the user to the database
+
+        In order for a user's data to be logged, they have to be added to the database.
+        Each user will be uniquely identified by their id and the id of the server they
+        are currently in.
+        """
+
         # Cannot use command if table already initialized
         if self.manager.user_in_db(ctx):
             self.invalid_emb.description = "User already exists in the database"
@@ -52,14 +49,27 @@ class Gamestats(commands.Cog):
 
     @commands.command(aliases=["lg"])
     async def logging(self, ctx, toggle: bool = None):
-        """Shows the user's data logging status or toggles it on or off"""
+        """Shows the user's data logging status or toggles it on or off
 
-        self.neutral_emb = discord.Embed()
+        The logging command can be used as follows:
+            ;logging        -> shows current logging status
+            ;logging True   -> turns on logging
+            ;logging False  -> turns off logging.
+
+        The value for toggle can be any boolean value supported by PostgreSQL. Some
+        examples include "1", "0", "on", "off", "t", "f", "yes", and "no".
+
+        This command requires the user to be added to the database first.
+        """
+
+        if not self.manager.user_in_db(ctx):
+            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return
 
         if toggle is None:
             cur_log = self.manager.query(ctx, 0, "logging")
-            self.neutral_emb.description = f"Current logging status set to `{cur_log}`"
-            await ctx.reply(embed=self.neutral_emb, mention_author=False)
+            await ctx.reply(embed=discord.Embed(description=f"Current logging status set to `{cur_log}`"), mention_author=False)
             return
 
         self.manager.update(ctx, 0, logging=toggle)
@@ -69,7 +79,24 @@ class Gamestats(commands.Cog):
 
     @commands.command()
     async def raw(self, ctx, gmode: str = None):
-        """Outputs the user's raw game data of any gamemode as a .txt file"""
+        """Outputs the user's raw game data of any gamemode as a .txt file
+
+        The logging command can be used as follows:
+            ;raw classic -> outputs raw data as classic.txt
+            ;raw cl      -> outputs raw data as classic.txt
+            ;raw repeat  -> outputs raw data as repeat.txt
+
+        Raw game data is also the user's full game history, a binary string consisting
+        of 1s (wins) and 0s (losses). The values that are passed in for gamemode are the
+        same values that are used to start a game.
+
+        This command requires the user to be added to the database first.
+        """
+
+        if not self.manager.user_in_db(ctx):
+            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return
 
         if gmode in {"classic", "cl"}:
             await self.gen_file(ctx, 0, "classic")
@@ -83,12 +110,27 @@ class Gamestats(commands.Cog):
 
     @commands.command(aliases=["rm"])
     async def remove(self, ctx):
-        """Removes the user from the database"""
+        """Removes the user from the database
+
+        When the user is removed from the database, all of their game data gets deleted.
+        The ;add command must be used again if the user wants to be readded the
+        database.
+
+        Upon using this command, A message will show up to confirming if the user would
+        like to wipe their game data. If the user does not respond within 60 seconds,
+        their information will not be removed
+
+        This command requires the user to be added to the database first.
+        """
+
+        if not self.manager.user_in_db(ctx):
+            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return
 
         # Special confirmation embed
-        self.confirm_emb = discord.Embed(color=Colour.gold())
-        self.confirm_emb.description = "Remove user from the database? This action cannot be undone and will erase all user data."
-        confirm = await ctx.reply(embed=self.confirm_emb, mention_author=False)
+
+        confirm = await ctx.reply(embed=discord.Embed(description = "Remove user from the database? This action cannot be undone and will erase all game data.", color=Colour.gold()), mention_author=False)
         await confirm.add_reaction("✅")
         await confirm.add_reaction("❌")
 
@@ -122,11 +164,26 @@ class Gamestats(commands.Cog):
 
     @commands.command(aliases=["st"])
     async def stats(self, ctx):
-        """Displays a detailed table of the user's game stats"""
+        """Displays a detailed table of the user's game stats
+
+        This command is used to separately show all game data for all 3 gamemodes. This
+        includes stats about wins/losses, streaks, and more.
+
+        If the user has logging turned on, the amount of times they leave a game will be
+        logged if they decide to end a game early. Otherwise, information about
+        win/losses will be logged to calculator other stats.
+
+        This command requires the user to be added to the database first.
+        """
+
+        if not self.manager.user_in_db(ctx):
+            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
+            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            return
 
         page_num = 0
         self.gen_page(ctx, 0, "Classic")
-        page =  await ctx.reply(embed=self.neutral_emb, mention_author=False)
+        page =  await ctx.reply(embed=self.stat_emb, mention_author=False)
         await page.add_reaction("⏪")
         await page.add_reaction("⏩")
 
@@ -150,7 +207,7 @@ class Gamestats(commands.Cog):
                 elif page_num == 2:
                     self.gen_page(ctx, 2, "Detective")
 
-                await page.edit(embed=self.neutral_emb)
+                await page.edit(embed=self.stat_emb)
 
     async def gen_file(self, ctx, game_id, filename):
         with open(f"{filename}.txt", "w") as f:
@@ -160,9 +217,9 @@ class Gamestats(commands.Cog):
             await ctx.reply(file=discord.File(f, f"{filename}.txt"))
 
     def gen_page(self, ctx, gid, gamemode):
-        self.neutral_emb.title = f"{ctx.author.name}'s {gamemode} Stats"
-        self.neutral_emb.set_footer(text=f"Page {gid+1}/3")
-        self.neutral_emb.clear_fields()
+        self.stat_emb.title = f"{ctx.author.name}'s {gamemode} Stats"
+        self.stat_emb.set_footer(text=f"Page {gid+1}/3")
+        self.stat_emb.clear_fields()
 
         # Group 1, basic
         wins = self.manager.query(ctx, gid, "wins")
@@ -180,7 +237,7 @@ class Gamestats(commands.Cog):
         # Group 3, misc
         quits = self.manager.query(ctx, gid, "times_quit")
 
-        self.neutral_emb.add_field(
+        self.stat_emb.add_field(
             name = f"Basic Info",
             value = f"""
                 Total Games: `{total}`
@@ -190,7 +247,7 @@ class Gamestats(commands.Cog):
             """,
             inline=False
         )
-        self.neutral_emb.add_field(
+        self.stat_emb.add_field(
             name = f"Streak Info",
             value = f"""
                 Longest Win Streak: `{long_w_strk}`
@@ -199,11 +256,12 @@ class Gamestats(commands.Cog):
             """,
             inline=False
         )
-        self.neutral_emb.add_field(
+        self.stat_emb.add_field(
             name = f"Misc Info",
             value = f"""Times Quit: `{quits}`""",
             inline=False
         )
+
 
 def setup(bot):
     bot.add_cog(Gamestats(bot))
