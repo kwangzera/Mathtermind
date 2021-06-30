@@ -60,10 +60,13 @@ class Gameplay(commands.Cog):
 
         if game.game_over:
             # Updating database
-            if self.manager.user_in_db(ctx) and self.manager.query(ctx, 0, "logging"):
-                self.manager.calc_streak(ctx, game.game_id, game.game_over-1)
-                self.manager.incr_raw(ctx, game.game_id, game.game_over-1)
-                game.game_over_msg.set_footer(text="Logging is on")
+            if self.manager.user_in_db(ctx):
+                if self.manager.query(ctx, 0, "logging"):
+                    self.manager.calc_streak(ctx, game.game_id, game.game_over-1)
+                    self.manager.incr_raw(ctx, game.game_id, game.game_over-1)
+                    game.game_over_msg.set_footer(text="Logging is on")
+                else:
+                    game.game_over_msg.set_footer(text="Logging is off")
 
             await ctx.reply(embed=game.game_over_msg)
             self.reset_game(ctx)
@@ -163,12 +166,15 @@ class Gameplay(commands.Cog):
             game.game_over_msg.description = ":arrow_left: User has left the game"
 
             # Updating database
-            if self.manager.user_in_db(ctx) and self.manager.query(ctx, 0, "logging"):
-                gid = self.bot.games[self.key(ctx)].game_id
-                self.manager.increment(ctx, gid, "times_quit")
-                game.game_over_msg.set_footer(text="Logging is on")
+            if self.manager.user_in_db(ctx):
+                if self.manager.query(ctx, 0, "logging"):
+                    gid = self.bot.games[self.key(ctx)].game_id
+                    self.manager.increment(ctx, gid, "times_quit")
+                    game.game_over_msg.set_footer(text="Logging is on")
+                else:
+                    game.game_over_msg.set_footer(text="Logging is off")
 
-            await ctx.reply(embed=game.game_over_msg, mention_author=False)
+            await ctx.reply(embed=game.game_over_msg)
             self.reset_game(ctx)
         else:
             self.invalid_emb.description = "User is not in a game"

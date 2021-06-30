@@ -18,8 +18,8 @@ class Classic:
 
         # Embeds
         self.log_msg = discord.Embed(color=Colour.red())
-        self.game_over_msg = discord.Embed(title=f"{ctx.author}'s Classic Game")
-        self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
+        self.game_over_msg = discord.Embed(title=f"{ctx.author.name}'s Classic Game")
+        self.board = discord.Embed(title=f"{ctx.author.name}'s Classic Game")
 
     def win(self, guess):
         return self.matches[-1] == len(guess) == 3

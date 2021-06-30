@@ -1,3 +1,4 @@
+import asyncio
 import discord
 from discord import Colour
 from discord.ext import commands
@@ -10,8 +11,11 @@ class Gamestats(commands.Cog):
 
         self.valid_emb = discord.Embed(color=Colour.green())
         self.invalid_emb = discord.Embed(color=Colour.red())
+        self.confirm_emb = discord.Embed(color=Colour.gold())
         self.neutral_emb = discord.Embed()
         self.manager = StatManager(self.bot.con)
+
+        self.rm_flag = False
 
     async def cog_check(self, ctx):
         if not self.manager.user_in_db(ctx) and str(ctx.command) != "add":
@@ -75,18 +79,43 @@ class Gamestats(commands.Cog):
             self.invalid_emb.description = "Please input the name of a proper gamemode for raw file generation"
             await ctx.reply(embed=self.invalid_emb, mention_author=False)
 
-    @commands.command(aliases=["rs"])
+    @commands.command(aliases=["rm"])
     async def remove(self, ctx):
         """Removes the user from the database"""
-        # TODO confirm the process
-        with self.bot.con.cursor() as cur:
-            cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
-            cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
 
-        self.valid_emb.description = "User has been successfully removed from the database"
-        self.bot.con.commit()
+        # Special confirmation embed
+        self.confirm_emb.description = "Remove user from the database? This action cannot be undone and will erase all user data."
+        confirm = await ctx.reply(embed=self.confirm_emb, mention_author=False)
+        await confirm.add_reaction("✅")
+        await confirm.add_reaction("❌")
 
-        await ctx.reply(embed=self.valid_emb)
+        try:
+            react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == confirm.id and u.id == ctx.author.id and r.emoji in {"✅", "❌"})
+        except asyncio.TimeoutError:
+            # When user does ;rm more than once when database exists
+            if not self.manager.user_in_db(ctx):
+                return
+
+            self.invalid_emb.description = "Confirmation timed out. User was not removed from the database."
+            await ctx.reply(embed=self.invalid_emb)
+        else:
+            # When user does ;rm more than once when database exists
+            if not self.manager.user_in_db(ctx):
+                return
+
+            if react.emoji == "❌":
+                self.invalid_emb.description = "User has not been successfully removed from the database"
+                await ctx.reply(embed=self.invalid_emb)
+                return
+
+            with self.bot.con.cursor() as cur:
+                cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
+                cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
+
+            self.valid_emb.description = "User has been successfully removed from the database"
+            self.bot.con.commit()
+
+            await ctx.reply(embed=self.valid_emb)
 
     @commands.command(aliases=["st"])
     async def stats(self, ctx):
