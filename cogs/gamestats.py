@@ -13,8 +13,8 @@ class Gamestats(commands.Cog):
         self.invalid_emb = discord.Embed(color=Colour.red())
         self.confirm_emb = discord.Embed(color=Colour.gold())
         self.neutral_emb = discord.Embed()
-        self.manager = StatManager(self.bot.con)
 
+        self.manager = StatManager(self.bot.con)
         self.rm_flag = False
 
     async def cog_check(self, ctx):
@@ -54,6 +54,8 @@ class Gamestats(commands.Cog):
     async def logging(self, ctx, toggle: bool = None):
         """Shows the user's data logging status or toggles it on or off"""
 
+        self.neutral_emb = discord.Embed()
+
         if toggle is None:
             cur_log = self.manager.query(ctx, 0, "logging")
             self.neutral_emb.description = f"Current logging status set to `{cur_log}`"
@@ -84,13 +86,14 @@ class Gamestats(commands.Cog):
         """Removes the user from the database"""
 
         # Special confirmation embed
+        self.confirm_emb = discord.Embed(color=Colour.gold())
         self.confirm_emb.description = "Remove user from the database? This action cannot be undone and will erase all user data."
         confirm = await ctx.reply(embed=self.confirm_emb, mention_author=False)
         await confirm.add_reaction("✅")
         await confirm.add_reaction("❌")
 
         try:
-            react, user = await self.bot.wait_for("reaction_add", timeout=30, check=lambda r, u: r.message.id == confirm.id and u.id == ctx.author.id and r.emoji in {"✅", "❌"})
+            react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == confirm.id and u.id == ctx.author.id and r.emoji in {"✅", "❌"})
         except asyncio.TimeoutError:
             # When user does ;rm more than once when database exists
             if not self.manager.user_in_db(ctx):
@@ -120,7 +123,34 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["st"])
     async def stats(self, ctx):
         """Displays a detailed table of the user's game stats"""
-        ...
+
+        page_num = 0
+        self.gen_page(ctx, 0, "Classic")
+        page =  await ctx.reply(embed=self.neutral_emb, mention_author=False)
+        await page.add_reaction("⏪")
+        await page.add_reaction("⏩")
+
+        while True:
+            try:
+                react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
+            except asyncio.TimeoutError:
+                return
+            else:
+                if react.emoji == "⏩":
+                    page_num = min(page_num+1, 2)
+                    await page.remove_reaction(react, user)
+                elif react.emoji == "⏪":
+                    page_num = max(page_num-1, 0)
+                    await page.remove_reaction(react, user)
+
+                if page_num == 0:
+                    self.gen_page(ctx, 0, "Classic")
+                elif page_num == 1:
+                    self.gen_page(ctx, 1, "Repeat")
+                elif page_num == 2:
+                    self.gen_page(ctx, 2, "Detective")
+
+                await page.edit(embed=self.neutral_emb)
 
     async def gen_file(self, ctx, game_id, filename):
         with open(f"{filename}.txt", "w") as f:
@@ -129,6 +159,51 @@ class Gamestats(commands.Cog):
         with open(f"{filename}.txt", "rb") as f:
             await ctx.reply(file=discord.File(f, f"{filename}.txt"))
 
+    def gen_page(self, ctx, gid, gamemode):
+        self.neutral_emb.title = f"{ctx.author.name}'s {gamemode} Stats"
+        self.neutral_emb.set_footer(text=f"Page {gid+1}/3")
+        self.neutral_emb.clear_fields()
+
+        # Group 1, basic
+        wins = self.manager.query(ctx, gid, "wins")
+        losses = self.manager.query(ctx, gid, "losses")
+        total = wins+losses
+        winrate = wins/total if total != 0 else 0
+
+        # Group 2, streaks
+        long_w_strk = self.manager.query(ctx, gid, "longest_win_streak")
+        long_l_strk = self.manager.query(ctx, gid, "longest_loss_streak")
+        cur_strk = self.manager.query(ctx, gid, "current_streak")
+        pre_res = self.manager.query(ctx, gid, "prev_result")
+        cur_strk_type = f"Win{'s'*(cur_strk != 1)}" if pre_res else f"Loss{'es'*(cur_strk != 1)}"
+
+        # Group 3, misc
+        quits = self.manager.query(ctx, gid, "times_quit")
+
+        self.neutral_emb.add_field(
+            name = f"Basic Info",
+            value = f"""
+                Total Games: `{total}`
+                Wins: `{wins}`
+                Losses: `{losses}`
+                Win Rate: `{winrate*100:0.1f}%`
+            """,
+            inline=False
+        )
+        self.neutral_emb.add_field(
+            name = f"Streak Info",
+            value = f"""
+                Longest Win Streak: `{long_w_strk}`
+                Longest Loss Streak: `{long_l_strk}`
+                Current Streak: `{cur_strk} {cur_strk_type}`
+            """,
+            inline=False
+        )
+        self.neutral_emb.add_field(
+            name = f"Misc Info",
+            value = f"""Times Quit: `{quits}`""",
+            inline=False
+        )
 
 def setup(bot):
     bot.add_cog(Gamestats(bot))
