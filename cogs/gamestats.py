@@ -14,7 +14,6 @@ class Gamestats(commands.Cog):
         self.stat_emb = discord.Embed()
 
         self.manager = StatManager(self.bot.con)
-        self.rm_flag = False
 
     @commands.command()
     async def add(self, ctx):
@@ -27,25 +26,40 @@ class Gamestats(commands.Cog):
 
         # Cannot use command if table already initialized
         if self.manager.user_in_db(ctx):
-            self.invalid_emb.description = "User already exists in the database"
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
-            return
+            return await ctx.reply(embed=discord.Embed(description="User already exists in the database", color=Colour.red()), mention_author=False)
 
         with self.bot.con.cursor() as cur:
             for gid in range(3):
-                sql = f"INSERT INTO mtm_user (author_id, guild_id, game_id, wins, losses, cur_win, cur_loss, longest_win_streak, longest_loss_streak, current_streak, times_quit, prev_result, logging)\
-                        VALUES ({', '.join('%s' for _ in range(13))})"
+                sql = f"""
+                    INSERT INTO mtm_user (
+                        author_id,
+                        guild_id,
+                        game_id, wins,
+                        losses,
+                        cur_win,
+                        cur_loss,
+                        longest_win_streak,
+                        longest_loss_streak,
+                        current_streak,
+                        times_quit,
+                        prev_result,
+                        logging
+                    ) VALUES ({', '.join('%s' for _ in range(13))})"""
                 data = (str(ctx.author.id), str(ctx.guild.id), gid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'f')
                 cur.execute(sql, data)
 
-                sql_r = "INSERT INTO mtm_user_raw (author_id, guild_id, game_id, raw_data) VALUES (%s, %s, %s, %s);"
+                sql_r = """
+                    INSERT INTO mtm_user_raw (
+                        author_id,
+                        guild_id,
+                        game_id,
+                        raw_data
+                    ) VALUES (%s, %s, %s, %s);"""
                 data_r = (str(ctx.author.id), str(ctx.guild.id), gid, '')
                 cur.execute(sql_r, data_r)
 
             self.bot.con.commit()
-
-            self.valid_emb.description = "User has been successfully added to the database"
-            await ctx.reply(embed=self.valid_emb)
+            await ctx.reply(embed=discord.Embed(description ="User has been successfully added to the database", color=Colour.green()))
 
     @commands.command(aliases=["lg"])
     async def logging(self, ctx, toggle: bool = None):
@@ -63,19 +77,14 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
-            return
+            return await ctx.reply(embed=discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         if toggle is None:
             cur_log = self.manager.query(ctx, 0, "logging")
-            await ctx.reply(embed=discord.Embed(description=f"Current logging status set to `{cur_log}`"), mention_author=False)
-            return
+            return await ctx.reply(embed=discord.Embed(description=f"Current logging status set to `{cur_log}`"), mention_author=False)
 
         self.manager.update(ctx, 0, logging=toggle)
-
-        self.valid_emb.description = f"Successfully set logging status to `{toggle}`"
-        await ctx.reply(embed=self.valid_emb)
+        await ctx.reply(embed=discord.Embed(description=f"Successfully set logging status to `{toggle}`", color=Colour.green()))
 
     @commands.command()
     async def raw(self, ctx, gmode: str = None):
@@ -94,9 +103,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
-            return
+            return await ctx.reply(embed=self.discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         if gmode in {"classic", "cl"}:
             await self.gen_file(ctx, 0, "classic")
@@ -105,8 +112,7 @@ class Gamestats(commands.Cog):
         elif gmode in {"detective", "lie"}:
             await self.gen_file(ctx, 2, "detective")
         else:
-            self.invalid_emb.description = "Please input the name of a proper gamemode for raw file generation"
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
+            await ctx.reply(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()), mention_author=False)
 
     @commands.command(aliases=["rm"])
     async def remove(self, ctx):
@@ -124,13 +130,10 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
-            return
+            return await ctx.reply(embed=discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         # Special confirmation embed
-
-        confirm = await ctx.reply(embed=discord.Embed(description = "Remove user from the database? This action cannot be undone and will erase all game data.", color=Colour.gold()), mention_author=False)
+        confirm = await ctx.reply(embed=discord.Embed(description="Remove user from the database? This action cannot be undone and will erase all game data.", color=Colour.gold()), mention_author=False)
         await confirm.add_reaction("✅")
         await confirm.add_reaction("❌")
 
@@ -141,26 +144,21 @@ class Gamestats(commands.Cog):
             if not self.manager.user_in_db(ctx):
                 return
 
-            self.invalid_emb.description = "Confirmation timed out. User was not removed from the database."
-            await ctx.reply(embed=self.invalid_emb)
+            await ctx.reply(embed=discord.Embed(description="Confirmation timed out. User was not removed from the database.", color=Colour.red()))
         else:
             # When user does ;rm more than once when database exists
             if not self.manager.user_in_db(ctx):
                 return
 
             if react.emoji == "❌":
-                self.invalid_emb.description = "User has not been successfully removed from the database"
-                await ctx.reply(embed=self.invalid_emb)
-                return
+                return await ctx.reply(embed=discord.Embed(description="User has been unsuccessfully removed from the database", color=Colour.red()))
 
             with self.bot.con.cursor() as cur:
                 cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
                 cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
 
-            self.valid_emb.description = "User has been successfully removed from the database"
             self.bot.con.commit()
-
-            await ctx.reply(embed=self.valid_emb)
+            await ctx.reply(embed=discord.Embed(description="User has been successfully removed from the database", color=Colour.green()))
 
     @commands.command(aliases=["st"])
     async def stats(self, ctx):
@@ -177,13 +175,12 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            self.invalid_emb.description = "User does not exist in the database. Enter `;add` to be added."
-            await ctx.reply(embed=self.invalid_emb, mention_author=False)
-            return
+            return await ctx.reply(embed=discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         page_num = 0
         self.gen_page(ctx, 0, "Classic")
-        page =  await ctx.reply(embed=self.stat_emb, mention_author=False)
+
+        page = await ctx.reply(embed=self.stat_emb, mention_author=False)
         await page.add_reaction("⏪")
         await page.add_reaction("⏩")
 
