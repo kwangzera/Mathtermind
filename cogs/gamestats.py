@@ -8,11 +8,7 @@ from classes.stat_manager import StatManager
 class Gamestats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-        self.valid_emb = discord.Embed(color=Colour.green())
-        self.invalid_emb = discord.Embed(color=Colour.red())
         self.stat_emb = discord.Embed()
-
         self.manager = StatManager(self.bot.con)
 
     @commands.command()
