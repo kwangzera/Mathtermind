@@ -35,7 +35,7 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) not in self.bot.games:
-            return await ctx.reply(embed=discord.Embed(description="User is not in a game", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You are not in a game", color=Colour.red()), mention_author=False)
 
         game = self.bot.games[self.key(ctx)]
         uncert = game.game_id == 2 and game.round_number < 4
@@ -65,7 +65,7 @@ class Gameplay(commands.Cog):
 
         guess_emb = discord.Embed()  # TODO send embed directly or init first
         guess_emb.title = f"Guess {game.round_number}"
-        guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combination match{'es'*(game.matches[-1] == 1)} the user's guess"
+        guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combination match{'es'*(game.matches[-1] == 1)} your guess"
         await ctx.reply(embed=guess_emb, mention_author=False)
 
     @commands.command(aliases=["id"])
@@ -91,7 +91,7 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) not in self.bot.games:
-            return await ctx.reply(embed=discord.Embed(description="User is not in a game", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You are not in a game", color=Colour.red()), mention_author=False)
 
         game = self.bot.games[self.key(ctx)]
 
@@ -99,7 +99,7 @@ class Gameplay(commands.Cog):
             return await ctx.reply(embed=discord.Embed(description="This command is not available for the current gamemode", color=Colour.red()), mention_author=False)
 
         if target is None or game.round_number < 4 or not (1 <= target <= 4):
-            return await ctx.reply(embed=discord.Embed(description="The user can only identify one of guesses 1 to 4 as a lie after making at least 4 guesses", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You can only identify one of guesses 1 to 4 as a lie after making at least 4 guesses", color=Colour.red()), mention_author=False)
 
         if game.used_identify:
             return await ctx.reply(embed=discord.Embed(description="This command can only be used once per game", color=Colour.red()), mention_author=False)
@@ -108,7 +108,7 @@ class Gameplay(commands.Cog):
         fields = game.board.fields
 
         if target == game.lie_index:
-            await ctx.reply(embed=discord.Embed(description="User successfully identified the lie", color=Colour.green()), mention_author=False)
+            await ctx.reply(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()), mention_author=False)
 
             for idx in range(4):
                 name, value = fields[idx].name, fields[idx].value
@@ -123,7 +123,7 @@ class Gameplay(commands.Cog):
 
         else:
             target -= 1
-            await ctx.reply(embed=discord.Embed(description="User failed to identify the lie", color=Colour.red()), mention_author=False)
+            await ctx.reply(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()), mention_author=False)
 
             # Know that this is right
             game.verified[target] = True
@@ -143,7 +143,7 @@ class Gameplay(commands.Cog):
 
         if self.key(ctx) in self.bot.games:
             game = self.bot.games[self.key(ctx)]
-            game.game_over_msg.description = ":arrow_left: User has left the game"
+            game.game_over_msg.description = ":arrow_left: You have left the game"
 
             # Updating database
             if self.manager.user_in_db(ctx):
@@ -157,7 +157,7 @@ class Gameplay(commands.Cog):
             await ctx.reply(embed=game.game_over_msg)
             self.reset_game(ctx)
         else:
-            await ctx.reply(embed=discord.Embed(description="User is not in a game", color=Colour.red()), mention_author=False)
+            await ctx.reply(embed=discord.Embed(description="You are not in a game", color=Colour.red()), mention_author=False)
 
     @commands.command(aliases=["sh"])
     async def show(self, ctx):
@@ -176,7 +176,7 @@ class Gameplay(commands.Cog):
         if self.key(ctx) in self.bot.games:
             await ctx.reply(embed=self.bot.games[self.key(ctx)].board, mention_author=False)
         else:
-            await ctx.reply(embed=self.discord.Embed(description="User is not in a game", color=Colour.red()), mention_author=False)
+            await ctx.reply(embed=self.discord.Embed(description="You are not in a game", color=Colour.red()), mention_author=False)
 
     @commands.command(aliases=["sv"])
     async def solve(self, ctx):
@@ -196,7 +196,7 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) not in self.bot.games:
-            return await ctx.reply(embed=discord.Embed(description="User is not in a game", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You are not in a game", color=Colour.red()), mention_author=False)
 
         game = self.bot.games[self.key(ctx)]
 

@@ -38,7 +38,6 @@ class StatManager:
             cur.execute(sql_u, data_u)
             self.con.commit()
 
-    # TODO do something about this
     def calc_streak(self, ctx, gid, result):
         prev = self.query(ctx, gid, "prev_result")
         cur_win = self.query(ctx, gid, "cur_win")

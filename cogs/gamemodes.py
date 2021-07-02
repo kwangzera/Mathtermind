@@ -93,7 +93,7 @@ class Gamemodes(commands.Cog):
             self.bot.games[self.key(ctx)] = gametype
             await ctx.reply(embed=discord.Embed(description="Ready to play", color=Colour.green()), mention_author=False)
         else:
-            await ctx.reply(embed=discord.Embed(description="User is already in a game", color=Colour.red()), mention_author=False)
+            await ctx.reply(embed=discord.Embed(description="You are already in a game", color=Colour.red()), mention_author=False)
 
     def key(self, ctx):
         """Returns unique identification key containing user id and server id"""

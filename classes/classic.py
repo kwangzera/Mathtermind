@@ -78,7 +78,7 @@ class Classic:
             flag = False
 
         if not self.is_unique(guess):
-            self.log_msg.description = "Please make sure all numbers in the guess are unique"
+            self.log_msg.description = "Please make sure all numbers in your guess are unique"
             flag = False
 
         if self.last_guess(guess, flag):

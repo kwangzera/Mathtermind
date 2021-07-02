@@ -22,7 +22,7 @@ class Gamestats(commands.Cog):
 
         # Cannot use command if table already initialized
         if self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="User already exists in the database", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You already exist in the database", color=Colour.red()), mention_author=False)
 
         with self.bot.con.cursor() as cur:
             for gid in range(3):
@@ -55,7 +55,7 @@ class Gamestats(commands.Cog):
                 cur.execute(sql_r, data_r)
 
             self.bot.con.commit()
-            await ctx.reply(embed=discord.Embed(description ="User has been successfully added to the database", color=Colour.green()))
+            await ctx.reply(embed=discord.Embed(description ="You have been successfully added to the database", color=Colour.green()))
 
     @commands.command(aliases=["lg"])
     async def logging(self, ctx, toggle: bool = None):
@@ -73,7 +73,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         if toggle is None:
             cur_log = self.manager.query(ctx, 0, "logging")
@@ -99,7 +99,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=self.discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         if gmode in {"classic", "cl"}:
             await self.gen_file(ctx, 0, "classic")
@@ -126,10 +126,10 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         # Special confirmation embed
-        confirm = await ctx.reply(embed=discord.Embed(description="Remove user from the database? This action cannot be undone and will erase all game data.", color=Colour.gold()), mention_author=False)
+        confirm = await ctx.reply(embed=discord.Embed(description="Remove yourself from the database? This action cannot be undone and will erase your game data.", color=Colour.gold()), mention_author=False)
         await confirm.add_reaction("✅")
         await confirm.add_reaction("❌")
 
@@ -140,21 +140,21 @@ class Gamestats(commands.Cog):
             if not self.manager.user_in_db(ctx):
                 return
 
-            await ctx.reply(embed=discord.Embed(description="Confirmation timed out. User was not removed from the database.", color=Colour.red()))
+            await ctx.reply(embed=discord.Embed(description="Confirmation timed out. You have not removed from the database.", color=Colour.red()))
         else:
             # When user does ;rm more than once when database exists
             if not self.manager.user_in_db(ctx):
                 return
 
             if react.emoji == "❌":
-                return await ctx.reply(embed=discord.Embed(description="User has been unsuccessfully removed from the database", color=Colour.red()))
+                return await ctx.reply(embed=discord.Embed(description="You have been unsuccessfully removed from the database", color=Colour.red()))
 
             with self.bot.con.cursor() as cur:
                 cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
                 cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
 
             self.bot.con.commit()
-            await ctx.reply(embed=discord.Embed(description="User has been successfully removed from the database", color=Colour.green()))
+            await ctx.reply(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
 
     @commands.command(aliases=["st"])
     async def stats(self, ctx):
@@ -171,7 +171,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="User does not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
 
         page_num = 0
         self.gen_page(ctx, 0, "Classic")
@@ -202,12 +202,12 @@ class Gamestats(commands.Cog):
 
                 await page.edit(embed=self.stat_emb)
 
-    async def gen_file(self, ctx, game_id, filename):
-        with open(f"{filename}.txt", "w") as f:
+    async def gen_file(self, ctx, game_id, gamemode):
+        with open(f"{gamemode}.txt", "w") as f:
             f.write(self.manager.query_raw(ctx, game_id))
 
-        with open(f"{filename}.txt", "rb") as f:
-            await ctx.reply(file=discord.File(f, f"{filename}.txt"))
+        with open(f"{gamemode}.txt", "rb") as f:
+            await ctx.reply(file=discord.File(f, f"{gamemode}.txt"))
 
     def gen_page(self, ctx, gid, gamemode):
         self.stat_emb.title = f"{ctx.author.name}'s {gamemode} Stats"
@@ -233,25 +233,25 @@ class Gamestats(commands.Cog):
         self.stat_emb.add_field(
             name = f"Basic Info",
             value = f"""
-                Total Games: `{total}`
-                Wins: `{wins}`
-                Losses: `{losses}`
-                Win Rate: `{winrate*100:0.1f}%`
+                Total Games: **{total}**
+                Wins: **{wins}**
+                Losses: **{losses}**
+                Win Rate: **{winrate*100:0.1f}%**
             """,
             inline=False
         )
         self.stat_emb.add_field(
             name = f"Streak Info",
             value = f"""
-                Longest Win Streak: `{long_w_strk}`
-                Longest Loss Streak: `{long_l_strk}`
-                Current Streak: `{cur_strk} {cur_strk_type}`
+                Longest Win Streak: **{long_w_strk}**
+                Longest Loss Streak: **{long_l_strk}**
+                Current Streak: **{cur_strk} {cur_strk_type}**
             """,
             inline=False
         )
         self.stat_emb.add_field(
             name = f"Misc Info",
-            value = f"""Times Quit: `{quits}`""",
+            value = f"""Times Quit: **{quits}**""",
             inline=False
         )
 
