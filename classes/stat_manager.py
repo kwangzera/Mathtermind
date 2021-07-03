@@ -25,17 +25,17 @@ class StatManager:
 
     def query_raw(self, ctx, gid):
         with self.con.cursor() as cur:
-            sql_q = "SELECT raw_data FROM mtm_user_raw WHERE author_id = %s AND guild_id = %s AND game_id = %s;"
-            data_q = (str(ctx.author.id), str(ctx.guild.id), gid)
-            cur.execute(sql_q, data_q)
+            sql = "SELECT raw_data FROM mtm_user_raw WHERE author_id = %s AND guild_id = %s AND game_id = %s;"
+            data = (str(ctx.author.id), str(ctx.guild.id), gid)
+            cur.execute(sql, data)
             return cur.fetchone()[0]
 
     def incr_raw(self, ctx, gid, result):
         with self.con.cursor() as cur:
             new_raw = self.query_raw(ctx, gid) + str(result)
-            sql_u = "UPDATE mtm_user_raw SET raw_data = %s WHERE author_id = %s AND guild_id = %s AND game_id = %s;"
-            data_u = (new_raw, str(ctx.author.id), str(ctx.guild.id), gid)
-            cur.execute(sql_u, data_u)
+            sql = "UPDATE mtm_user_raw SET raw_data = %s WHERE author_id = %s AND guild_id = %s AND game_id = %s;"
+            data = (new_raw, str(ctx.author.id), str(ctx.guild.id), gid)
+            cur.execute(sql, data)
             self.con.commit()
 
     def calc_streak(self, ctx, gid, result):
@@ -69,5 +69,7 @@ class StatManager:
 
     def user_in_db(self, ctx):
         with self.con.cursor() as cur:
-            cur.execute(f"SELECT EXISTS (SELECT 1 FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}' LIMIT 1);")
+            sql = "SELECT EXISTS (SELECT 1 FROM mtm_user WHERE author_id = %s AND guild_id = %s LIMIT 1);"
+            data = (new_raw, str(ctx.author.id))
+            cur.execute(sql, data)
             return cur.fetchone()[0]
