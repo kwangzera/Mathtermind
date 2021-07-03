@@ -15,7 +15,7 @@ class Gamestats(commands.Cog):
     async def add(self, ctx):
         """Adds the user to the database
 
-        In order for a user's data to be logged, they have to be added to the database.
+        For a user's data to be logged, they first have to be added to the database.
         Each user will be uniquely identified by their id and the id of the server they
         are currently in.
         """
@@ -62,12 +62,17 @@ class Gamestats(commands.Cog):
         """Shows the user's data logging status or toggles it on or off
 
         The logging command can be used as follows:
-            ;logging        -> shows current logging status
-            ;logging True   -> turns on logging
-            ;logging False  -> turns off logging.
+            ;logging       -> shows current logging status
+            ;logging True  -> turns on logging
+            ;logging False -> turns off logging.
 
         The value for toggle can be any boolean value supported by PostgreSQL. Some
         examples include "1", "0", "on", "off", "t", "f", "yes", and "no".
+
+        If the user has logging turned on, the number of times they leave a game will be
+        logged if they decide to end a game early. Additionally, information about wins
+        and losses will be logged if they finish the game. Nothing will be logged if the
+        user has logging turned off.
 
         This command requires the user to be added to the database first.
         """
@@ -92,8 +97,8 @@ class Gamestats(commands.Cog):
             ;raw repeat  -> outputs raw data as repeat.txt
 
         Raw game data is also the user's full game history, a binary string consisting
-        of 1s (wins) and 0s (losses). The values that are passed in for gamemode are the
-        same values that are used to start a game.
+        of 1s (wins) and 0s (losses). The values for gamemode are the same values that
+        are used to start a game.
 
         This command requires the user to be added to the database first.
         """
@@ -119,8 +124,8 @@ class Gamestats(commands.Cog):
         database.
 
         Upon using this command, A message will show up to confirming if the user would
-        like to wipe their game data. If the user does not respond within 60 seconds,
-        their information will not be removed
+        like to wipe their game data. If the user doesn't respond within 60 seconds,
+        their information will not be removed.
 
         This command requires the user to be added to the database first.
         """
@@ -160,12 +165,9 @@ class Gamestats(commands.Cog):
     async def stats(self, ctx):
         """Displays a detailed table of the user's game stats
 
-        This command is used to separately show all game data for all 3 gamemodes. This
-        includes stats about wins/losses, streaks, and more.
-
-        If the user has logging turned on, the amount of times they leave a game will be
-        logged if they decide to end a game early. Otherwise, information about
-        win/losses will be logged to calculator other stats.
+        The stats command is used to show tabulated game data for all 3 gamemodes, which
+        contain information about wins/losses, streaks, and more. The tables are
+        paginated by gamemode and the user has 60 seconds to interact with them.
 
         This command requires the user to be added to the database first.
         """

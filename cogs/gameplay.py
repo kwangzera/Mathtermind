@@ -80,9 +80,9 @@ class Gameplay(commands.Cog):
         least 4 guesses, can only identify unverified guesses (those preceded by a ❓)
         to be a lie or not, and can be only used once per game.
 
-        The bot will then tell you if you correctly identified the lie or not. If you
-        did, guesses from 1 to 4 will all be verified and the game will cross out the
-        former incorrect number of matches and replace it with the correct one.
+        The bot will then tell the user if they correctly identified the lie or not. If
+        the user did, guesses from 1 to 4 will all be verified and the game will cross
+        out the former incorrect number of matches and replace it with the correct one.
         Otherwise, only the guess that was falsely identified as a lie could be
         verified as true.
 
@@ -134,9 +134,9 @@ class Gameplay(commands.Cog):
     async def leave(self, ctx):
         """Leaves the user's current game
 
-        Leaving a game will not effect the user's number of wins and losses. However,
-        the number of times the user leaves a game may be logged, thus negatively
-        impacting the user's score.
+        The user can leave their game at any point by using this command. This will not
+        effect the user's number of wins and losses. However, the number of times this
+        command gets used may be logged (see ;help logging for more details).
 
         The user will automatically leave the game when it is finished.
         """
@@ -170,13 +170,13 @@ class Gameplay(commands.Cog):
         In detective mode the first 4 guesses will be preceded by a ❓ since the user
         doesn't know which guess contains a false number of matches (the lie). Those
         first 4 guesses will be preceded by a ✅ instead if the user knows for certain
-        the number of matches (see ;help id for more details).
+        the number of matches (see ;help identify for more details).
         """
 
         if self.key(ctx) in self.bot.games:
             await ctx.reply(embed=self.bot.games[self.key(ctx)].board, mention_author=False)
         else:
-            await ctx.reply(embed=self.discord.Embed(description="You are not in a game", color=Colour.red()), mention_author=False)
+            await ctx.reply(embed=discord.Embed(description="You are not in a game", color=Colour.red()), mention_author=False)
 
     @commands.command(aliases=["sv"])
     async def solve(self, ctx):
