@@ -172,7 +172,7 @@ class Gamestats(commands.Cog):
 
         The stats command is used to show tabulated game data for all 3 gamemodes, which
         contain information about wins/losses, streaks, and more. The tables are
-        paginated by gamemode and the user will have60 seconds to interact with them
+        paginated by gamemode and the user will have 60 seconds to interact with them
         before they expire.
 
         This command requires the user to be added to the database first.
