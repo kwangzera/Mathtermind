@@ -1,4 +1,5 @@
 import os
+import traceback
 
 import psycopg2
 from discord.ext import commands

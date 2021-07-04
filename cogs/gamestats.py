@@ -22,7 +22,7 @@ class Gamestats(commands.Cog):
 
         # Cannot use command if table already initialized
         if self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="You already exist in the database", color=Colour.red()), mention_author=False)
+            return await ctx.send(embed=discord.Embed(description="You already exist in the database", color=Colour.red()))
 
         with self.bot.con.cursor() as cur:
             for gid in range(3):
@@ -54,8 +54,9 @@ class Gamestats(commands.Cog):
                 data_r = (str(ctx.author.id), str(ctx.guild.id), gid, '')
                 cur.execute(sql_r, data_r)
 
-            self.bot.con.commit()
-            await ctx.reply(embed=discord.Embed(description ="You have been successfully added to the database", color=Colour.green()))
+                self.bot.con.commit()
+
+        await ctx.send(ctx.author.mention, embed=discord.Embed(description ="You have been successfully added to the database", color=Colour.green()))
 
     @commands.command(aliases=["lg"])
     async def logging(self, ctx, toggle: bool = None):
@@ -78,14 +79,14 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
         if toggle is None:
             cur_log = self.manager.query(ctx, 0, "logging")
-            return await ctx.reply(embed=discord.Embed(description=f"Current logging status set to `{cur_log}`"), mention_author=False)
+            return await ctx.send(embed=discord.Embed(description=f"Current logging status set to `{cur_log}`"))
 
         self.manager.update(ctx, 0, logging=toggle)
-        await ctx.reply(embed=discord.Embed(description=f"Successfully set logging status to `{toggle}`", color=Colour.green()))
+        await ctx.send(ctx.author.mention, embed=discord.Embed(description=f"Successfully set logging status to `{toggle}`", color=Colour.green()))
 
     @commands.command()
     async def raw(self, ctx, gmode: str = None):
@@ -104,7 +105,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
         if gmode in {"classic", "cl"}:
             await self.gen_file(ctx, 0, "classic")
@@ -113,7 +114,7 @@ class Gamestats(commands.Cog):
         elif gmode in {"detective", "lie"}:
             await self.gen_file(ctx, 2, "detective")
         else:
-            await ctx.reply(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()), mention_author=False)
+            await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()))
 
     @commands.command(aliases=["rm"])
     async def remove(self, ctx):
@@ -131,10 +132,10 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
         # Special confirmation embed
-        confirm = await ctx.reply(embed=discord.Embed(description="Remove yourself from the database? This action cannot be undone and will erase your game data.", color=Colour.gold()), mention_author=False)
+        confirm = await ctx.send(ctx.author.mention, embed=discord.Embed(description="Remove yourself from the database? This action cannot be undone and will erase your game data.", color=Colour.gold()))
         await confirm.add_reaction("✅")
         await confirm.add_reaction("❌")
 
@@ -145,21 +146,25 @@ class Gamestats(commands.Cog):
             if not self.manager.user_in_db(ctx):
                 return
 
-            await ctx.reply(embed=discord.Embed(description="Confirmation timed out. You have not removed from the database.", color=Colour.red()))
+            await confirm.clear_reactions()
+            return await confirm.edit(embed=discord.Embed(description="Confirmation timed out. You have not been removed from the database.", color=Colour.red()))
         else:
             # When user does ;rm more than once when database exists
             if not self.manager.user_in_db(ctx):
                 return
 
             if react.emoji == "❌":
-                return await ctx.reply(embed=discord.Embed(description="You have been unsuccessfully removed from the database", color=Colour.red()))
+                await confirm.clear_reactions()
+                return await confirm.edit(embed=discord.Embed(description="You have not been removed from the database", color=Colour.red()))
 
             with self.bot.con.cursor() as cur:
                 cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
                 cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
 
             self.bot.con.commit()
-            await ctx.reply(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
+
+            await confirm.clear_reactions()
+            return await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
 
     @commands.command(aliases=["st"])
     async def stats(self, ctx):
@@ -167,18 +172,19 @@ class Gamestats(commands.Cog):
 
         The stats command is used to show tabulated game data for all 3 gamemodes, which
         contain information about wins/losses, streaks, and more. The tables are
-        paginated by gamemode and the user has 60 seconds to interact with them.
+        paginated by gamemode and the user will have60 seconds to interact with them
+        before they expire.
 
         This command requires the user to be added to the database first.
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.reply(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()), mention_author=False)
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
         page_num = 0
         self.gen_page(ctx, 0, "Classic")
 
-        page = await ctx.reply(embed=self.stat_emb, mention_author=False)
+        page = await ctx.send(ctx.author.mention, embed=self.stat_emb)
         await page.add_reaction("⏪")
         await page.add_reaction("⏩")
 
@@ -209,10 +215,10 @@ class Gamestats(commands.Cog):
             f.write(self.manager.query_raw(ctx, game_id))
 
         with open(f"{gamemode}.txt", "rb") as f:
-            await ctx.reply(file=discord.File(f, f"{gamemode}.txt"))
+            await ctx.send(ctx.author.mention, file=discord.File(f, f"{gamemode}.txt"))
 
     def gen_page(self, ctx, gid, gamemode):
-        self.stat_emb.title = f"{ctx.author.name}'s {gamemode} Stats"
+        self.stat_emb.title = f"{ctx.author}'s {gamemode} Stats"
         self.stat_emb.set_footer(text=f"Page {gid+1}/3")
         self.stat_emb.clear_fields()
 
