@@ -70,6 +70,6 @@ class StatManager:
     def user_in_db(self, ctx):
         with self.con.cursor() as cur:
             sql = "SELECT EXISTS (SELECT 1 FROM mtm_user WHERE author_id = %s AND guild_id = %s LIMIT 1);"
-            data = (new_raw, str(ctx.author.id))
+            data = (str(ctx.author.id), str(ctx.guild.id))
             cur.execute(sql, data)
             return cur.fetchone()[0]

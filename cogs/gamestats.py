@@ -8,7 +8,6 @@ from classes.stat_manager import StatManager
 class Gamestats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.stat_emb = discord.Embed()
         self.manager = StatManager(self.bot.con)
 
     @commands.command()
@@ -114,7 +113,7 @@ class Gamestats(commands.Cog):
         elif gmode in {"detective", "lie"}:
             await self.gen_file(ctx, 2, "detective")
         else:
-            await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()))
+            await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode", color=Colour.red()))
 
     @commands.command(aliases=["rm"])
     async def remove(self, ctx):
@@ -167,48 +166,29 @@ class Gamestats(commands.Cog):
             return await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
 
     @commands.command(aliases=["st"])
-    async def stats(self, ctx):
+    async def stats(self, ctx, gmode: str = None):
         """Displays a detailed table of the user's game stats
 
-        The stats command is used to show tabulated game data for all 3 gamemodes, which
-        contain information about wins/losses, streaks, and more. The tables are
-        paginated by gamemode and the user will have60 seconds to interact with them
-        before they expire.
+        The stats command can be used as follows:
+            ;stats classic   -> shows stats for the classic gamemode
+            ;stats repeat    -> shows stats for the repeat gamemode
+            ;stats detective -> shows stats for the detective gamemode
 
-        This command requires the user to be added to the database first.
+        Stats include tabulated information about total games, wins, losses, win rate,
+        streaks, and more.
         """
 
         if not self.manager.user_in_db(ctx):
             return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
-        page_num = 0
-        self.gen_page(ctx, 0, "Classic")
-
-        page = await ctx.send(ctx.author.mention, embed=self.stat_emb)
-        await page.add_reaction("⏪")
-        await page.add_reaction("⏩")
-
-        while True:
-            try:
-                react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
-            except asyncio.TimeoutError:
-                return
-            else:
-                if react.emoji == "⏩":
-                    page_num = min(page_num+1, 2)
-                    await page.remove_reaction(react, user)
-                elif react.emoji == "⏪":
-                    page_num = max(page_num-1, 0)
-                    await page.remove_reaction(react, user)
-
-                if page_num == 0:
-                    self.gen_page(ctx, 0, "Classic")
-                elif page_num == 1:
-                    self.gen_page(ctx, 1, "Repeat")
-                elif page_num == 2:
-                    self.gen_page(ctx, 2, "Detective")
-
-                await page.edit(embed=self.stat_emb)
+        if gmode in {"classic", "cl"}:
+            await self.gen_page(ctx, 0, "Classic")
+        elif gmode in {"repeat", "rp"}:
+            await self.gen_page(ctx, 0, "Repeat")
+        elif gmode in {"detective", "lie"}:
+            await self.gen_page(ctx, 0, "Detective")
+        else:
+            await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode", color=Colour.red()))
 
     async def gen_file(self, ctx, game_id, gamemode):
         with open(f"{gamemode}.txt", "w") as f:
@@ -217,10 +197,9 @@ class Gamestats(commands.Cog):
         with open(f"{gamemode}.txt", "rb") as f:
             await ctx.send(ctx.author.mention, file=discord.File(f, f"{gamemode}.txt"))
 
-    def gen_page(self, ctx, gid, gamemode):
-        self.stat_emb.title = f"{ctx.author}'s {gamemode} Stats"
-        self.stat_emb.set_footer(text=f"Page {gid+1}/3")
-        self.stat_emb.clear_fields()
+    async def gen_page(self, ctx, gid, gamemode):
+        stat_emb = discord.Embed()
+        stat_emb.title = f"{ctx.author}'s {gamemode} Stats"
 
         # Group 1, basic
         wins = self.manager.query(ctx, gid, "wins")
@@ -238,7 +217,7 @@ class Gamestats(commands.Cog):
         # Group 3, misc
         quits = self.manager.query(ctx, gid, "times_quit")
 
-        self.stat_emb.add_field(
+        stat_emb.add_field(
             name = f"Basic Info",
             value = f"""
                 Total Games: **{total}**
@@ -248,7 +227,7 @@ class Gamestats(commands.Cog):
             """,
             inline=False
         )
-        self.stat_emb.add_field(
+        stat_emb.add_field(
             name = f"Streak Info",
             value = f"""
                 Longest Win Streak: **{long_w_strk}**
@@ -257,11 +236,13 @@ class Gamestats(commands.Cog):
             """,
             inline=False
         )
-        self.stat_emb.add_field(
+        stat_emb.add_field(
             name = f"Misc Info",
             value = f"""Times Quit: **{quits}**""",
             inline=False
         )
+
+        await ctx.send(embed=stat_emb)
 
 
 def setup(bot):
