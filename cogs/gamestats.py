@@ -160,8 +160,7 @@ class Gamestats(commands.Cog):
             with self.bot.con.cursor() as cur:
                 cur.execute(f"DELETE FROM mtm_user WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
                 cur.execute(f"DELETE FROM mtm_user_raw WHERE author_id = '{ctx.author.id}' AND guild_id = '{ctx.guild.id}';")
-
-            self.bot.con.commit()
+                self.bot.con.commit()
 
             await confirm.clear_reactions()
             return await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
