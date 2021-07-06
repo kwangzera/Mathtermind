@@ -35,10 +35,15 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         return await ctx.send(embed=discord.Embed(description=f"You are on cooldown. Please try again in {error.retry_after:.2f} seconds.", color=Colour.red()))
 
+    # Printing the full Traceback if not a CommandOnCooldown error
+    traceback.print_exception(type(error), error, error.__traceback__)
+
+
 # Whole database connection stored in bot
 if not hasattr(bot, "con"):
     bot.con = conn
 
+# Creating necessary tables for Mathtermind if they don't exist
 with bot.con.cursor() as cur:
     cur.execute(f"""
         CREATE TABLE IF NOT EXISTS mtm_user (
