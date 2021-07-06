@@ -12,7 +12,7 @@ class Gameplay(commands.Cog):
         self.bot = bot
         self.manager = StatManager(self.bot.con)
 
-    @commands.command(aliases=["g"])
+    @commands.command(aliases=["g"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def guess(self, ctx, *nums: int):
         """Makes a guess
@@ -69,7 +69,7 @@ class Gameplay(commands.Cog):
         guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combination match{'es'*(game.matches[-1] == 1)} your guess"
         await ctx.send(embed=guess_emb)
 
-    @commands.command(aliases=["id"])
+    @commands.command(aliases=["id"], cooldown_after_parsing=True)
     async def identify(self, ctx, target: int = None):
         """Identifies a lie in detective mode
 
@@ -131,7 +131,7 @@ class Gameplay(commands.Cog):
 
             await ctx.send(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()))
 
-    @commands.command(aliases=["lv"])
+    @commands.command(aliases=["lv"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def leave(self, ctx):
         """Leaves the user's current game
@@ -161,7 +161,7 @@ class Gameplay(commands.Cog):
         else:
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-    @commands.command(aliases=["sh"])
+    @commands.command(aliases=["sh"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def show(self, ctx):
         """Shows the full guess history of the user's current game
@@ -181,7 +181,7 @@ class Gameplay(commands.Cog):
         else:
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-    @commands.command(aliases=["sv"])
+    @commands.command(aliases=["sv"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def solve(self, ctx):
         """Lists out all the possible solutions for the user's current game

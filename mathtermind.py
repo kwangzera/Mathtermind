@@ -33,7 +33,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
-        return await ctx.send(embed=discord.Embed(description=error, color=Colour.red()))
+        return await ctx.send(embed=discord.Embed(description=f"You are on cooldown. Please try again in {error.retry_after:.2f} seconds.", color=Colour.red()))
 
 # Whole database connection stored in bot
 if not hasattr(bot, "con"):

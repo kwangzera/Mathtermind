@@ -11,7 +11,7 @@ class Gamestats(commands.Cog):
         self.stat_emb = discord.Embed()
         self.manager = StatManager(self.bot.con)
 
-    @commands.command()
+    @commands.command(cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def add(self, ctx):
         """Adds the user to the database
@@ -59,7 +59,7 @@ class Gamestats(commands.Cog):
 
         await ctx.send(ctx.author.mention, embed=discord.Embed(description="You have been successfully added to the database", color=Colour.green()))
 
-    @commands.command(aliases=["lg"])
+    @commands.command(aliases=["lg"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def logging(self, ctx, toggle: bool = None):
         """Shows the user's data logging status or toggles it on or off
@@ -90,7 +90,7 @@ class Gamestats(commands.Cog):
         self.manager.update(ctx, 0, logging=toggle)
         await ctx.send(ctx.author.mention, embed=discord.Embed(description=f"Successfully set logging status to `{toggle}`", color=Colour.green()))
 
-    @commands.command()
+    @commands.command(cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def raw(self, ctx, gmode: str = None):
         """Outputs the user's raw game data of any gamemode as a .txt file
@@ -119,7 +119,7 @@ class Gamestats(commands.Cog):
         else:
             await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()))
 
-    @commands.command(aliases=["rm"])
+    @commands.command(aliases=["rm"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def remove(self, ctx):
         """Removes the user from the database
@@ -169,7 +169,7 @@ class Gamestats(commands.Cog):
             await confirm.clear_reactions()
             return await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
 
-    @commands.command(aliases=["st"])
+    @commands.command(aliases=["st"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def stats(self, ctx):
         """Displays a detailed table of the user's game stats
