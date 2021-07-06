@@ -1,7 +1,9 @@
 import os
 import traceback
 
+import discord
 import psycopg2
+from discord import Colour
 from discord.ext import commands
 
 # Initializing bot
@@ -16,6 +18,9 @@ print("Database opened successfully")
 async def on_ready():
     print(f"Logged in as {bot.user}")
 
+    # Setting the bot's status
+    await bot.change_presence(activity=discord.Game(name="a Guessing Game | ;help"))
+
     # Loading extensions on startup
     for filename in os.listdir("./cogs"):
         if filename.endswith(".py"):
@@ -24,6 +29,11 @@ async def on_ready():
 
     print("All extensions loaded successfully")
 
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        return await ctx.send(embed=discord.Embed(description=error, color=Colour.red()))
 
 # Whole database connection stored in bot
 if not hasattr(bot, "con"):

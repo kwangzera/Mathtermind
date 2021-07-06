@@ -12,6 +12,7 @@ class Gamestats(commands.Cog):
         self.manager = StatManager(self.bot.con)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def add(self, ctx):
         """Adds the user to the database
 
@@ -56,9 +57,10 @@ class Gamestats(commands.Cog):
 
                 self.bot.con.commit()
 
-        await ctx.send(ctx.author.mention, embed=discord.Embed(description ="You have been successfully added to the database", color=Colour.green()))
+        await ctx.send(ctx.author.mention, embed=discord.Embed(description="You have been successfully added to the database", color=Colour.green()))
 
     @commands.command(aliases=["lg"])
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def logging(self, ctx, toggle: bool = None):
         """Shows the user's data logging status or toggles it on or off
 
@@ -89,6 +91,7 @@ class Gamestats(commands.Cog):
         await ctx.send(ctx.author.mention, embed=discord.Embed(description=f"Successfully set logging status to `{toggle}`", color=Colour.green()))
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def raw(self, ctx, gmode: str = None):
         """Outputs the user's raw game data of any gamemode as a .txt file
 
@@ -117,6 +120,7 @@ class Gamestats(commands.Cog):
             await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()))
 
     @commands.command(aliases=["rm"])
+    @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def remove(self, ctx):
         """Removes the user from the database
 
@@ -166,13 +170,13 @@ class Gamestats(commands.Cog):
             return await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
 
     @commands.command(aliases=["st"])
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def stats(self, ctx):
         """Displays a detailed table of the user's game stats
 
         The stats command is used to show tabulated game data for all 3 gamemodes, which
         contain information about wins/losses, streaks, and more. The tables are
-        paginated by gamemode and the user will have 60 seconds to interact with them
-        before they expire.
+        paginated by gamemode and will expire after 60 seconds.
 
         This command requires the user to be added to the database first.
         """

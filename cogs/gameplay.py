@@ -13,6 +13,7 @@ class Gameplay(commands.Cog):
         self.manager = StatManager(self.bot.con)
 
     @commands.command(aliases=["g"])
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def guess(self, ctx, *nums: int):
         """Makes a guess
 
@@ -108,8 +109,6 @@ class Gameplay(commands.Cog):
         fields = game.board.fields
 
         if target == game.lie_index:
-            await ctx.send(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()))
-
             for idx in range(4):
                 name, value = fields[idx].name, fields[idx].value
                 game.verified[idx] = True
@@ -121,6 +120,8 @@ class Gameplay(commands.Cog):
                 else:
                     game.board.set_field_at(idx, name=name, value=f"✅ {value[1:]}", inline=False)
 
+            await ctx.send(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()))
+
         else:
             target -= 1
             # Know that this is right
@@ -131,6 +132,7 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()))
 
     @commands.command(aliases=["lv"])
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def leave(self, ctx):
         """Leaves the user's current game
 
@@ -160,6 +162,7 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
     @commands.command(aliases=["sh"])
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def show(self, ctx):
         """Shows the full guess history of the user's current game
 
@@ -179,6 +182,7 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
     @commands.command(aliases=["sv"])
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def solve(self, ctx):
         """Lists out all the possible solutions for the user's current game
 
