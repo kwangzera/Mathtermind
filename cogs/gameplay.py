@@ -14,7 +14,7 @@ class Gameplay(commands.Cog):
         self.manager = StatManager(self.bot.con)
 
     @commands.command(aliases=["g"], cooldown_after_parsing=True)
-    @commands.cooldown(rate=1, per=2, type=commands.BucketType.member)
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def guess(self, ctx, *nums: int):
         """Makes a guess
 
@@ -71,6 +71,7 @@ class Gameplay(commands.Cog):
         await ctx.send(embed=guess_emb)
 
     @commands.command(aliases=["id"], cooldown_after_parsing=True)
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def identify(self, ctx, target: int = None):
         """Identifies a lie in detective mode
 
@@ -163,7 +164,7 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
     @commands.command(aliases=["sh"], cooldown_after_parsing=True)
-    @commands.cooldown(rate=1, per=2, type=commands.BucketType.member)
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def show(self, ctx):
         """Shows the full guess history of the user's current game
 
@@ -183,7 +184,7 @@ class Gameplay(commands.Cog):
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
     @commands.command(aliases=["sv"], cooldown_after_parsing=True)
-    @commands.cooldown(rate=1, per=2, type=commands.BucketType.member)
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def solve(self, ctx):
         """Lists out all the possible solutions for the user's current game
 
