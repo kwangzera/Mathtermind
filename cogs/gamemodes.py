@@ -15,7 +15,7 @@ class Gamemodes(commands.Cog):
         if not hasattr(bot, "games"):
             bot.games = {}
 
-    @commands.command(aliases=["cl"], cooldown_after_parsing=True)
+    @commands.command(aliases=["cl"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def classic(self, ctx):
         """Starts a Mathtermind game in classic mode
@@ -38,7 +38,7 @@ class Gamemodes(commands.Cog):
 
         await self.create_game(ctx, Classic(ctx))
 
-    @commands.command(aliases=["rp"], cooldown_after_parsing=True)
+    @commands.command(aliases=["rp"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def repeat(self, ctx):
         """Starts a Mathtermind game in repeat mode
@@ -62,7 +62,7 @@ class Gamemodes(commands.Cog):
 
         await self.create_game(ctx, Repeat(ctx))
 
-    @commands.command(aliases=["lie"], cooldown_after_parsing=True)
+    @commands.command(aliases=["lie"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def detective(self, ctx):
         """Starts a Mathtermind game in detective mode

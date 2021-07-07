@@ -133,7 +133,7 @@ class Gameplay(commands.Cog):
 
             await ctx.send(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()))
 
-    @commands.command(aliases=["lv"], cooldown_after_parsing=True)
+    @commands.command(aliases=["lv"])
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def leave(self, ctx):
         """Leaves the user's current game
@@ -163,7 +163,7 @@ class Gameplay(commands.Cog):
         else:
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-    @commands.command(aliases=["sh"], cooldown_after_parsing=True)
+    @commands.command(aliases=["sh"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def show(self, ctx):
         """Shows the full guess history of the user's current game
@@ -183,7 +183,7 @@ class Gameplay(commands.Cog):
         else:
             await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-    @commands.command(aliases=["sv"], cooldown_after_parsing=True)
+    @commands.command(aliases=["sv"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def solve(self, ctx):
         """Lists out all the possible solutions for the user's current game
