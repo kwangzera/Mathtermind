@@ -6,23 +6,29 @@ import discord
 
 class ClassicSolver:
     def __init__(self, rounds, matches, verified):
+        self.valid_cnt = 0
+        self.valid = []
         self.rounds = rounds
         self.matches = matches
-        self.verified = verified
-        self.valid = []
-        self.valid_cnt = 0
+        self.verified = verified  # All true for classic
         self.combos = list(c(range(1, 16), 3))
+
+        # Embeds
         self.sol_panel = discord.Embed()
 
     def solve(self):
+        """Brute forces all possible combinations and identifies possible ones"""
+
         for cb in self.combos:
             for rnd, mt, vr in zip(self.rounds, self.matches, self.verified):
+                # Doesn't attempt to count matches if unverified guess (lie mode)
                 if not vr:
                     continue
 
-                # TODO explain this
+                # Number of matches is sum of values from the intersection of 2 counters
                 cnt = sum((Counter(cb) & Counter(rnd)).values())
 
+                # Not a possible solution
                 if cnt != mt:
                     break
             else:
@@ -32,9 +38,11 @@ class ClassicSolver:
         self.gen_embed()
 
     def gen_embed(self):
+        """Creates an embed displaying all possible solutions if there are 64 or less"""
+
         self.sol_panel.title = f"{self.valid_cnt} Valid Solution{'s'*(self.valid_cnt != 1)} Found"
 
         if self.valid_cnt > 64:
             self.sol_panel.description = f"Solutions will not be listed since there are over 64 possible valid combinations"
         else:
-            self.sol_panel.description = f"||{', '.join(self.valid)}||"
+            self.sol_panel.description = f"||{', '.join(self.valid)}||"  # Spoilers the solutions

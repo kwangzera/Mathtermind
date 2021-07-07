@@ -8,13 +8,13 @@ from discord import Colour
 class Classic:
     def __init__(self, ctx):
         self.game_id = 0
+        self.round_number = 0
+        self.game_over = 0  # 1: lose, 2: win
+        self.logging = True
         self.rounds = []
         self.matches = []
         self.verified = []
-        self.round_number = 0
-        self.game_over = 0  # 1: lose, 2: win
         self.answer = sorted(sample(range(1, 16), 3))
-        self.logging = True
 
         # Embeds
         self.log_msg = discord.Embed(color=Colour.red())
@@ -22,19 +22,22 @@ class Classic:
         self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
 
     def win(self, guess):
+        # 3 numbers, 3 matches
         return self.matches[-1] == len(guess) == 3
 
     def lose(self):
         return self.round_number == 8
 
     def update_stats(self, guess):
+        """Executes all necessary operations after a user makes a guess"""
+
         self.round_number += 1
         self.rounds.append(guess)
         self.matches.append(self.match_ans(guess))
         self.verified.append(True)
 
     def add_round(self, guess):
-        """Updates this Classic game class with a new round. Assumes `guess` is valid"""
+        """Updates the Classic game with a new round. Assumes `guess` is valid."""
 
         self.update_stats(guess)
 
@@ -51,13 +54,14 @@ class Classic:
             return
 
     def match_ans(self, guess):
-        # TODO explain again?
+        # Number of matches is sum of values from the intersection of 2 counters
         return sum((Counter(guess) & Counter(self.answer)).values())
 
     def valid_len(self, guess):
         return guess and len(guess) <= 4
 
     def is_unique(self, guess):
+        # Set of numbers must be the same as the numbers (no duplicates)
         return sorted(set(guess)) == sorted(guess)
 
     def in_range(self, guess):
@@ -68,9 +72,12 @@ class Classic:
         return True
 
     def last_guess(self, guess, flag):
+        # `flag` makes sure the guess is valid
         return self.round_number == 7 and len(guess) != 3 and flag
 
     def valid_guess(self, guess):
+        """Checks if a guess is valid or not. Makes use of the previous helper methods."""
+
         flag = True
 
         if not self.valid_len(guess) or not self.in_range(guess):

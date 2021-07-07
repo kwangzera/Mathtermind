@@ -8,16 +8,18 @@ class Detective(Classic):
     def __init__(self, ctx):
         super().__init__(ctx)
         self.game_id = 2
-        self.game_over_msg.title = f"{ctx.author}'s Detective Game"
-        self.board.title = f"{ctx.author}'s Detective Game"
-        self.lie_index = randint(1, 4)  # Index of the lie
         self.actual_match = -1  # Real number of matches
+        self.lie_index = randint(1, 4)  # Index of the lie
         self.used_identify = False
 
+        # Embeds
+        self.game_over_msg.title = f"{ctx.author}'s Detective Game"
+        self.board.title = f"{ctx.author}'s Detective Game"
+
     def match_ans(self, guess):
-        # TODO comment here agian
         match = sum((Counter(guess) & Counter(self.answer)).values())
 
+        # Gives a false match if the round number is the lie index
         if self.round_number == self.lie_index:
             self.actual_match = match
             return self.create_lie(match, len(guess))
@@ -25,6 +27,7 @@ class Detective(Classic):
             return match
 
     def win(self, guess):
+        # Must be a verified guess for a win
         return (self.matches[-1] == len(guess) == 3) and self.round_number > 4
 
     def lose(self):
@@ -35,6 +38,7 @@ class Detective(Classic):
         self.rounds.append(guess)
         self.matches.append(self.match_ans(guess))
 
+        # Rounds are guaranteed to be verified after the 4th guess
         if self.round_number <= 4:
             self.verified.append(False)
         else:
@@ -54,4 +58,5 @@ class Detective(Classic):
         ret_probs = Counter({i: probs[i] for i in range(0, guess_len+1)})
         del ret_probs[actual]
 
+        # Returns random number from list of numbers with different frequencies determined by `probs`
         return choice(list(ret_probs.elements()))

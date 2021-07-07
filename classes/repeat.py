@@ -7,19 +7,23 @@ class Repeat(Classic):
     def __init__(self, ctx):
         super().__init__(ctx)
         self.game_id = 1
-        self.game_over_msg.title = f"{ctx.author}'s Repeat Game"
-        self.board.title = f"{ctx.author}'s Repeat Game"
         self.create_answer()
 
-    # Uniqueness doesn't matter for repeat mode
+        # Embeds
+        self.game_over_msg.title = f"{ctx.author}'s Repeat Game"
+        self.board.title = f"{ctx.author}'s Repeat Game"
+
     def is_unique(self, guess):
+        # Uniqueness doesn't matter for repeat mode
         return True
 
     def create_answer(self):
-        rng = random()*100
-        a, b = sample(range(1, 16), 2)
+        """Generates the winning combination for repeat mode"""
 
-        if rng < 5:
+        rng = random()*100
+        a, b = sample(range(1, 16), 2)  # Not sorted
+
+        if rng < 5:  # 5% chance of generating 3 duplicates
             self.answer = sorted((a, a, a))
-        elif rng < 60:
+        elif rng < 60:  # 55% chance of generating 2 duplicates
             self.answer = sorted((a, a, b))
