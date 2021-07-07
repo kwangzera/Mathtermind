@@ -7,6 +7,7 @@ from classes.repeat_solver import RepeatSolver
 from classes.detective_solver import DetectiveSolver
 from classes.stat_manager import StatManager
 
+
 class Gameplay(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -39,7 +40,7 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
         game = self.bot.games[self.key(ctx)]
-        uncert = game.game_id == 2 and game.round_number < 4
+        unknown = game.game_id == 2 and game.round_number < 4
 
         if not game.valid_guess(nums):
             return await ctx.send(embed=game.log_msg)
@@ -47,7 +48,7 @@ class Gameplay(commands.Cog):
         game.add_round(nums)
         game.board.add_field(
             name=f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-            value=f"{'❓ '*uncert}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
+            value=f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
             inline=False
         )
 
@@ -66,7 +67,7 @@ class Gameplay(commands.Cog):
 
         guess_emb = discord.Embed()  # TODO send embed directly or init first
         guess_emb.title = f"Guess {game.round_number}"
-        guess_emb.description = f"{'Perhaps'*uncert} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combination match{'es'*(game.matches[-1] == 1)} your guess"
+        guess_emb.description = f"{'Perhaps'*unknown} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combination match{'es'*(game.matches[-1] == 1)} your guess"
         await ctx.send(embed=guess_emb)
 
     @commands.command(aliases=["id"], cooldown_after_parsing=True)
@@ -150,8 +151,8 @@ class Gameplay(commands.Cog):
             # Updating database
             if self.manager.user_in_db(ctx):
                 if self.manager.query(ctx, 0, "logging"):
-                    gid = self.bot.games[self.key(ctx)].game_id
-                    self.manager.increment(ctx, gid, "times_quit")
+                    game_id = self.bot.games[self.key(ctx)].game_id
+                    self.manager.increment(ctx, game_id, "times_quit")
                     game.game_over_msg.set_footer(text="Logging is on")
                 else:
                     game.game_over_msg.set_footer(text="Logging is off")

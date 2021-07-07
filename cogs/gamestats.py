@@ -26,7 +26,7 @@ class Gamestats(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You already exist in the database", color=Colour.red()))
 
         with self.bot.con.cursor() as cur:
-            for gid in range(3):
+            for game_id in range(3):
                 sql = f"""
                     INSERT INTO mtm_user (
                         author_id,
@@ -42,7 +42,7 @@ class Gamestats(commands.Cog):
                         prev_result,
                         logging
                     ) VALUES ({', '.join('%s' for _ in range(13))})"""
-                data = (str(ctx.author.id), str(ctx.guild.id), gid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'f')
+                data = (str(ctx.author.id), str(ctx.guild.id), game_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'f')
                 cur.execute(sql, data)
 
                 sql_r = """
@@ -52,7 +52,7 @@ class Gamestats(commands.Cog):
                         game_id,
                         raw_data
                     ) VALUES (%s, %s, %s, %s);"""
-                data_r = (str(ctx.author.id), str(ctx.guild.id), gid, '')
+                data_r = (str(ctx.author.id), str(ctx.guild.id), game_id, '')
                 cur.execute(sql_r, data_r)
 
                 self.bot.con.commit()
@@ -92,7 +92,7 @@ class Gamestats(commands.Cog):
 
     @commands.command(cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
-    async def raw(self, ctx, gmode: str = None):
+    async def raw(self, ctx, gamemode: str = None):
         """Outputs the user's raw game data of any gamemode as a .txt file
 
         The logging command can be used as follows:
@@ -110,11 +110,11 @@ class Gamestats(commands.Cog):
         if not self.manager.user_in_db(ctx):
             return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
-        if gmode in {"classic", "cl"}:
+        if gamemode in {"classic", "cl"}:
             await self.gen_file(ctx, 0, "classic")
-        elif gmode in {"repeat", "rp"}:
+        elif gamemode in {"repeat", "rp"}:
             await self.gen_file(ctx, 1, "repeat")
-        elif gmode in {"detective", "lie"}:
+        elif gamemode in {"detective", "lie"}:
             await self.gen_file(ctx, 2, "detective")
         else:
             await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()))
@@ -220,49 +220,49 @@ class Gamestats(commands.Cog):
         with open(f"{gamemode}.txt", "rb") as f:
             await ctx.send(ctx.author.mention, file=discord.File(f, f"{gamemode}.txt"))
 
-    def gen_page(self, ctx, gid, gamemode):
+    def gen_page(self, ctx, game_id, gamemode):
         self.stat_emb.title = f"{ctx.author}'s {gamemode} Stats"
-        self.stat_emb.set_footer(text=f"Page {gid+1}/3")
+        self.stat_emb.set_footer(text=f"Page {game_id+1}/3")
         self.stat_emb.clear_fields()
 
         # Group 1, basic
-        wins = self.manager.query(ctx, gid, "wins")
-        losses = self.manager.query(ctx, gid, "losses")
+        wins = self.manager.query(ctx, game_id, "wins")
+        losses = self.manager.query(ctx, game_id, "losses")
         total = wins+losses
-        winrate = wins/total if total != 0 else 0
+        win_rate = wins/total if total != 0 else 0
 
         # Group 2, streaks
-        long_w_strk = self.manager.query(ctx, gid, "longest_win_streak")
-        long_l_strk = self.manager.query(ctx, gid, "longest_loss_streak")
-        cur_strk = self.manager.query(ctx, gid, "current_streak")
-        pre_res = self.manager.query(ctx, gid, "prev_result")
-        cur_strk_type = f"Win{'s'*(cur_strk != 1)}" if pre_res else f"Loss{'es'*(cur_strk != 1)}"
+        longest_win_streak = self.manager.query(ctx, game_id, "longest_win_streak")
+        longest_loss_streak = self.manager.query(ctx, game_id, "longest_loss_streak")
+        current_streak = self.manager.query(ctx, game_id, "current_streak")
+        prev_result = self.manager.query(ctx, game_id, "prev_result")
+        current_streak_type = f"Win{'s'*(current_streak != 1)}" if prev_result else f"Loss{'es'*(current_streak != 1)}"
 
         # Group 3, misc
-        quits = self.manager.query(ctx, gid, "times_quit")
+        quits = self.manager.query(ctx, game_id, "times_quit")
 
         self.stat_emb.add_field(
-            name = f"Basic Info",
-            value = f"""
+            name=f"Basic Info",
+            value=f"""
                 Total Games: **{total}**
                 Wins: **{wins}**
                 Losses: **{losses}**
-                Win Rate: **{winrate*100:0.1f}%**
+                Win Rate: **{win_rate*100:0.1f}%**
             """,
             inline=False
         )
         self.stat_emb.add_field(
-            name = f"Streak Info",
-            value = f"""
-                Longest Win Streak: **{long_w_strk}**
-                Longest Loss Streak: **{long_l_strk}**
-                Current Streak: **{cur_strk} {cur_strk_type}**
+            name=f"Streak Info",
+            value=f"""
+                Longest Win Streak: **{longest_win_streak}**
+                Longest Loss Streak: **{longest_loss_streak}**
+                Current Streak: **{current_streak} {current_streak_type}**
             """,
             inline=False
         )
         self.stat_emb.add_field(
-            name = f"Misc Info",
-            value = f"""Times Quit: **{quits}**""",
+            name=f"Misc Info",
+            value=f"""Times Quit: **{quits}**""",
             inline=False
         )
 
