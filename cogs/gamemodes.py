@@ -11,7 +11,7 @@ class Gamemodes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        # Storing dict of users in bot, also reload doesn't erase gamestates
+        # Storing dict of users in bot
         if not hasattr(bot, "games"):
             bot.games = {}
 
@@ -93,14 +93,12 @@ class Gamemodes(commands.Cog):
 
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
-            self.bot.games[self.key(ctx)] = gametype
+            self.bot.games[self.key(ctx)] = gametype  # Assigns a game to a user's key
             await ctx.send(embed=discord.Embed(description="Ready to play", color=Colour.green()))
         else:
             await ctx.send(embed=discord.Embed(description="You are already in a game", color=Colour.red()))
 
     def key(self, ctx):
-        """Returns unique identification key containing user id and server id"""
-
         return f"{ctx.author.id}{ctx.guild.id}"
 
 

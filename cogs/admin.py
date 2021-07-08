@@ -27,10 +27,10 @@ class Admin(commands.Cog):
 
     @commands.command(aliases=["gd"], hidden=True)
     async def gamedata(self, ctx, user_id: int = None):
+        # Pretty prints instance variables from classic class as a dictionary
         pprint(self.bot.games[f"{ctx.author.id if user_id is None else user_id}{ctx.guild.id}"].__dict__)
         await ctx.send("Game debug info printed in terminal.", mention_author=False)
 
-    # May be diff when hosted
     @commands.command(hidden=True)
     async def shutdown(self, ctx):
         await ctx.send(f"Shutting Mathermind down.", mention_author=False)

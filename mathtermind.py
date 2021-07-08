@@ -39,7 +39,7 @@ async def on_command_error(ctx, error):
     traceback.print_exception(type(error), error, error.__traceback__)
 
 
-# Whole database connection stored in bot
+# Storing the database connection in bot
 if not hasattr(bot, "con"):
     bot.con = conn
 

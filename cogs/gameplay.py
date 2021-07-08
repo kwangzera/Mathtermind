@@ -13,42 +13,6 @@ class Gameplay(commands.Cog):
         self.bot = bot
         self.manager = StatManager(self.bot.con)
 
-    @commands.command(aliases=["if"])
-    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
-    async def info(self, ctx):
-        """Displays the user's general information
-
-        The info command displays the user's general information regarding their current
-        game and logging status (see ;help logging for more details) when they are
-        available.
-        """
-
-        info_embed = discord.Embed()
-        info_embed.title = f"{ctx.author}'s General Info"
-
-        if self.key(ctx) not in self.bot.games:
-            info_embed.add_field(name="Game Info", value="N/A", inline=False)
-        else:
-            game = self.bot.games[self.key(ctx)]
-            gamemode = "Classic" if game.game_id == 0 else ("Repeat" if game.game_id == 1 else "Detective")
-            lie_str = "" if game.game_id != 2 else f"Used Identify: **{game.used_identify}**"
-            info_embed.add_field(
-                name="Game Info",
-                value=f"""
-                   Gamemode: **{gamemode}**
-                   Current Round: **{game.round_number+1}**
-                   {lie_str}
-                """,
-                inline=False
-            )
-
-        if not self.manager.user_in_db(ctx):
-            info_embed.add_field(name="Logging Info", value="N/A", inline=False)
-        else:
-            info_embed.add_field(name="Logging Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
-
-        await ctx.send(ctx.author.mention, embed=info_embed)
-
     @commands.command(aliases=["g"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def guess(self, ctx, *nums: int):
@@ -76,7 +40,7 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
         game = self.bot.games[self.key(ctx)]
-        unknown = game.game_id == 2 and game.round_number < 4
+        unknown = game.game_id == 2 and game.round_number < 4  # Puts a question mark in front of unverified guesses
 
         if not game.valid_guess(nums):
             return await ctx.send(embed=game.log_msg)
@@ -92,8 +56,8 @@ class Gameplay(commands.Cog):
             # Updating database
             if self.manager.user_in_db(ctx):
                 if self.manager.query(ctx, 0, "logging"):
-                    self.manager.calc_streak(ctx, game.game_id, game.game_over-1)
-                    self.manager.incr_raw(ctx, game.game_id, game.game_over-1)
+                    self.manager.calc_streak(ctx, game.game_id, game.game_over-1)  # Logging streaks, wins, losses
+                    self.manager.incr_raw(ctx, game.game_id, game.game_over-1)  # Logging raw (game history binary string)
                     game.game_over_msg.set_footer(text="Logging is on")
                 else:
                     game.game_over_msg.set_footer(text="Logging is off")
@@ -101,7 +65,7 @@ class Gameplay(commands.Cog):
             self.reset_game(ctx)
             return await ctx.send(ctx.author.mention, embed=game.game_over_msg)
 
-        guess_emb = discord.Embed()  # TODO send embed directly or init first
+        guess_emb = discord.Embed()
         guess_emb.title = f"Guess {game.round_number}"
         guess_emb.description = f"{'Perhaps'*unknown} {game.matches[-1]} number{'s'*(game.matches[-1] != 1)} from the winning combination match{'es'*(game.matches[-1] == 1)} your guess"
         await ctx.send(embed=guess_emb)
@@ -146,28 +110,64 @@ class Gameplay(commands.Cog):
         game.used_identify = True
         fields = game.board.fields
 
+        # Correctly identified the lie
         if target == game.lie_index:
+            # Loop through the first 4, unverified guesses
             for idx in range(4):
                 name, value = fields[idx].name, fields[idx].value
-                game.verified[idx] = True
+                game.verified[idx] = True  # All guesses verified now
 
                 if idx == game.lie_index - 1:
-                    game.matches[idx] = game.actual_match
+                    game.matches[idx] = game.actual_match  # Replacing the lie with actual number of matches
                     value = f"~~{value}~~\n✅ {game.actual_match} match{'es'*(game.actual_match != 1)}"
                     game.board.set_field_at(idx, name=name, value=value, inline=False)
                 else:
                     game.board.set_field_at(idx, name=name, value=f"✅ {value[1:]}", inline=False)
 
-            await ctx.send(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()))
+            return await ctx.send(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()))
 
+        # Incorrectly identified the lie
+        target -= 1  # 0-indexed
+        game.verified[target] = True  # Incorrectly identified lie must be verified
+
+        name, value = fields[target].name, fields[target].value
+        game.board.set_field_at(target, name=name, value=f"✅ {value[1:]}", inline=False)
+        await ctx.send(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()))
+
+    @commands.command(aliases=["if"])
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
+    async def info(self, ctx):
+        """Displays the user's general information
+
+        The info command displays general information regarding the user's current game
+        and logging status (see ;help logging for more details) when they are available.
+        """
+
+        info_embed = discord.Embed()
+        info_embed.title = f"{ctx.author}'s General Info"
+
+        if self.key(ctx) not in self.bot.games:
+            info_embed.add_field(name="Game Info", value="N/A", inline=False)
         else:
-            target -= 1
-            # Know that this is right
-            game.verified[target] = True
-            name, value = fields[target].name, fields[target].value
-            game.board.set_field_at(target, name=name, value=f"✅ {value[1:]}", inline=False)
+            game = self.bot.games[self.key(ctx)]
+            gamemode = "Classic" if game.game_id == 0 else ("Repeat" if game.game_id == 1 else "Detective")
+            lie_str = "" if game.game_id != 2 else f"Used Identify: **{game.used_identify}**"
+            info_embed.add_field(
+                name="Game Info",
+                value=f"""
+                   Gamemode: **{gamemode}**
+                   Current Round: **{game.round_number+1}**
+                   {lie_str}
+                """,
+                inline=False
+            )
 
-            await ctx.send(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()))
+        if not self.manager.user_in_db(ctx):
+            info_embed.add_field(name="Logging Info", value="N/A", inline=False)
+        else:
+            info_embed.add_field(name="Logging Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
+
+        await ctx.send(ctx.author.mention, embed=info_embed)
 
     @commands.command(aliases=["lv"])
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
@@ -189,15 +189,15 @@ class Gameplay(commands.Cog):
             if self.manager.user_in_db(ctx):
                 if self.manager.query(ctx, 0, "logging"):
                     game_id = self.bot.games[self.key(ctx)].game_id
-                    self.manager.increment(ctx, game_id, "times_quit")
+                    self.manager.increment(ctx, game_id, "times_quit")  # Logging times quit
                     game.game_over_msg.set_footer(text="Logging is on")
                 else:
                     game.game_over_msg.set_footer(text="Logging is off")
 
             self.reset_game(ctx)
-            await ctx.send(ctx.author.mention, embed=game.game_over_msg)
-        else:
-            await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
+            return await ctx.send(embed=game.game_over_msg)
+
+        await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
     @commands.command(aliases=["sh"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
@@ -215,9 +215,9 @@ class Gameplay(commands.Cog):
         """
 
         if self.key(ctx) in self.bot.games:
-            await ctx.send(embed=self.bot.games[self.key(ctx)].board)
-        else:
-            await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
+            return await ctx.send(embed=self.bot.games[self.key(ctx)].board)
+
+        await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
     @commands.command(aliases=["sv"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
@@ -246,18 +246,16 @@ class Gameplay(commands.Cog):
             solution = ClassicSolver(game.rounds, game.matches, game.verified)
         elif game.game_id == 1:
             solution = RepeatSolver(game.rounds, game.matches, game.verified)
-        else:
+        else:  # `game.game_id == 2`
             solution = DetectiveSolver(game.rounds, game.matches, game.verified)
 
         solution.solve()
         await ctx.send(embed=solution.sol_panel)
 
     def reset_game(self, ctx):
-        self.bot.games.pop(self.key(ctx))
+        self.bot.games.pop(self.key(ctx))  # Removes the user's key from the dictionary
 
     def key(self, ctx):
-        """Returns unique identification key containing user id and server id"""
-
         return f"{ctx.author.id}{ctx.guild.id}"
 
 
