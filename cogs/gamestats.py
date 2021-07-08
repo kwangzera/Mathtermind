@@ -239,11 +239,11 @@ class Gamestats(commands.Cog):
         win_rate = wins/total if total != 0 else 0
 
         # Streak info
-        longest_win_streak = self.manager.query(ctx, game_id, "longest_win_streak")
-        longest_loss_streak = self.manager.query(ctx, game_id, "longest_loss_streak")
-        current_streak = self.manager.query(ctx, game_id, "current_streak")
+        long_win_strk = self.manager.query(ctx, game_id, "longest_win_streak")
+        long_loss_strk = self.manager.query(ctx, game_id, "longest_loss_streak")
+        cur_strk = self.manager.query(ctx, game_id, "current_streak")
         prev_result = self.manager.query(ctx, game_id, "prev_result")
-        current_streak_type = f"Win{'s'*(current_streak != 1)}" if prev_result else f"Loss{'es'*(current_streak != 1)}"
+        cur_strk_type = f"Win{'s'*(cur_strk != 1)}" if prev_result else f"Loss{'es'*(cur_strk != 1)}"
 
         # Misc info
         quits = self.manager.query(ctx, game_id, "times_quit")
@@ -261,9 +261,9 @@ class Gamestats(commands.Cog):
         emb.add_field(
             name=f"Streak Info",
             value=f"""
-                Longest Win Streak: **{longest_win_streak}**
-                Longest Loss Streak: **{longest_loss_streak}**
-                Current Streak: **{current_streak} {current_streak_type}**
+                Longest Win Streak: **{long_win_strk}**
+                Longest Loss Streak: **{long_loss_strk}**
+                Current Streak: **{cur_strk} {cur_strk_type}**
             """,
             inline=False
         )
