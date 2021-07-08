@@ -235,7 +235,7 @@ class Gamestats(commands.Cog):
         # Basic info
         wins = self.manager.query(ctx, game_id, "wins")
         losses = self.manager.query(ctx, game_id, "losses")
-        total = wins+losses
+        total = wins + losses
         win_rate = wins/total if total != 0 else 0
 
         # Streak info
