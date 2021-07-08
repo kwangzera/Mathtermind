@@ -33,7 +33,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
-        return await ctx.send(embed=discord.Embed(description=f"You are on cooldown. Please try again in {error.retry_after:.2f} seconds.", color=Colour.red()))
+        return await ctx.send(embed=discord.Embed(description=f"You are on cooldown. Please try again in {error.retry_after:.2f} seconds.", color=Colour.red()), delete_after=3)
 
     # Printing the full Traceback if not a CommandOnCooldown error
     traceback.print_exception(type(error), error, error.__traceback__)
