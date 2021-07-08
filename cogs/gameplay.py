@@ -13,6 +13,42 @@ class Gameplay(commands.Cog):
         self.bot = bot
         self.manager = StatManager(self.bot.con)
 
+    @commands.command(aliases=["if"])
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
+    async def info(self, ctx):
+        """Displays the user's general information
+
+        The info command displays the user's general information regarding their current
+        game and logging status (see ;help logging for more details) when they are
+        available.
+        """
+
+        info_embed = discord.Embed()
+        info_embed.title = f"{ctx.author}'s General Info"
+
+        if self.key(ctx) not in self.bot.games:
+            info_embed.add_field(name="Game Info", value="N/A", inline=False)
+        else:
+            game = self.bot.games[self.key(ctx)]
+            gamemode = "Classic" if game.game_id == 0 else ("Repeat" if game.game_id == 1 else "Detective")
+            lie_str = "" if game.game_id != 2 else f"Used Identify: **{game.used_identify}**"
+            info_embed.add_field(
+                name="Game Info",
+                value=f"""
+                   Gamemode: **{gamemode}**
+                   Current Round: **{game.round_number+1}**
+                   {lie_str}
+                """,
+                inline=False
+            )
+
+        if not self.manager.user_in_db(ctx):
+            info_embed.add_field(name="Logging Info", value="N/A", inline=False)
+        else:
+            info_embed.add_field(name="Logging Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
+
+        await ctx.send(ctx.author.mention, embed=info_embed)
+
     @commands.command(aliases=["g"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def guess(self, ctx, *nums: int):

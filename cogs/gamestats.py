@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from classes.stat_manager import StatManager
 
+
 class Gamestats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -62,10 +63,9 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["lg"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def logging(self, ctx, toggle: bool = None):
-        """Shows the user's data logging status or toggles it on or off
+        """Toggles the user's data logging status on or off
 
         The logging command can be used as follows:
-            ;logging       -> shows current logging status
             ;logging True  -> turns on logging
             ;logging False -> turns off logging.
 
@@ -84,8 +84,7 @@ class Gamestats(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
         if toggle is None:
-            cur_log = self.manager.query(ctx, 0, "logging")
-            return await ctx.send(embed=discord.Embed(description=f"Current logging status set to `{cur_log}`"))
+            return await ctx.send(embed=discord.Embed(description="Please specify a boolean value to set your logging status to", color=Colour.red()))
 
         self.manager.update(ctx, 0, logging=toggle)
         await ctx.send(ctx.author.mention, embed=discord.Embed(description=f"Successfully set logging status to `{toggle}`", color=Colour.green()))
@@ -170,9 +169,9 @@ class Gamestats(commands.Cog):
             return await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
 
     @commands.command(aliases=["st"])
-    @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
+    @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def stats(self, ctx):
-        """Displays a detailed table of the user's game stats
+        """Displays the user's game stats
 
         The stats command is used to show tabulated game data for all 3 gamemodes, which
         contain information about wins/losses, streaks, and more. The tables are
