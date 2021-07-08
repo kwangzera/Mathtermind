@@ -128,8 +128,7 @@ class Gameplay(commands.Cog):
 
         # Incorrectly identified the lie
         target -= 1  # 0-indexed
-        game.verified[target] = True  # Incorrectly identified lie must be verified
-
+        game.verified[target] = True  # Incorrectly identified guess as a lie must be a verified guess
         name, value = fields[target].name, fields[target].value
         game.board.set_field_at(target, name=name, value=f"✅ {value[1:]}", inline=False)
         await ctx.send(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()))
