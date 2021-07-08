@@ -9,7 +9,6 @@ from classes.stat_manager import StatManager
 class Gamestats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.stat_emb = discord.Embed()
         self.manager = StatManager(self.bot.con)
 
     @commands.command()
@@ -22,12 +21,13 @@ class Gamestats(commands.Cog):
         are currently in.
         """
 
-        # Cannot use command if table already initialized
         if self.manager.user_in_db(ctx):
             return await ctx.send(embed=discord.Embed(description="You already exist in the database", color=Colour.red()))
 
         with self.bot.con.cursor() as cur:
+            # Loops 0, 1, 2, the game ids
             for game_id in range(3):
+                # Table for game stats
                 sql = f"""
                     INSERT INTO mtm_user (
                         author_id,
@@ -46,6 +46,7 @@ class Gamestats(commands.Cog):
                 data = (str(ctx.author.id), str(ctx.guild.id), game_id, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'f')
                 cur.execute(sql, data)
 
+                # Separate table for raw data
                 sql_r = """
                     INSERT INTO mtm_user_raw (
                         author_id,
@@ -137,22 +138,22 @@ class Gamestats(commands.Cog):
         if not self.manager.user_in_db(ctx):
             return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
-        # Special confirmation embed
         confirm = await ctx.send(ctx.author.mention, embed=discord.Embed(description="Remove yourself from the database? This action cannot be undone and will erase your game data.", color=Colour.gold()))
         await confirm.add_reaction("✅")
         await confirm.add_reaction("❌")
 
         try:
+            # Only the user who used this command can interact with this embed
             react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == confirm.id and u.id == ctx.author.id and r.emoji in {"✅", "❌"})
         except asyncio.TimeoutError:
-            # When user does ;rm more than once when database exists
+            # Don't the user to react a 2nd time
             if not self.manager.user_in_db(ctx):
                 return
 
             await confirm.clear_reactions()
             return await confirm.edit(embed=discord.Embed(description="Confirmation timed out. You have not been removed from the database.", color=Colour.red()))
         else:
-            # When user does ;rm more than once when database exists
+            # Don't the user to react a 2nd time
             if not self.manager.user_in_db(ctx):
                 return
 
@@ -166,7 +167,7 @@ class Gamestats(commands.Cog):
                 self.bot.con.commit()
 
             await confirm.clear_reactions()
-            return await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
+            await confirm.edit(embed=discord.Embed(description="You have been successfully removed from the database", color=Colour.green()))
 
     @commands.command(aliases=["st"])
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
@@ -183,64 +184,71 @@ class Gamestats(commands.Cog):
         if not self.manager.user_in_db(ctx):
             return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
 
+        stat_emb = discord.Embed()
         page_num = 0
-        self.gen_page(ctx, 0, "Classic")
 
-        page = await ctx.send(ctx.author.mention, embed=self.stat_emb)
+        # Default page for classic stats
+        self.gen_page(ctx, 0, "Classic", stat_emb)
+
+        page = await ctx.send(ctx.author.mention, embed=stat_emb)
         await page.add_reaction("⏪")
         await page.add_reaction("⏩")
 
         while True:
             try:
+                # Only the user who used this command can interact with this embed
                 react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
             except asyncio.TimeoutError:
-                return
+                stat_emb.set_footer(text="Page Expired")
+                return await page.edit(embed=stat_emb)
             else:
                 if react.emoji == "⏩":
-                    page_num = min(page_num+1, 2)
+                    page_num = min(page_num+1, 2)  # Can't go beyond page 3
                     await page.remove_reaction(react, user)
                 elif react.emoji == "⏪":
-                    page_num = max(page_num-1, 0)
+                    page_num = max(page_num-1, 0)  # Can't go before page 1
                     await page.remove_reaction(react, user)
 
                 if page_num == 0:
-                    self.gen_page(ctx, 0, "Classic")
+                    self.gen_page(ctx, 0, "Classic", stat_emb)
                 elif page_num == 1:
-                    self.gen_page(ctx, 1, "Repeat")
+                    self.gen_page(ctx, 1, "Repeat", stat_emb)
                 elif page_num == 2:
-                    self.gen_page(ctx, 2, "Detective")
+                    self.gen_page(ctx, 2, "Detective", stat_emb)
 
-                await page.edit(embed=self.stat_emb)
+                await page.edit(embed=stat_emb)
 
     async def gen_file(self, ctx, game_id, gamemode):
+        # Writing to the file
         with open(f"{gamemode}.txt", "w") as f:
             f.write(self.manager.query_raw(ctx, game_id))
 
+        # Sending the file
         with open(f"{gamemode}.txt", "rb") as f:
             await ctx.send(ctx.author.mention, file=discord.File(f, f"{gamemode}.txt"))
 
-    def gen_page(self, ctx, game_id, gamemode):
-        self.stat_emb.title = f"{ctx.author}'s {gamemode} Stats"
-        self.stat_emb.set_footer(text=f"Page {game_id+1}/3")
-        self.stat_emb.clear_fields()
+    def gen_page(self, ctx, game_id, gamemode, emb):
+        emb.title = f"{ctx.author}'s {gamemode} Stats"
+        emb.set_footer(text=f"Page {game_id+1}/3")
+        emb.clear_fields()
 
-        # Group 1, basic
+        # Basic info
         wins = self.manager.query(ctx, game_id, "wins")
         losses = self.manager.query(ctx, game_id, "losses")
         total = wins+losses
         win_rate = wins/total if total != 0 else 0
 
-        # Group 2, streaks
+        # Streak info
         longest_win_streak = self.manager.query(ctx, game_id, "longest_win_streak")
         longest_loss_streak = self.manager.query(ctx, game_id, "longest_loss_streak")
         current_streak = self.manager.query(ctx, game_id, "current_streak")
         prev_result = self.manager.query(ctx, game_id, "prev_result")
         current_streak_type = f"Win{'s'*(current_streak != 1)}" if prev_result else f"Loss{'es'*(current_streak != 1)}"
 
-        # Group 3, misc
+        # Misc info
         quits = self.manager.query(ctx, game_id, "times_quit")
 
-        self.stat_emb.add_field(
+        emb.add_field(
             name=f"Basic Info",
             value=f"""
                 Total Games: **{total}**
@@ -250,7 +258,7 @@ class Gamestats(commands.Cog):
             """,
             inline=False
         )
-        self.stat_emb.add_field(
+        emb.add_field(
             name=f"Streak Info",
             value=f"""
                 Longest Win Streak: **{longest_win_streak}**
@@ -259,7 +267,7 @@ class Gamestats(commands.Cog):
             """,
             inline=False
         )
-        self.stat_emb.add_field(
+        emb.add_field(
             name=f"Misc Info",
             value=f"""Times Quit: **{quits}**""",
             inline=False

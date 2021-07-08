@@ -7,7 +7,7 @@ class Repeat(Classic):
     def __init__(self, ctx):
         super().__init__(ctx)
         self.game_id = 1
-        self.create_answer()
+        self.answer = self.create_answer()
 
         # Embeds
         self.game_over_msg.title = f"{ctx.author}'s Repeat Game"
@@ -24,6 +24,6 @@ class Repeat(Classic):
         a, b = sample(range(1, 16), 2)  # Not sorted
 
         if rng < 5:  # 5% chance of generating 3 duplicates
-            self.answer = sorted((a, a, a))
+            return sorted((a, a, a))
         elif rng < 60:  # 55% chance of generating 2 duplicates
-            self.answer = sorted((a, a, b))
+            return sorted((a, a, b))
