@@ -146,10 +146,6 @@ class Gamestats(commands.Cog):
             # Only the user who used this command can interact with this embed
             react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == confirm.id and u.id == ctx.author.id and r.emoji in {"✅", "❌"})
         except asyncio.TimeoutError:
-            # Don't the user to react a 2nd time
-            if not self.manager.user_in_db(ctx):
-                return
-
             await confirm.clear_reactions()
             return await confirm.edit(embed=discord.Embed(description="Confirmation timed out. You have not been removed from the database.", color=Colour.red()))
         else:
