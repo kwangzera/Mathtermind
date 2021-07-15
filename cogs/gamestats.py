@@ -149,7 +149,7 @@ class Gamestats(commands.Cog):
             await confirm.clear_reactions()
             return await confirm.edit(embed=discord.Embed(description="Confirmation timed out. You have not been removed from the database.", color=Colour.red()))
         else:
-            # Don't the user to react a 2nd time
+            # Don't allow the user to react a 2nd time
             if not self.manager.user_in_db(ctx):
                 return
 
