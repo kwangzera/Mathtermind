@@ -10,7 +10,7 @@ class ClassicSolver:
         self.valid = []
         self.rounds = rounds
         self.matches = matches
-        self.verified = verified  # All true for classic
+        self.verified = verified  # All True for classic
         self.combos = list(c(range(1, 16), 3))
 
         # Embeds
@@ -21,7 +21,7 @@ class ClassicSolver:
 
         for cb in self.combos:
             for rnd, mt, vr in zip(self.rounds, self.matches, self.verified):
-                # Doesn't attempt to count matches if unverified guess (lie mode)
+                # Doesn't attempt to count matches if guess is unverified (lie mode)
                 if not vr:
                     continue
 

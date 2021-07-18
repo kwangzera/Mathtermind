@@ -22,8 +22,7 @@ class Classic:
         self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
 
     def win(self, guess):
-        # 3 numbers, 3 matches
-        return self.matches[-1] == len(guess) == 3
+        return self.matches[-1] == len(guess) == 3  # 3 numbers, 3 matches
 
     def lose(self):
         return self.round_number == 8

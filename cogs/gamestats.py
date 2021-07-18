@@ -183,7 +183,7 @@ class Gamestats(commands.Cog):
         stat_emb = discord.Embed()
         page_num = 0
 
-        # Default page for classic stats
+        # Defaults to classic stats
         self.gen_page(ctx, 0, "Classic", stat_emb)
 
         page = await ctx.send(ctx.author.mention, embed=stat_emb)

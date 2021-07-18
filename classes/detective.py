@@ -50,7 +50,7 @@ class Detective(Classic):
     def create_lie(self, actual, guess_len):
         """Returns a random number from 0 to `guess_len` that is not `actual`"""
 
-        # Probabilities for all matches
+        # Probabilities for all possible fake matches
         probs = {0: 6, 1: 9, 2: 4, 3: 1}
         guess_len = 3 if guess_len == 4 else guess_len
 
@@ -58,5 +58,5 @@ class Detective(Classic):
         ret_probs = Counter({i: probs[i] for i in range(0, guess_len+1)})
         del ret_probs[actual]
 
-        # Returns random number from list of numbers with different frequencies determined by `probs`
+        # Returns fake match from list of numbers with different frequencies determined by `probs`
         return choice(list(ret_probs.elements()))

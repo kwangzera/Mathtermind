@@ -14,8 +14,7 @@ class Repeat(Classic):
         self.board.title = f"{ctx.author}'s Repeat Game"
 
     def is_unique(self, guess):
-        # Uniqueness doesn't matter for repeat mode
-        return True
+        return True  # Uniqueness doesn't matter for repeat mode
 
     def create_answer(self):
         """Generates the winning combination for repeat mode"""

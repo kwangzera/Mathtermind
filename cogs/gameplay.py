@@ -40,7 +40,7 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
         game = self.bot.games[self.key(ctx)]
-        unknown = game.game_id == 2 and game.round_number < 4  # Puts a question mark in front of unverified guesses
+        unknown = game.game_id == 2 and game.round_number < 4  # Determines if a question mark should be put in front of a guess
 
         if not game.valid_guess(nums):
             return await ctx.send(embed=game.log_msg)
@@ -112,7 +112,7 @@ class Gameplay(commands.Cog):
 
         # Correctly identified the lie
         if target == game.lie_index:
-            # Loop through the first 4, unverified guesses
+            # Loop through the first 4 unverified guesses
             for idx in range(4):
                 name, value = fields[idx].name, fields[idx].value
                 game.verified[idx] = True  # All guesses verified now
@@ -187,8 +187,7 @@ class Gameplay(commands.Cog):
             # Updating database
             if self.manager.user_in_db(ctx):
                 if self.manager.query(ctx, 0, "logging"):
-                    game_id = self.bot.games[self.key(ctx)].game_id
-                    self.manager.increment(ctx, game_id, "times_quit")  # Logging times quit
+                    self.manager.increment(ctx, game.game_id, "times_quit")  # Logging times quit
                     game.game_over_msg.set_footer(text="Logging is on")
                 else:
                     game.game_over_msg.set_footer(text="Logging is off")
