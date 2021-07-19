@@ -261,8 +261,10 @@ class Gameplay(commands.Cog):
             solution = ClassicSolver(game.rounds, game.matches, game.verified)
         elif game.game_id == 1:
             solution = RepeatSolver(game.rounds, game.matches, game.verified)
-        else:  # `game.game_id == 2`
+        elif game.game_id == 2:
             solution = DetectiveSolver(game.rounds, game.matches, game.verified)
+        else:
+            solution = ClassicSolver(game.rounds, game.matches, game.verified)
 
         solution.solve()
         await ctx.send(embed=solution.sol_panel)
