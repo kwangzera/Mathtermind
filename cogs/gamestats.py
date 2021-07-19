@@ -241,7 +241,7 @@ class Gamestats(commands.Cog):
         prev_result = self.manager.query(ctx, game_id, "prev_result")
         cur_strk_type = f"Win{'s'*(cur_strk != 1)}" if prev_result else f"Loss{'es'*(cur_strk != 1)}"
 
-        # Misc info
+        # Other info
         quits = self.manager.query(ctx, game_id, "times_quit")
 
         emb.add_field(
@@ -264,7 +264,7 @@ class Gamestats(commands.Cog):
             inline=False
         )
         emb.add_field(
-            name=f"Misc Info",
+            name=f"Other Info",
             value=f"""Times Quit: **{quits}**""",
             inline=False
         )

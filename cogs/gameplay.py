@@ -53,8 +53,10 @@ class Gameplay(commands.Cog):
         )
 
         if game.game_over:
-            # Updating database
-            if self.manager.user_in_db(ctx):
+            # Updating database unless it's custom mode
+            if game.game_id == 3:
+                game.game_over_msg.set_footer(text="Logging is disabled")# Updating database
+            if self.manager.user_in_db(ctx) and game.game_id != 3:
                 if self.manager.query(ctx, 0, "logging"):
                     self.manager.calc_streak(ctx, game.game_id, game.game_over-1)  # Logging streaks, wins, losses
                     self.manager.incr_raw(ctx, game.game_id, game.game_over-1)  # Logging raw (game history binary string)
@@ -149,8 +151,9 @@ class Gameplay(commands.Cog):
             info_embed.add_field(name="Game Info", value="N/A", inline=False)
         else:
             game = self.bot.games[self.key(ctx)]
-            gamemode = "Classic" if game.game_id == 0 else ("Repeat" if game.game_id == 1 else "Detective")
+            gamemode = "Classic" if game.game_id == 0 else ("Repeat" if game.game_id == 1 else ("Detective" if game.game_id == 2 else "Custom"))
             lie_str = "" if game.game_id != 2 else f"Used Identify: **{game.used_identify}**"
+
             info_embed.add_field(
                 name="Game Info",
                 value=f"""
@@ -161,10 +164,22 @@ class Gameplay(commands.Cog):
                 inline=False
             )
 
+            if game.game_id == 3:
+                info_embed.add_field(
+                    name="Custom Settings",
+                    value=f"""
+                        Available Rounds: **{game.max_guesses}**
+                        Max Numbers per Guess: **{game.guess_limit}**
+                        Guessing Range: **1 to {game.range_limit}**
+                        Numbers in Answer: **{game.answer_limit}**
+                    """,
+                    inline=False
+                )
+
         if not self.manager.user_in_db(ctx):
-            info_embed.add_field(name="Logging Info", value="N/A", inline=False)
+            info_embed.add_field(name="Other Info", value="N/A", inline=False)
         else:
-            info_embed.add_field(name="Logging Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
+            info_embed.add_field(name="Other Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
 
         await ctx.send(ctx.author.mention, embed=info_embed)
 
@@ -184,8 +199,10 @@ class Gameplay(commands.Cog):
             game = self.bot.games[self.key(ctx)]
             game.game_over_msg.description = ":arrow_left: You have left the game"
 
-            # Updating database
-            if self.manager.user_in_db(ctx):
+            # Updating database unless it's custom mode
+            if game.game_id == 3:
+                game.game_over_msg.set_footer(text="Logging is disabled")# Updating database
+            elif self.manager.user_in_db(ctx):
                 if self.manager.query(ctx, 0, "logging"):
                     self.manager.increment(ctx, game.game_id, "times_quit")  # Logging times quit
                     game.game_over_msg.set_footer(text="Logging is on")
