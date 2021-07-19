@@ -186,7 +186,7 @@ class Gamestats(commands.Cog):
         # Defaults to classic stats
         self.gen_page(ctx, 0, "Classic", stat_emb)
 
-        page = await ctx.send(ctx.author.mention, embed=stat_emb)
+        page = await ctx.send(embed=stat_emb)
         await page.add_reaction("⏪")
         await page.add_reaction("⏩")
 

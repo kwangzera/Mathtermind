@@ -24,8 +24,8 @@ class Custom(Classic):
             set, val = indiv.split("=")
             print(set, val)
 
-        self.range_limit = 50
-        self.guess_limit = 12
+        self.range_limit = 100
+        self.guess_limit = 25
         self.max_guesses = 100
-        self.answer_limit = 10
-        self.answer = sorted(sample(range(1, 50+1), 10))
+        self.answer_limit = 20
+        self.answer = sorted(sample(range(1, 100+1), 10))

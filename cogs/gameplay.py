@@ -5,6 +5,7 @@ from discord.ext import commands
 from classes.classic_solver import ClassicSolver
 from classes.repeat_solver import RepeatSolver
 from classes.detective_solver import DetectiveSolver
+from classes.custom_solver import CustomSolver
 from classes.stat_manager import StatManager
 
 
@@ -51,11 +52,13 @@ class Gameplay(commands.Cog):
             value=f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
             inline=False
         )
+        print(type(game.board))
+        print(game.board)
 
         if game.game_over:
             # Updating database unless it's custom mode
             if game.game_id == 3:
-                game.game_over_msg.set_footer(text="Logging is disabled")# Updating database
+                game.game_over_msg.set_footer(text="Logging is disabled")
             if self.manager.user_in_db(ctx) and game.game_id != 3:
                 if self.manager.query(ctx, 0, "logging"):
                     self.manager.calc_streak(ctx, game.game_id, game.game_over-1)  # Logging streaks, wins, losses
@@ -166,10 +169,10 @@ class Gameplay(commands.Cog):
 
             if game.game_id == 3:
                 info_embed.add_field(
-                    name="Custom Settings",
+                    name="Game Settings",
                     value=f"""
                         Available Rounds: **{game.max_guesses}**
-                        Max Numbers per Guess: **{game.guess_limit}**
+                        Numbers per Guess: **1 to {game.guess_limit}**
                         Guessing Range: **1 to {game.range_limit}**
                         Numbers in Answer: **{game.answer_limit}**
                     """,
@@ -181,7 +184,7 @@ class Gameplay(commands.Cog):
         else:
             info_embed.add_field(name="Other Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
 
-        await ctx.send(ctx.author.mention, embed=info_embed)
+        await ctx.send(embed=info_embed)
 
     @commands.command(aliases=["lv"])
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
@@ -263,8 +266,8 @@ class Gameplay(commands.Cog):
             solution = RepeatSolver(game.rounds, game.matches, game.verified)
         elif game.game_id == 2:
             solution = DetectiveSolver(game.rounds, game.matches, game.verified)
-        else:
-            solution = ClassicSolver(game.rounds, game.matches, game.verified)
+        else:  # Custom game
+            solution = CustomSolver(game.rounds, game.matches, game.verified, game.answer)
 
         solution.solve()
         await ctx.send(embed=solution.sol_panel)

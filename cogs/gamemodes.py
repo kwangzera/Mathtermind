@@ -95,22 +95,9 @@ class Gamemodes(commands.Cog):
     @commands.command(aliases=["cs"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def custom(self, ctx, *, settings: str = None):
-        """Starts a Mathtermind game in classic mode
+        """Starts a Mathtermind game in custom mode
 
-        A winning combination of 3 unique numbers is randomly selected and the user's
-        goal is to guess those numbers. The user is given 7 guesses to try to figure out
-        what the winning combination is and an 8th to determine it.
-
-        For this gamemode, the user is allowed to guess 1 to 4 unique numbers each turn.
-        After each guess the game will respond with the number of numbers in the winning
-        combination that match those in the user's guess.
-
-        On the final guess, the user is required to guess 3 unique numbers. If all 3 of
-        the user's numbers (in any particular order) match the winning combination, then
-        the user wins. Otherwise, the user loses.
-
-        Enter ;classic to start the game or see ;help guess for more detailed
-        information about guessing.
+        TBA
         """
 
         await self.create_game(ctx, Custom(ctx, settings))
