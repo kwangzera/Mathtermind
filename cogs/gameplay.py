@@ -1,3 +1,6 @@
+import asyncio
+from math import ceil
+
 import discord
 from discord import Colour
 from discord.ext import commands
@@ -47,13 +50,14 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=game.log_msg)
 
         game.add_round(nums)
-        game.board.add_field(
-            name=f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-            value=f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
-            inline=False
-        )
+        game.board_info.append((f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`", f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"))
+        # game.board.add_field(
+            # name=f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
+            # value=f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
+            # inline=False
+        # )
         print(type(game.board))
-        print(game.board)
+        print(game.board.fields)
 
         if game.game_over:
             # Updating database unless it's custom mode
@@ -232,10 +236,44 @@ class Gameplay(commands.Cog):
         the number of matches (see ;help identify for more details).
         """
 
-        if self.key(ctx) in self.bot.games:
-            return await ctx.send(embed=self.bot.games[self.key(ctx)].board)
+        if self.key(ctx) not in self.bot.games:
+            return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-        await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
+        game = self.bot.games[self.key(ctx)]
+        pages = ceil(len(game.board_info)/10)
+        page_num = 0
+        # TODO pass if footer needed, then pages can be used in gen_board fucntion
+        # TODO function for pagination, not include single page, (gen_board(i) for i in range(10))
+        game.gen_board(page_num)
+
+        # No need for pagination
+        if pages <= 1:
+            return await ctx.send(embed=game.board)
+
+        game.board.set_footer(text=f"Page 1/{pages}")
+        page = await ctx.send(embed=game.board)
+        await page.add_reaction("⏪")
+        await page.add_reaction("⏩")
+
+        while True:
+            try:
+                # Only the user who used this command can interact with this embed
+                react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
+            except asyncio.TimeoutError:
+                game.board.set_footer(text="Page Expired")
+                return await page.edit(embed=game.board)
+            else:
+                if react.emoji == "⏩":
+                    page_num = min(page_num+1, pages-1)  # Can't go beyond page `pages`
+                    await page.remove_reaction(react, user)
+                elif react.emoji == "⏪":
+                    page_num = max(page_num-1, 0)  # Can't go before page 0
+                    await page.remove_reaction(react, user)
+
+                game.gen_board(page_num)
+                game.board.set_footer(text=f"Page {page_num+1}/{pages}")
+
+                await page.edit(embed=game.board)
 
     @commands.command(aliases=["sv"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)

@@ -199,10 +199,10 @@ class Gamestats(commands.Cog):
                 return await page.edit(embed=stat_emb)
             else:
                 if react.emoji == "⏩":
-                    page_num = min(page_num+1, 2)  # Can't go beyond page 3
+                    page_num = min(page_num+1, 2)  # Can't go beyond page 2
                     await page.remove_reaction(react, user)
                 elif react.emoji == "⏪":
-                    page_num = max(page_num-1, 0)  # Can't go before page 1
+                    page_num = max(page_num-1, 0)  # Can't go before page 0
                     await page.remove_reaction(react, user)
 
                 if page_num == 0:

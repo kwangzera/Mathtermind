@@ -14,6 +14,7 @@ class Classic:
         self.rounds = []
         self.matches = []
         self.verified = []
+        self.board_info = []
 
         # Unchangeable settings
         self.game_id = 0
@@ -99,3 +100,9 @@ class Classic:
             flag = False
 
         return flag
+
+    def gen_board(self, page):
+        self.board.clear_fields()
+
+        for nm, val in self.board_info[page*10:(page+1)*10]:
+            self.board.add_field(name=nm, value=val, inline=False)
