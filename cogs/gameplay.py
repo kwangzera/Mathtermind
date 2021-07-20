@@ -171,7 +171,7 @@ class Gameplay(commands.Cog):
                         Available Rounds: **{game.max_guesses}**
                         Numbers per Guess: **1 to {game.guess_sz_lim}**
                         Guessing Range: **1 to {game.range_lim}**
-                        Numbers in Answer: **{game.answer_sz_lim}**
+                        Numbers in Answer: **{len(game.answer)}**
                     """,
                     inline=False
                 )

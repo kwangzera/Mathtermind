@@ -21,7 +21,6 @@ class Classic:
         self.range_lim = 15
         self.guess_sz_lim = 4
         self.max_guesses = 7
-        self.answer_sz_lim = 3
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
@@ -30,7 +29,7 @@ class Classic:
         self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
 
     def win(self, guess):
-        return self.matches[-1] == len(guess) == self.answer_sz_lim  # 3 numbers, 3 matches
+        return self.matches[-1] == len(guess) == len(self.answer)  # 3 numbers, 3 matches
 
     def lose(self):
         return self.round_number == self.max_guesses + 1
@@ -80,7 +79,7 @@ class Classic:
 
     def last_guess(self, guess, flag):
         # `flag` makes sure the guess is valid
-        return self.round_number == self.max_guesses and len(guess) != self.answer_sz_lim and flag
+        return self.round_number == self.max_guesses and len(guess) != len(self.answer) and flag
 
     def valid_guess(self, guess):
         """Checks if a guess is valid or not. Makes use of the previous helper methods."""
@@ -96,7 +95,7 @@ class Classic:
             flag = False
 
         if self.last_guess(guess, flag):
-            self.log_msg.description = f"Please input {self.answer_sz_lim} numbers as your final guess"
+            self.log_msg.description = f"Please input {len(self.answer)} numbers as your final guess"
             flag = False
 
         return flag

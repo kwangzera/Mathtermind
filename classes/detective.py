@@ -8,11 +8,11 @@ class Detective(Classic):
     def __init__(self, ctx):
         super().__init__(ctx)
 
-        # Changeable settings
+        # Changeable variables
         self.actual_match = -1  # Real number of matches
         self.used_identify = False
 
-        # Uncheageable settings
+        # Uncheageable variables
         self.game_id = 2
         self.lie_index = randint(1, 4)  # Index of the lie
 
