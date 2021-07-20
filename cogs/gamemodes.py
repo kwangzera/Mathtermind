@@ -94,8 +94,8 @@ class Gamemodes(commands.Cog):
 
     @commands.command(aliases=["cs"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
-    async def custom(self, ctx, *, settings: str = "="):
-        """Starts a Mathtermind game in custom mode
+    async def custom(self, ctx, *, settings: str = None):
+        """Starts a Mathtermind game in custom modes
 
         TBA
         """
@@ -103,6 +103,9 @@ class Gamemodes(commands.Cog):
         await self.create_game(ctx, Custom(ctx, settings))
 
     async def create_game(self, ctx, gametype):
+        if gametype.game_id == 3 and not gametype.valid_settings():
+            await ctx.send(embed=discord.Embed(description="Check your settings bruv", color=Colour.red()))
+
         if self.key(ctx) not in self.bot.games:
             self.bot.games[self.key(ctx)] = gametype  # Assigns a game to a user's key
             await ctx.send(embed=discord.Embed(description="Ready to play", color=Colour.green()))

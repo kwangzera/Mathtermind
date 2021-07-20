@@ -7,50 +7,21 @@ class Custom(Classic):
         super().__init__(ctx)
 
         # Changeable variables
-        self.ranges = []
-        self.tmp_settings = {
-            "rl": self.range_lim,
-            "gsl": self.guess_sz_lim,
-            "mg": self.max_guesses,
-            "ca": self.answer
-        }
+        self.ranges = []  # TODO turn this local
 
         # Unchangeable variables
         self.game_id = 3
+        self.settings = settings
 
         # Embeds
         self.game_over_msg.title = f"{ctx.author}'s Custom Game"
         self.board.title = f"{ctx.author}'s Custom Game"
 
-        # Applying settings to custom game
-        self.parse_settings(settings)
-
-    def parse_settings(self, settings):
-        # invalid settings = break
-        for indiv in settings.split():
-            try:
-                set, val = indiv.split("=")
-                print(set, val)
-
-                if set in {"rl", "range_limit"}:
-                    self.tmp_settings["rl"] = int(val)
-                elif set in {"gsl", "guess_size_limit"}:
-                    self.tmp_settings["gsl"] = int(val)
-                elif set in {"mg", "max_guesses"}:
-                    self.tmp_settings["mg"] = int(val)
-                elif set in {"ca", "custom_answer"}:
-                    self.tmp_settings["ca"] = val
-            except ValueError:
-                print("invalid settings")
-                return False
-
-        return True
-
-    def create_answer(setting):
+    def create_answer(self):
         answer = []
 
         # Splitting by times repeated
-        for part in setting.split(","):
+        for part in self.settings.split(","):
             rest, _, repeat = part.partition(":")
             range_rng = []
 
@@ -66,7 +37,7 @@ class Custom(Classic):
                 if not end:
                     end = start
 
-                start, end = sorted(int(start), int(end))
+                start, end = sorted((int(start), int(end)))
 
                 # Adding numbers to temp array for a random sample
                 range_rng += range(start, end+1)
@@ -74,11 +45,37 @@ class Custom(Classic):
 
             answer += sample(range_rng, repeat)
 
-        self.tmp_settings["ca"] = answer
+        return answer
 
-    def valid_settings():
+    def valid_settings(self):
+        range_lim = guess_sz_lim = max_guesses = answer = None
+
+        if self.settings is None:
+            return True
+
+        # Parsing settings / invalid settings = break
+        for indiv in self.settings.split():
+            try:
+                set, val = indiv.split("=")
+                print(set, val)
+
+                if set in {"rl", "range_limit"}:
+                    range_lim = int(val)
+                elif set in {"gsl", "guess_size_limit"}:
+                    guess_sz_lim = int(val)
+                elif set in {"mg", "max_guesses"}:
+                    max_guesses = int(val)
+                elif set in {"ca", "custom_answer"}:
+                    answer = val
+            except ValueError:
+                return False
+
+        '''regex checking'''
+        answer = self.create_answer()
+
+
         # Exceeding limits for custom settings
-        if self.tmp_settings["rl"] > 100 or self.tmp_settings["gsl"] > 25 or self.tmp_settings["mg"] > 20:
+        if range_lim > 100 or guess_sz_lim > 25 or max_guesses > 20:
             return False
 
         # Checks for range intersections
@@ -88,12 +85,12 @@ class Custom(Classic):
                 if self.ranges[i][1] > self.ranges[i+1][0]:
                     return False
 
-        if range_lim < len(self.tmp_settings["ca"]):
+        if range_lim < len(answer):
             return False
 
-        self.range_lim = self.tmp_settings["rl"]
-        self.guess_sz_lim = self.tmp_settings["gsl"]
+        self.range_lim = range_lim
+        self.guess_sz_lim = guess_sz_lim
         self.max_guesses = max_guesses
-        self.answer = self.tmp_settings["ca"]
+        self.answer = answer
 
         return True
