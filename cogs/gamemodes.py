@@ -94,7 +94,7 @@ class Gamemodes(commands.Cog):
 
     @commands.command(aliases=["cs"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
-    async def custom(self, ctx, *, settings: str = None):
+    async def custom(self, ctx, *, settings: str = "="):
         """Starts a Mathtermind game in custom mode
 
         TBA

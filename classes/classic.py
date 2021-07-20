@@ -18,10 +18,10 @@ class Classic:
 
         # Unchangeable settings
         self.game_id = 0
-        self.range_limit = 15
-        self.guess_limit = 4
+        self.range_lim = 15
+        self.guess_sz_lim = 4
         self.max_guesses = 7
-        self.answer_limit = 3
+        self.answer_sz_lim = 3
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
@@ -30,7 +30,7 @@ class Classic:
         self.board = discord.Embed(title=f"{ctx.author}'s Classic Game")
 
     def win(self, guess):
-        return self.matches[-1] == len(guess) == self.answer_limit  # 3 numbers, 3 matches
+        return self.matches[-1] == len(guess) == self.answer_sz_lim  # 3 numbers, 3 matches
 
     def lose(self):
         return self.round_number == self.max_guesses + 1
@@ -65,7 +65,7 @@ class Classic:
         return sum((Counter(guess) & Counter(self.answer)).values())
 
     def valid_len(self, guess):
-        return guess and len(guess) <= self.guess_limit
+        return guess and len(guess) <= self.guess_sz_lim
 
     def is_unique(self, guess):
         # Set of numbers must be the same as the numbers (no duplicates)
@@ -73,14 +73,14 @@ class Classic:
 
     def in_range(self, guess):
         for g in guess:
-            if g < 1 or g > self.range_limit:
+            if g < 1 or g > self.range_lim:
                 return False
 
         return True
 
     def last_guess(self, guess, flag):
         # `flag` makes sure the guess is valid
-        return self.round_number == self.max_guesses and len(guess) != self.answer_limit and flag
+        return self.round_number == self.max_guesses and len(guess) != self.answer_sz_lim and flag
 
     def valid_guess(self, guess):
         """Checks if a guess is valid or not. Makes use of the previous helper methods."""
@@ -88,7 +88,7 @@ class Classic:
         flag = True
 
         if not self.valid_len(guess) or not self.in_range(guess):
-            self.log_msg.description = f"Please input 1 to {self.guess_limit} numbers from 1 to {self.range_limit}"
+            self.log_msg.description = f"Please input 1 to {self.guess_sz_lim} numbers from 1 to {self.range_lim}"
             flag = False
 
         if not self.is_unique(guess):
@@ -96,13 +96,18 @@ class Classic:
             flag = False
 
         if self.last_guess(guess, flag):
-            self.log_msg.description = f"Please input {self.answer_limit} numbers as your final guess"
+            self.log_msg.description = f"Please input {self.answer_sz_lim} numbers as your final guess"
             flag = False
 
         return flag
 
-    def gen_board(self, page):
+    def gen_board(self, page, pages):
+        """"""
+
         self.board.clear_fields()
 
         for nm, val in self.board_info[page*10:(page+1)*10]:
             self.board.add_field(name=nm, value=val, inline=False)
+
+        if pages > 1:
+            self.board.set_footer(text=f"Page {page+1}/{pages}")

@@ -18,7 +18,7 @@ class Gameplay(commands.Cog):
         self.manager = StatManager(self.bot.con)
 
     @commands.command(aliases=["g"], cooldown_after_parsing=True)
-    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
+    # @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def guess(self, ctx, *nums: int):
         """Makes a guess
 
@@ -51,13 +51,6 @@ class Gameplay(commands.Cog):
 
         game.add_round(nums)
         game.board_info.append((f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`", f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"))
-        # game.board.add_field(
-            # name=f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-            # value=f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
-            # inline=False
-        # )
-        print(type(game.board))
-        print(game.board.fields)
 
         if game.game_over:
             # Updating database unless it's custom mode
@@ -176,9 +169,9 @@ class Gameplay(commands.Cog):
                     name="Game Settings",
                     value=f"""
                         Available Rounds: **{game.max_guesses}**
-                        Numbers per Guess: **1 to {game.guess_limit}**
-                        Guessing Range: **1 to {game.range_limit}**
-                        Numbers in Answer: **{game.answer_limit}**
+                        Numbers per Guess: **1 to {game.guess_sz_lim}**
+                        Guessing Range: **1 to {game.range_lim}**
+                        Numbers in Answer: **{game.answer_sz_lim}**
                     """,
                     inline=False
                 )
@@ -242,23 +235,21 @@ class Gameplay(commands.Cog):
         game = self.bot.games[self.key(ctx)]
         pages = ceil(len(game.board_info)/10)
         page_num = 0
-        # TODO pass if footer needed, then pages can be used in gen_board fucntion
-        # TODO function for pagination, not include single page, (gen_board(i) for i in range(10))
-        game.gen_board(page_num)
+
+        game.gen_board(page_num, pages)
+        page = await ctx.send(embed=game.board)
 
         # No need for pagination
         if pages <= 1:
-            return await ctx.send(embed=game.board)
+            return
 
-        game.board.set_footer(text=f"Page 1/{pages}")
-        page = await ctx.send(embed=game.board)
         await page.add_reaction("⏪")
         await page.add_reaction("⏩")
 
         while True:
             try:
                 # Only the user who used this command can interact with this embed
-                react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
+                react, user = await self.bot.wait_for("reaction_add", timeout=300, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
             except asyncio.TimeoutError:
                 game.board.set_footer(text="Page Expired")
                 return await page.edit(embed=game.board)
@@ -270,9 +261,7 @@ class Gameplay(commands.Cog):
                     page_num = max(page_num-1, 0)  # Can't go before page 0
                     await page.remove_reaction(react, user)
 
-                game.gen_board(page_num)
-                game.board.set_footer(text=f"Page {page_num+1}/{pages}")
-
+                game.gen_board(page_num,pages)
                 await page.edit(embed=game.board)
 
     @commands.command(aliases=["sv"])

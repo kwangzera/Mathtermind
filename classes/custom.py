@@ -17,15 +17,35 @@ class Custom(Classic):
         self.parse_settings(settings)
 
     def parse_settings(self, settings):
-        short = ["rl", "gsl", "asl", "ca", "mg"]
-        long = ["range_limit", "guess_size_limit", "answer_size_limit", "custom_answer", "max_guesses"]
+        # use this so invalid settings = break
+        tmp = [self.range_lim, self.guess_sz_lim, self.max_guesses, self.answer_sz_lim, self.answer]
 
         for indiv in settings.split():
-            set, val = indiv.split("=")
-            print(set, val)
+            try:
+                set, val = indiv.split("=")
+                print(set, val)
 
-        self.range_limit = 100
-        self.guess_limit = 25
-        self.max_guesses = 100
-        self.answer_limit = 20
-        self.answer = sorted(sample(range(1, 100+1), 10))
+                if set in {"rl", "range_limit"}:
+                    tmp[0] = int(val)
+                elif set in {"gsl", "guess_size_limit"}:
+                    tmp[1] = int(val)
+                elif set in {"mg", "max_guesses"}:
+                    tmp[2] = int(val)
+                elif set in {"asl", "answer_size_limit"}:
+                    tmp[3] = int(val)
+                elif set in {"ca", "custom_answer"}:
+                    tmp[4] = list(map(int, val.split(",")))
+            except ValueError:
+                print("invalid settings")
+                return False
+
+        self.range_lim = tmp[0]
+        self.guess_sz_lim = tmp[1]
+        self.max_guesses = tmp[2]
+        self.answer_sz_lim = tmp[3]
+        self.answer = tmp[4]
+
+        return True
+
+    def check_settings():
+        ...
