@@ -163,14 +163,14 @@ class Gameplay(commands.Cog):
                 """,
                 inline=False
             )
-
+            # TODO Final round for current
             if game.game_id == 3:
                 info_embed.add_field(
                     name="Game Settings",
                     value=f"""
-                        Available Rounds: **{game.max_guesses}**
-                        Numbers per Guess: **1 to {game.guess_sz_lim}**
-                        Guessing Range: **1 to {game.range_lim}**
+                        Available Rounds: **{game.sets_dict["mg"]}**
+                        Numbers per Guess: **1 to {game.sets_dict["gsl"]}**
+                        Guessing Range: **1 to {game.sets_dict["rl"]}**
                         Numbers in Answer: **{len(game.answer)}**
                     """,
                     inline=False

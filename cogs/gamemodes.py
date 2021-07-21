@@ -103,14 +103,14 @@ class Gamemodes(commands.Cog):
         await self.create_game(ctx, Custom(ctx, settings))
 
     async def create_game(self, ctx, gametype):
-        if gametype.game_id == 3 and not gametype.valid_settings():
-            await ctx.send(embed=discord.Embed(description="Check your settings bruv", color=Colour.red()))
-
         if self.key(ctx) not in self.bot.games:
+            if gametype.game_id == 3 and not gametype.valid_settings():
+                return await ctx.send(embed=discord.Embed(description="Check your settings bruv", color=Colour.red()))
+
             self.bot.games[self.key(ctx)] = gametype  # Assigns a game to a user's key
             await ctx.send(embed=discord.Embed(description="Ready to play", color=Colour.green()))
         else:
-            await ctx.send(embed=discord.Embed(description="You are already in a game", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="You are already in a game", color=Colour.red()))
 
     def key(self, ctx):
         return f"{ctx.author.id}{ctx.guild.id}"

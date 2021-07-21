@@ -18,9 +18,15 @@ class Classic:
 
         # Unchangeable settings
         self.game_id = 0
-        self.range_lim = 15
-        self.guess_sz_lim = 4
-        self.max_guesses = 7
+        self.sets_dict = {
+            "rl": 15,
+            "gsl": 4,
+            "mg": 7,
+            "ca": None
+        }
+        # self.range_lim = 15
+        # self.guess_sz_lim = 4
+        # self.max_guesses = 7
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
@@ -32,7 +38,7 @@ class Classic:
         return self.matches[-1] == len(guess) == len(self.answer)  # 3 numbers, 3 matches
 
     def lose(self):
-        return self.round_number == self.max_guesses + 1
+        return self.round_number == self.sets_dict["mg"] + 1
 
     def update_stats(self, guess):
         """Executes all necessary operations after a user makes a guess"""
@@ -64,7 +70,8 @@ class Classic:
         return sum((Counter(guess) & Counter(self.answer)).values())
 
     def valid_len(self, guess):
-        return guess and len(guess) <= self.guess_sz_lim
+        # Doesn't take final guess into account
+        return (guess and len(guess) <= self.sets_dict["gsl"]) or self.round_number == self.sets_dict["mg"]
 
     def is_unique(self, guess):
         # Set of numbers must be the same as the numbers (no duplicates)
@@ -72,22 +79,27 @@ class Classic:
 
     def in_range(self, guess):
         for g in guess:
-            if g < 1 or g > self.range_lim:
+            if g < 1 or g > self.sets_dict["rl"]:
                 return False
 
         return True
 
     def last_guess(self, guess, flag):
         # `flag` makes sure the guess is valid
-        return self.round_number == self.max_guesses and len(guess) != len(self.answer) and flag
+        return self.round_number == self.sets_dict["mg"] and len(guess) != len(self.answer) and flag
 
     def valid_guess(self, guess):
         """Checks if a guess is valid or not. Makes use of the previous helper methods."""
 
         flag = True
 
+        # TODO 1 or 1
         if not self.valid_len(guess) or not self.in_range(guess):
-            self.log_msg.description = f"Please input 1 to {self.guess_sz_lim} numbers from 1 to {self.range_lim}"
+            self.log_msg.description = f"Please input 1 to {self.sets_dict['gsl']} numbers"
+            flag = False
+
+        if not self.in_range(guess):
+            self.log_msg.description = f"Please input numbers only from 1 to {self.sets_dict['rl']}"
             flag = False
 
         if not self.is_unique(guess):
