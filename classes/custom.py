@@ -24,7 +24,6 @@ class Custom(Classic):
         self.board.title = f"{ctx.author}'s Custom Game"
 
     def create_answer(self, settings):
-        print(settings)
         answer = []
 
         # Splitting by times repeated
@@ -38,8 +37,8 @@ class Custom(Classic):
             repeat = int(repeat)
 
             # Splitting by ranges
-            for part in rest.split("|"):
-                start, _, end = part.partition("-")
+            for subpart in rest.split("|"):
+                start, _, end = subpart.partition("-")
 
                 if not end:
                     end = start
@@ -63,15 +62,15 @@ class Custom(Classic):
 
     def parse_settings(self):
         for indiv in self.settings.split():
-            set, val = indiv.split("=")
-            print(set, val)
-            if set in {"rl", "range_limit"}:
+            key, val = indiv.split("=")
+
+            if key in {"rl", "range_limit"}:
                 self.tmp_sets["rl"] = int(val)
-            elif set in {"gsl", "guess_size_limit"}:
+            elif key in {"gsl", "guess_size_limit"}:
                 self.tmp_sets["gsl"] = int(val)
-            elif set in {"mg", "max_guesses"}:
+            elif key in {"mg", "max_guesses"}:
                 self.tmp_sets["mg"] = int(val)
-            elif set in {"ca", "custom_answer"}:
+            elif key in {"ca", "custom_answer"}:
                 self.tmp_sets["ca"] = val
             else:
                 raise ValueError
@@ -85,7 +84,7 @@ class Custom(Classic):
     def set_custom_ans(self):
         if self.tmp_sets["ca"] is None:
             self.answer = self.create_answer(f"1-{self.tmp_sets['rl']}:3")
-            self.tmp_sets["ca"] = f"1-{self.tmp_sets['rl']}:3"
+            self.tmp_sets["ca"] = f"1-{self.tmp_sets['rl']}:3"  # Setting for debugging purposes
         else:
             self.answer = self.create_answer(self.tmp_sets["ca"])
 
@@ -101,18 +100,16 @@ class Custom(Classic):
         return False
 
     def valid_settings(self):
-        """"""
-        # TODO remove comments when log message becomes self documenting
+        """Checks if passed settings are valid or not. Makes use of the previous helper methods."""
 
         # No settings passed = classic mode
         if self.is_classic():
             return True
 
-        # Parsing settings, making sure input is valid
         try:
             self.parse_settings()
         except ValueError:
-            self.log_msg.description = "error1"
+            self.log_msg.description = "Please make sure your settings are valid"
             return False
 
         # Overriding missing settings with default values (temporary)
@@ -120,26 +117,23 @@ class Custom(Classic):
             if val is None:
                 self.tmp_sets[key] = self.sets_dict[key]
 
-        # Exceeding limits for custom settings
         if not self.sets_in_range():
-            self.log_msg.description = "error2"
+            self.log_msg.description = "Please make sure your settings are within their limits"
             return False
 
         # Isn't possible to guess more than the range of numbers without repeats
         if self.rep_possible():
-            self.log_msg.description = "error3"
+            self.log_msg.description = "Please make sure the guess size limit is not greater than the range limit"
             return False
 
-        # Setting answer, making sure custom answer settings are valid
         try:
             self.set_custom_ans()
         except ValueError:
-            self.log_msg.description = "error4"
+            self.log_msg.description = "Please make sure your custom answer settings are valid"
             return False
 
-        # Checks for range intersections
         if self.range_intersect():
-            self.log_msg.description = "error5"
+            self.log_msg.description = "Please make sure your custom answer ranges don't intersect"
             return False
 
         # Applying custom settings

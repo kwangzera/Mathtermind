@@ -158,7 +158,7 @@ class Gameplay(commands.Cog):
                 name="Game Info",
                 value=f"""
                    Gamemode: **{gamemode}**
-                   Current Round: **{game.round_number+1}**
+                   Current Round: **{game.round_number + 1 if game.round_number != game.sets_dict["mg"] else "Final"}**
                    {lie_str}
                 """,
                 inline=False
@@ -201,7 +201,7 @@ class Gameplay(commands.Cog):
 
             # Updating database unless it's custom mode
             if game.game_id == 3:
-                game.game_over_msg.set_footer(text="Logging is disabled")# Updating database
+                game.game_over_msg.set_footer(text="Logging is disabled")
             elif self.manager.user_in_db(ctx):
                 if self.manager.query(ctx, 0, "logging"):
                     self.manager.increment(ctx, game.game_id, "times_quit")  # Logging times quit
@@ -249,7 +249,7 @@ class Gameplay(commands.Cog):
         while True:
             try:
                 # Only the user who used this command can interact with this embed
-                react, user = await self.bot.wait_for("reaction_add", timeout=300, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
+                react, user = await self.bot.wait_for("reaction_add", timeout=2, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
             except asyncio.TimeoutError:
                 game.board.set_footer(text="Page Expired")
                 return await page.edit(embed=game.board)
