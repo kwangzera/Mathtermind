@@ -109,7 +109,7 @@ class Custom(Classic):
         try:
             self.parse_settings()
         except ValueError:
-            self.log_msg.description = "Please make sure your settings are valid"
+            self.log_msg.description = "Please make sure your settings can be parsed properly"
             return False
 
         # Overriding missing settings with default values (temporary)
@@ -123,7 +123,7 @@ class Custom(Classic):
 
         # Isn't possible to guess more than the range of numbers without repeats
         if self.rep_possible():
-            self.log_msg.description = "Please make sure the guess size limit is not greater than the range limit"
+            self.log_msg.description = "Please make sure the guess size limit does not exceed the range limit"
             return False
 
         try:

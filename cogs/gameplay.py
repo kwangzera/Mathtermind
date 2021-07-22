@@ -163,14 +163,14 @@ class Gameplay(commands.Cog):
                 """,
                 inline=False
             )
-            # TODO Final round for current
+
             if game.game_id == 3:
                 info_embed.add_field(
                     name="Game Settings",
                     value=f"""
                         Available Rounds: **{game.sets_dict["mg"]}**
-                        Numbers per Guess: **1 to {game.sets_dict["gsl"]}**
-                        Guessing Range: **1 to {game.sets_dict["rl"]}**
+                        Numbers per Guess: **1 {f"to {game.sets_dict['gsl']}" if game.sets_dict['gsl'] != 1 else "Only"}**
+                        Guessing Range: **1 {f"to {game.sets_dict['rl']}" if game.sets_dict['rl'] != 1 else "Only"}**
                         Numbers in Answer: **{len(game.answer)}**
                     """,
                     inline=False
@@ -255,7 +255,7 @@ class Gameplay(commands.Cog):
                 return await page.edit(embed=game.board)
             else:
                 if react.emoji == "⏩":
-                    page_num = min(page_num+1, pages-1)  # Can't go beyond page `pages`
+                    page_num = min(page_num+1, pages-1)  # Can't go beyond the final page
                     await page.remove_reaction(react, user)
                 elif react.emoji == "⏪":
                     page_num = max(page_num-1, 0)  # Can't go before page 0

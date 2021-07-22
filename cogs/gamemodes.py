@@ -125,6 +125,7 @@ class Gamemodes(commands.Cog):
 
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
+            # Check for valid settings for custom mode
             if gametype.game_id == 3 and not gametype.valid_settings():
                 return await ctx.send(embed=gametype.log_msg)
 

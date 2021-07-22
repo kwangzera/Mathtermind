@@ -18,15 +18,7 @@ class Classic:
 
         # Unchangeable settings
         self.game_id = 0
-        self.sets_dict = {
-            "rl": 15,
-            "gsl": 4,
-            "mg": 7,
-            "ca": None
-        }
-        # self.range_lim = 15
-        # self.guess_sz_lim = 4
-        # self.max_guesses = 7
+        self.sets_dict = {"rl": 15, "gsl": 4, "mg": 7, "ca": None}
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
@@ -93,13 +85,12 @@ class Classic:
 
         flag = True
 
-        # TODO 1 or 1
         if not self.valid_len(guess) or not self.in_range(guess):
-            self.log_msg.description = f"Please input 1 to {self.sets_dict['gsl']} numbers"
+            self.log_msg.description = f"""Please input 1 {f"to {self.sets_dict['gsl']} numbers" if self.sets_dict['gsl'] != 1 else "number only"}"""
             flag = False
 
         if not self.in_range(guess):
-            self.log_msg.description = f"Please input numbers only from 1 to {self.sets_dict['rl']}"
+            self.log_msg.description = f"""Please input {f"numbers from 1 to {self.sets_dict['rl']}" if self.sets_dict['rl'] != 1 else "1 as your only guess"}"""
             flag = False
 
         if not self.is_unique(guess):
@@ -107,7 +98,7 @@ class Classic:
             flag = False
 
         if self.last_guess(guess, flag):
-            self.log_msg.description = f"Please input {len(self.answer)} numbers as your final guess"
+            self.log_msg.description = f"Please input {len(self.answer)} number{'s'*(len(self.answer)!=1)} as your final guess"
             flag = False
 
         return flag
