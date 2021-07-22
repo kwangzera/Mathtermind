@@ -22,7 +22,7 @@ class Gameplay(commands.Cog):
     async def guess(self, ctx, *nums: int):
         """Makes a guess
 
-        The guess command can be used as follows for all gamemodes:
+        The guess command can be used as follows:
             ;guess 1 2      -> guesses 1 and 2
             ;guess 10 7 8 4 -> guesses 10, 7, 8, and 4
 
@@ -128,7 +128,6 @@ class Gameplay(commands.Cog):
 
             return await ctx.send(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()))
 
-        # Incorrectly identified the lie
         target -= 1  # 0-indexed
         game.verified[target] = True  # Incorrectly identified lie must be a verified guess
         name, value = fields[target].name, fields[target].value
@@ -138,6 +137,7 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["if"])
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def info(self, ctx):
+        # TODO update with custom, displaying settings
         """Displays the user's general information
 
         The info command displays general information regarding the user's current game
@@ -164,6 +164,7 @@ class Gameplay(commands.Cog):
                 inline=False
             )
 
+            # Settings displayed for only custom game
             if game.game_id == 3:
                 info_embed.add_field(
                     name="Game Settings",
@@ -186,6 +187,7 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["lv"])
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def leave(self, ctx):
+        # TODO update with custom, logged only for the 3 og
         """Leaves the user's current game
 
         The user can leave their game at any point by using this command. This will not
@@ -195,28 +197,29 @@ class Gameplay(commands.Cog):
         The user will automatically leave the game when it is finished.
         """
 
-        if self.key(ctx) in self.bot.games:
-            game = self.bot.games[self.key(ctx)]
-            game.game_over_msg.description = ":arrow_left: You have left the game"
+        if self.key(ctx) not in self.bot.games:
+            return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-            # Updating database unless it's custom mode
-            if game.game_id == 3:
-                game.game_over_msg.set_footer(text="Logging is disabled")
-            elif self.manager.user_in_db(ctx):
-                if self.manager.query(ctx, 0, "logging"):
-                    self.manager.increment(ctx, game.game_id, "times_quit")  # Logging times quit
-                    game.game_over_msg.set_footer(text="Logging is on")
-                else:
-                    game.game_over_msg.set_footer(text="Logging is off")
+        game = self.bot.games[self.key(ctx)]
+        game.game_over_msg.description = ":arrow_left: You have left the game"
 
-            self.reset_game(ctx)
-            return await ctx.send(embed=game.game_over_msg)
+        # Updating database unless it's custom mode
+        if game.game_id == 3:
+            game.game_over_msg.set_footer(text="Logging is disabled")
+        elif self.manager.user_in_db(ctx):
+            if self.manager.query(ctx, 0, "logging"):
+                self.manager.increment(ctx, game.game_id, "times_quit")  # Logging times quit
+                game.game_over_msg.set_footer(text="Logging is on")
+            else:
+                game.game_over_msg.set_footer(text="Logging is off")
 
-        await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
+        self.reset_game(ctx)
+        await ctx.send(embed=game.game_over_msg)
 
     @commands.command(aliases=["sh"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def show(self, ctx):
+        # TODO update with custom, explain pagination for custom mode
         """Shows the full guess history of the user's current game
 
         Every single round except for the one where the user makes their final guess
@@ -233,9 +236,12 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
         game = self.bot.games[self.key(ctx)]
+
+        # Each page contains 10 guesses
         pages = ceil(len(game.board_info)/10)
         page_num = 0
 
+        # Default page, pagination haven't been added
         game.gen_board(page_num, pages)
         page = await ctx.send(embed=game.board)
 
@@ -267,6 +273,7 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["sv"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def solve(self, ctx):
+        # TODO update with custom, solve doesn't work with custom
         """Lists out all the possible solutions for the user's current game
 
         A possible solution consists of 3 numbers that could be the winning combination

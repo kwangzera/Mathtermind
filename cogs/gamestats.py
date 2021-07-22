@@ -25,7 +25,7 @@ class Gamestats(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You already exist in the database", color=Colour.red()))
 
         with self.bot.con.cursor() as cur:
-            # Loops 0, 1, 2, the game ids
+            # Loops 0, 1, 2, the game ids (skips 3, custom mode)
             for game_id in range(3):
                 # Table for game stats
                 sql = f"""
@@ -64,6 +64,7 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["lg"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def logging(self, ctx, toggle: bool = None):
+        # TODO update with custom, talk about how logging can be disabled
         """Toggles the user's data logging status on or off
 
         The logging command can be used as follows:
@@ -93,6 +94,7 @@ class Gamestats(commands.Cog):
     @commands.command(cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def raw(self, ctx, gamemode: str = None):
+        # TODO update with custom, no raw for custom
         """Outputs the user's raw game data of any gamemode as a .txt file
 
         The logging command can be used as follows:
@@ -168,6 +170,7 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["st"])
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def stats(self, ctx):
+        # TODO update with custom, all 3 gamemodes to the 3 allowed gamemodes
         """Displays the user's game stats
 
         The stats command is used to show tabulated game data for all 3 gamemodes, which

@@ -95,44 +95,21 @@ class Gamemodes(commands.Cog):
     @commands.command(aliases=["cs"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def custom(self, ctx, *, settings: str = None):
-        # TODO refactor docs
-        """Starts a Mathtermind game in custom mode
-
-        Usage:
-        ;cs range_limit=15 guess_size_limit=4 max_guesses=7 custom_answer=1-15:3
-
-        args can be in any order, no spaces between each arg=value pair
-
-        settings:
-            range_limit|rl       range of guessing (100 max)
-            guess_size_limit|gsl size of ;g (25 max)
-            max_guesses| mg      available rounds for guessing (100 max)
-            custom_answer|ca     settings for custom answer
-
-        custom_answer:
-            <range1>:freq1,<range2>:freq2,... (if freq not included it defualts to 1)
-
-            Range = range of numbers to generate random from, denoted by a-b
-            Use union operator, |, to generate from multiple ranges
-
-            e.g. 1-3|9-12:3,13-15,4-7:2
-            3 random numbers from [1, 2, 3, 4, 8, 9, 10]
-            1 random number from [13, 14, 15]
-            2 random numbers from [16, 17, 18, 19, 20]
-        """
+        # TODO update with custom, finish help page for this command
+        """Starts a Mathtermind game in custom mode"""
 
         await self.create_game(ctx, Custom(ctx, settings))
 
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
-            # Check for valid settings for custom mode
+            # Check if valid settings for custom mode
             if gametype.game_id == 3 and not gametype.valid_settings():
                 return await ctx.send(embed=gametype.log_msg)
 
             self.bot.games[self.key(ctx)] = gametype  # Assigns a game to a user's key
             await ctx.send(embed=discord.Embed(description="Ready to play", color=Colour.green()))
         else:
-            return await ctx.send(embed=discord.Embed(description="You are already in a game", color=Colour.red()))
+            await ctx.send(embed=discord.Embed(description="You are already in a game", color=Colour.red()))
 
     def key(self, ctx):
         return f"{ctx.author.id}{ctx.guild.id}"

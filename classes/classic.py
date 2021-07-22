@@ -10,15 +10,15 @@ class Classic:
         # Changeable settings
         self.round_number = 0
         self.game_over = 0  # 1: lose, 2: win
-        self.logging = True
+        self.logging = True  # logging variable for other gamemodes are unused (placeholder)
         self.rounds = []
         self.matches = []
-        self.verified = []
-        self.board_info = []
+        self.verified = []  # Used in detective mode, all guesses here are verified
+        self.board_info = []  # Contains the guess history to be displayed on the board
 
         # Unchangeable settings
         self.game_id = 0
-        self.sets_dict = {"rl": 15, "gsl": 4, "mg": 7, "ca": None}
+        self.sets_dict = {"rl": 15, "gsl": 4, "mg": 7, "ca": None}  # Classic mode default settings (see gamemodes.py)
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
@@ -41,7 +41,7 @@ class Classic:
         self.verified.append(True)
 
     def add_round(self, guess):
-        """Updates the Classic game with a new round. Assumes `guess` is valid."""
+        """Updates the Classic game with a new round"""
 
         self.update_stats(guess)
 
@@ -67,7 +67,7 @@ class Classic:
 
     def is_unique(self, guess):
         # Set of numbers must be the same as the numbers (no duplicates)
-        return sorted(set(guess)) == sorted(guess)
+        return sorted(set(guess)) == guess
 
     def in_range(self, guess):
         for g in guess:
@@ -81,7 +81,7 @@ class Classic:
         return self.round_number == self.sets_dict["mg"] and len(guess) != len(self.answer) and flag
 
     def valid_guess(self, guess):
-        """Checks if a guess is valid or not. Makes use of the previous helper methods."""
+        """Checks if a guess is valid or not by making use of the previous helper methods."""
 
         flag = True
 
@@ -104,12 +104,14 @@ class Classic:
         return flag
 
     def gen_board(self, page, pages):
-        """"""
+        """Initializes a gameboard to display guess history"""
 
         self.board.clear_fields()
 
+        # Array slicing to get up to 10 rounds for the `page`th page
         for nm, val in self.board_info[page*10:(page+1)*10]:
             self.board.add_field(name=nm, value=val, inline=False)
 
+        # More than 10 rounds, pagination required
         if pages > 1:
             self.board.set_footer(text=f"Page {page+1}/{pages}")

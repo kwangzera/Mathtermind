@@ -8,12 +8,7 @@ class Custom(Classic):
 
         # Changeable variables
         self.ranges = []
-        self.tmp_sets = {
-            "rl": None,
-            "gsl": None,
-            "mg": None,
-            "ca": None
-        }
+        self.tmp_sets = {"rl": None, "gsl": None, "mg": None, "ca": None}
 
         # Unchangeable variables
         self.game_id = 3
@@ -45,11 +40,11 @@ class Custom(Classic):
 
                 start, end = sorted((int(start), int(end)))
 
-                # Numbers go out of the range limit
+                # Answer's numbers go out of the range limit
                 if start < 1 or end > self.tmp_sets["rl"]:
                     raise ValueError
 
-                # Adding numbers to temp array for a random sample
+                # Adding numbers from range to temp array to pick a random sample from
                 range_rng += range(start, end+1)
                 self.ranges.append((start, end))
 
@@ -100,7 +95,7 @@ class Custom(Classic):
         return False
 
     def valid_settings(self):
-        """Checks if passed settings are valid or not. Makes use of the previous helper methods."""
+        """Checks if passed settings are valid or not by making use of the previous helper methods."""
 
         # No settings passed = classic mode
         if self.is_classic():
