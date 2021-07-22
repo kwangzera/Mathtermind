@@ -7,10 +7,14 @@ from classes.classic import Classic
 class Detective(Classic):
     def __init__(self, ctx):
         super().__init__(ctx)
-        self.game_id = 2
+
+        # Changeable variables
         self.actual_match = -1  # Real number of matches
-        self.lie_index = randint(1, 4)  # Index of the lie
         self.used_identify = False
+
+        # Uncheageable variables
+        self.game_id = 2
+        self.lie_index = randint(1, 4)  # Index of the lie
 
         # Embeds
         self.game_over_msg.title = f"{ctx.author}'s Detective Game"

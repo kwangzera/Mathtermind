@@ -5,6 +5,7 @@ from discord.ext import commands
 from classes.classic import Classic
 from classes.repeat import Repeat
 from classes.detective import Detective
+from classes.custom import Custom
 
 
 class Gamemodes(commands.Cog):
@@ -91,8 +92,20 @@ class Gamemodes(commands.Cog):
 
         await self.create_game(ctx, Detective(ctx))
 
+    @commands.command(aliases=["cs"])
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
+    async def custom(self, ctx, *, settings: str = None):
+        # TODO update with custom, finish help page for this command
+        """Starts a Mathtermind game in custom mode"""
+
+        await self.create_game(ctx, Custom(ctx, settings))
+
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
+            # Check if valid settings for custom mode
+            if gametype.game_id == 3 and not gametype.valid_settings():
+                return await ctx.send(embed=gametype.log_msg)
+
             self.bot.games[self.key(ctx)] = gametype  # Assigns a game to a user's key
             await ctx.send(embed=discord.Embed(description="Ready to play", color=Colour.green()))
         else:

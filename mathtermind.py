@@ -10,7 +10,7 @@ from discord.ext import commands
 bot = commands.Bot(command_prefix=";")
 
 # Initializing database
-conn = psycopg2.connect(database="mathtermind", user="numgameadmin", password="numbergame1234", host="127.0.0.1", port="5432")
+conn = psycopg2.connect(os.environ["DATABASE_URL"])
 print("Database opened successfully")
 
 

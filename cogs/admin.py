@@ -27,7 +27,7 @@ class Admin(commands.Cog):
 
     @commands.command(aliases=["gd"], hidden=True)
     async def gamedata(self, ctx, user_id: int = None):
-        # Pretty prints instance variables from classic class as a dictionary
+        # Pretty prints instance variables from a game class as a dictionary
         pprint(self.bot.games[f"{ctx.author.id if user_id is None else user_id}{ctx.guild.id}"].__dict__)
         await ctx.send("Game debug info printed in terminal.", mention_author=False)
 

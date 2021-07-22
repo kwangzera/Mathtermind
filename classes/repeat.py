@@ -6,6 +6,8 @@ from classes.classic import Classic
 class Repeat(Classic):
     def __init__(self, ctx):
         super().__init__(ctx)
+
+        # Unchangeable settings
         self.game_id = 1
         self.answer = self.create_answer()
 

@@ -25,7 +25,7 @@ class Gamestats(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You already exist in the database", color=Colour.red()))
 
         with self.bot.con.cursor() as cur:
-            # Loops 0, 1, 2, the game ids
+            # Loops 0, 1, 2, the game ids (skips 3, custom mode)
             for game_id in range(3):
                 # Table for game stats
                 sql = f"""
@@ -64,6 +64,7 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["lg"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def logging(self, ctx, toggle: bool = None):
+        # TODO update with custom, talk about how logging can be disabled
         """Toggles the user's data logging status on or off
 
         The logging command can be used as follows:
@@ -93,6 +94,7 @@ class Gamestats(commands.Cog):
     @commands.command(cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def raw(self, ctx, gamemode: str = None):
+        # TODO update with custom, no raw for custom
         """Outputs the user's raw game data of any gamemode as a .txt file
 
         The logging command can be used as follows:
@@ -168,6 +170,7 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["st"])
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def stats(self, ctx):
+        # TODO update with custom, all 3 gamemodes to the 3 allowed gamemodes
         """Displays the user's game stats
 
         The stats command is used to show tabulated game data for all 3 gamemodes, which
@@ -186,7 +189,7 @@ class Gamestats(commands.Cog):
         # Defaults to classic stats
         self.gen_page(ctx, 0, "Classic", stat_emb)
 
-        page = await ctx.send(ctx.author.mention, embed=stat_emb)
+        page = await ctx.send(embed=stat_emb)
         await page.add_reaction("⏪")
         await page.add_reaction("⏩")
 
@@ -199,10 +202,10 @@ class Gamestats(commands.Cog):
                 return await page.edit(embed=stat_emb)
             else:
                 if react.emoji == "⏩":
-                    page_num = min(page_num+1, 2)  # Can't go beyond page 3
+                    page_num = min(page_num+1, 2)  # Can't go beyond page 2
                     await page.remove_reaction(react, user)
                 elif react.emoji == "⏪":
-                    page_num = max(page_num-1, 0)  # Can't go before page 1
+                    page_num = max(page_num-1, 0)  # Can't go before page 0
                     await page.remove_reaction(react, user)
 
                 if page_num == 0:
@@ -241,7 +244,7 @@ class Gamestats(commands.Cog):
         prev_result = self.manager.query(ctx, game_id, "prev_result")
         cur_strk_type = f"Win{'s'*(cur_strk != 1)}" if prev_result else f"Loss{'es'*(cur_strk != 1)}"
 
-        # Misc info
+        # Other info
         quits = self.manager.query(ctx, game_id, "times_quit")
 
         emb.add_field(
@@ -264,7 +267,7 @@ class Gamestats(commands.Cog):
             inline=False
         )
         emb.add_field(
-            name=f"Misc Info",
+            name=f"Other Info",
             value=f"""Times Quit: **{quits}**""",
             inline=False
         )

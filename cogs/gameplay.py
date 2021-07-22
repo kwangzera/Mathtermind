@@ -1,3 +1,6 @@
+import asyncio
+from math import ceil
+
 import discord
 from discord import Colour
 from discord.ext import commands
@@ -5,6 +8,7 @@ from discord.ext import commands
 from classes.classic_solver import ClassicSolver
 from classes.repeat_solver import RepeatSolver
 from classes.detective_solver import DetectiveSolver
+from classes.custom_solver import CustomSolver
 from classes.stat_manager import StatManager
 
 
@@ -18,7 +22,7 @@ class Gameplay(commands.Cog):
     async def guess(self, ctx, *nums: int):
         """Makes a guess
 
-        The guess command can be used as follows for all gamemodes:
+        The guess command can be used as follows:
             ;guess 1 2      -> guesses 1 and 2
             ;guess 10 7 8 4 -> guesses 10, 7, 8, and 4
 
@@ -46,15 +50,13 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=game.log_msg)
 
         game.add_round(nums)
-        game.board.add_field(
-            name=f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`",
-            value=f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}",
-            inline=False
-        )
+        game.board_info.append((f"Guess {game.round_number}: `{', '.join(map(str, game.rounds[-1]))}`", f"{'❓ '*unknown}{game.matches[-1]} match{'es'*(game.matches[-1] != 1)}"))
 
         if game.game_over:
-            # Updating database
-            if self.manager.user_in_db(ctx):
+            # Updating database unless it's custom mode
+            if game.game_id == 3:
+                game.game_over_msg.set_footer(text="Logging is disabled")
+            if self.manager.user_in_db(ctx) and game.game_id != 3:
                 if self.manager.query(ctx, 0, "logging"):
                     self.manager.calc_streak(ctx, game.game_id, game.game_over-1)  # Logging streaks, wins, losses
                     self.manager.incr_raw(ctx, game.game_id, game.game_over-1)  # Logging raw (game history binary string)
@@ -126,7 +128,6 @@ class Gameplay(commands.Cog):
 
             return await ctx.send(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()))
 
-        # Incorrectly identified the lie
         target -= 1  # 0-indexed
         game.verified[target] = True  # Incorrectly identified lie must be a verified guess
         name, value = fields[target].name, fields[target].value
@@ -136,6 +137,7 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["if"])
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def info(self, ctx):
+        # TODO update with custom, displaying settings
         """Displays the user's general information
 
         The info command displays general information regarding the user's current game
@@ -149,28 +151,43 @@ class Gameplay(commands.Cog):
             info_embed.add_field(name="Game Info", value="N/A", inline=False)
         else:
             game = self.bot.games[self.key(ctx)]
-            gamemode = "Classic" if game.game_id == 0 else ("Repeat" if game.game_id == 1 else "Detective")
+            gamemode = "Classic" if game.game_id == 0 else ("Repeat" if game.game_id == 1 else ("Detective" if game.game_id == 2 else "Custom"))
             lie_str = "" if game.game_id != 2 else f"Used Identify: **{game.used_identify}**"
+
             info_embed.add_field(
                 name="Game Info",
                 value=f"""
                    Gamemode: **{gamemode}**
-                   Current Round: **{game.round_number+1}**
+                   Current Round: **{game.round_number + 1 if game.round_number != game.sets_dict["mg"] else "Final"}**
                    {lie_str}
                 """,
                 inline=False
             )
 
-        if not self.manager.user_in_db(ctx):
-            info_embed.add_field(name="Logging Info", value="N/A", inline=False)
-        else:
-            info_embed.add_field(name="Logging Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
+            # Settings displayed for only custom game
+            if game.game_id == 3:
+                info_embed.add_field(
+                    name="Game Settings",
+                    value=f"""
+                        Available Rounds: **{game.sets_dict["mg"]}**
+                        Numbers per Guess: **1{f" to {game.sets_dict['gsl']}"*(game.sets_dict['gsl'] != 1)}**
+                        Guessing Range: **1 {f"to {game.sets_dict['rl']}" if game.sets_dict['rl'] != 1 else "Only"}**
+                        Numbers in Answer: **{len(game.answer)}**
+                    """,
+                    inline=False
+                )
 
-        await ctx.send(ctx.author.mention, embed=info_embed)
+        if not self.manager.user_in_db(ctx):
+            info_embed.add_field(name="Other Info", value="N/A", inline=False)
+        else:
+            info_embed.add_field(name="Other Info", value=f"Logging: **{self.manager.query(ctx, 0, 'logging')}**", inline=False)
+
+        await ctx.send(embed=info_embed)
 
     @commands.command(aliases=["lv"])
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def leave(self, ctx):
+        # TODO update with custom, logged only for the 3 og
         """Leaves the user's current game
 
         The user can leave their game at any point by using this command. This will not
@@ -180,26 +197,29 @@ class Gameplay(commands.Cog):
         The user will automatically leave the game when it is finished.
         """
 
-        if self.key(ctx) in self.bot.games:
-            game = self.bot.games[self.key(ctx)]
-            game.game_over_msg.description = ":arrow_left: You have left the game"
+        if self.key(ctx) not in self.bot.games:
+            return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-            # Updating database
-            if self.manager.user_in_db(ctx):
-                if self.manager.query(ctx, 0, "logging"):
-                    self.manager.increment(ctx, game.game_id, "times_quit")  # Logging times quit
-                    game.game_over_msg.set_footer(text="Logging is on")
-                else:
-                    game.game_over_msg.set_footer(text="Logging is off")
+        game = self.bot.games[self.key(ctx)]
+        game.game_over_msg.description = ":arrow_left: You have left the game"
 
-            self.reset_game(ctx)
-            return await ctx.send(embed=game.game_over_msg)
+        # Updating database unless it's custom mode
+        if game.game_id == 3:
+            game.game_over_msg.set_footer(text="Logging is disabled")
+        elif self.manager.user_in_db(ctx):
+            if self.manager.query(ctx, 0, "logging"):
+                self.manager.increment(ctx, game.game_id, "times_quit")  # Logging times quit
+                game.game_over_msg.set_footer(text="Logging is on")
+            else:
+                game.game_over_msg.set_footer(text="Logging is off")
 
-        await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
+        self.reset_game(ctx)
+        await ctx.send(embed=game.game_over_msg)
 
     @commands.command(aliases=["sh"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def show(self, ctx):
+        # TODO update with custom, explain pagination for custom mode
         """Shows the full guess history of the user's current game
 
         Every single round except for the one where the user makes their final guess
@@ -212,14 +232,48 @@ class Gameplay(commands.Cog):
         the number of matches (see ;help identify for more details).
         """
 
-        if self.key(ctx) in self.bot.games:
-            return await ctx.send(embed=self.bot.games[self.key(ctx)].board)
+        if self.key(ctx) not in self.bot.games:
+            return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
-        await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
+        game = self.bot.games[self.key(ctx)]
+
+        # Each page contains 10 guesses
+        pages = ceil(len(game.board_info)/10)
+        page_num = 0
+
+        # Default page, pagination haven't been added
+        game.gen_board(page_num, pages)
+        page = await ctx.send(embed=game.board)
+
+        # No need for pagination
+        if pages <= 1:
+            return
+
+        await page.add_reaction("⏪")
+        await page.add_reaction("⏩")
+
+        while True:
+            try:
+                # Only the user who used this command can interact with this embed
+                react, user = await self.bot.wait_for("reaction_add", timeout=2, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
+            except asyncio.TimeoutError:
+                game.board.set_footer(text="Page Expired")
+                return await page.edit(embed=game.board)
+            else:
+                if react.emoji == "⏩":
+                    page_num = min(page_num+1, pages-1)  # Can't go beyond the final page
+                    await page.remove_reaction(react, user)
+                elif react.emoji == "⏪":
+                    page_num = max(page_num-1, 0)  # Can't go before page 0
+                    await page.remove_reaction(react, user)
+
+                game.gen_board(page_num,pages)
+                await page.edit(embed=game.board)
 
     @commands.command(aliases=["sv"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def solve(self, ctx):
+        # TODO update with custom, solve doesn't work with custom
         """Lists out all the possible solutions for the user's current game
 
         A possible solution consists of 3 numbers that could be the winning combination
@@ -244,8 +298,10 @@ class Gameplay(commands.Cog):
             solution = ClassicSolver(game.rounds, game.matches, game.verified)
         elif game.game_id == 1:
             solution = RepeatSolver(game.rounds, game.matches, game.verified)
-        else:  # `game.game_id == 2`
+        elif game.game_id == 2:
             solution = DetectiveSolver(game.rounds, game.matches, game.verified)
+        else:  # Custom game
+            solution = CustomSolver(game.rounds, game.matches, game.verified, game.answer)
 
         solution.solve()
         await ctx.send(embed=solution.sol_panel)
