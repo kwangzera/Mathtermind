@@ -18,7 +18,7 @@ class Gameplay(commands.Cog):
         self.manager = StatManager(self.bot.con)
 
     @commands.command(aliases=["g"], cooldown_after_parsing=True)
-    # @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def guess(self, ctx, *nums: int):
         """Makes a guess
 

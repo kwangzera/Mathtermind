@@ -115,7 +115,7 @@ class Gamemodes(commands.Cog):
             Range = range of numbers to generate random from, denoted by a-b
             Use union operator, |, to generate from multiple ranges
 
-            e.g. 1-4|8-10:3,13-15,16-20:2
+            e.g. 1-3|9-12:3,13-15,4-7:2
             3 random numbers from [1, 2, 3, 4, 8, 9, 10]
             1 random number from [13, 14, 15]
             2 random numbers from [16, 17, 18, 19, 20]
@@ -126,7 +126,7 @@ class Gamemodes(commands.Cog):
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
             if gametype.game_id == 3 and not gametype.valid_settings():
-                return await ctx.send(embed=discord.Embed(description="Check your settings bruv", color=Colour.red()))
+                return await ctx.send(embed=gametype.log_msg)
 
             self.bot.games[self.key(ctx)] = gametype  # Assigns a game to a user's key
             await ctx.send(embed=discord.Embed(description="Ready to play", color=Colour.green()))

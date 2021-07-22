@@ -47,7 +47,7 @@ class Custom(Classic):
                 start, end = sorted((int(start), int(end)))
 
                 # Numbers go out of the range limit
-                if end > self.tmp_sets["rl"] or start < 1:
+                if start < 1 or end > self.tmp_sets["rl"]:
                     raise ValueError
 
                 # Adding numbers to temp array for a random sample
@@ -56,7 +56,7 @@ class Custom(Classic):
 
             answer += sample(range_rng, repeat)
 
-        return answer
+        return sorted(answer)
 
     def is_classic(self):
         return self.settings is None
@@ -89,15 +89,13 @@ class Custom(Classic):
         else:
             self.answer = self.create_answer(self.tmp_sets["ca"])
 
-        self.answer.sort()
-
     def range_intersect(self):
         self.ranges.sort()
 
         if len(self.ranges) > 1:
             for i in range(len(self.ranges)-1):
                 # Intersection exist
-                if self.ranges[i][1] > self.ranges[i+1][0]:
+                if self.ranges[i][1] >= self.ranges[i+1][0]:
                     return True
 
         return False
@@ -114,6 +112,7 @@ class Custom(Classic):
         try:
             self.parse_settings()
         except ValueError:
+            self.log_msg.description = "error1"
             return False
 
         # Overriding missing settings with default values (temporary)
@@ -123,20 +122,24 @@ class Custom(Classic):
 
         # Exceeding limits for custom settings
         if not self.sets_in_range():
+            self.log_msg.description = "error2"
             return False
 
         # Isn't possible to guess more than the range of numbers without repeats
         if self.rep_possible():
+            self.log_msg.description = "error3"
             return False
 
-        # No custom answer provided
+        # Setting answer, making sure custom answer settings are valid
         try:
             self.set_custom_ans()
         except ValueError:
+            self.log_msg.description = "error4"
             return False
 
         # Checks for range intersections
         if self.range_intersect():
+            self.log_msg.description = "error5"
             return False
 
         # Applying custom settings
