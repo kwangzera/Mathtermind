@@ -169,7 +169,7 @@ class Gameplay(commands.Cog):
                     name="Game Settings",
                     value=f"""
                         Available Rounds: **{game.sets_dict["mg"]}**
-                        Numbers per Guess: **1 {f"to {game.sets_dict['gsl']}" if game.sets_dict['gsl'] != 1 else "Only"}**
+                        Numbers per Guess: **1{f" to {game.sets_dict['gsl']}"*(game.sets_dict['gsl'] != 1)}**
                         Guessing Range: **1 {f"to {game.sets_dict['rl']}" if game.sets_dict['rl'] != 1 else "Only"}**
                         Numbers in Answer: **{len(game.answer)}**
                     """,

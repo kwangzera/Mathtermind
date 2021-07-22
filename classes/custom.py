@@ -76,7 +76,7 @@ class Custom(Classic):
                 raise ValueError
 
     def sets_in_range(self):
-        return 1 <= self.tmp_sets["rl"] <= 100 and 1 <= self.tmp_sets["gsl"] <= 25 and 1 <= self.tmp_sets["mg"] <= 100
+        return 1 <= self.tmp_sets["rl"] <= 50 and 1 <= self.tmp_sets["gsl"] <= 50 and 1 <= self.tmp_sets["mg"] <= 50
 
     def rep_possible(self):
         return self.tmp_sets["gsl"] > self.tmp_sets["rl"]
@@ -118,12 +118,12 @@ class Custom(Classic):
                 self.tmp_sets[key] = self.sets_dict[key]
 
         if not self.sets_in_range():
-            self.log_msg.description = "Please make sure your settings are within their limits"
+            self.log_msg.description = "Please make sure your individual settings are within their limits"
             return False
 
         # Isn't possible to guess more than the range of numbers without repeats
         if self.rep_possible():
-            self.log_msg.description = "Please make sure the guess size limit does not exceed the range limit"
+            self.log_msg.description = "Please make sure your guess size limit doesn't exceed your range limit"
             return False
 
         try:
