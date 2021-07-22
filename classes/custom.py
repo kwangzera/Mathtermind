@@ -24,6 +24,7 @@ class Custom(Classic):
         self.board.title = f"{ctx.author}'s Custom Game"
 
     def create_answer(self, settings):
+        print(settings)
         answer = []
 
         # Splitting by times repeated
@@ -34,6 +35,8 @@ class Custom(Classic):
             if not repeat:
                 repeat = "1"
 
+            repeat = int(repeat)
+
             # Splitting by ranges
             for part in rest.split("|"):
                 start, _, end = part.partition("-")
@@ -42,6 +45,10 @@ class Custom(Classic):
                     end = start
 
                 start, end = sorted((int(start), int(end)))
+
+                # Numbers go out of the range limit
+                if end > self.tmp_sets["rl"] or start < 1:
+                    raise ValueError
 
                 # Adding numbers to temp array for a random sample
                 range_rng += range(start, end+1)
@@ -54,91 +61,86 @@ class Custom(Classic):
     def is_classic(self):
         return self.settings is None
 
-    def valid_input(self):
-    def parse_settings():
-        try:
-            for indiv in self.settings.split():
-                set, val = indiv.split("=")
-                print(set, val)
+    def parse_settings(self):
+        for indiv in self.settings.split():
+            set, val = indiv.split("=")
+            print(set, val)
+            if set in {"rl", "range_limit"}:
+                self.tmp_sets["rl"] = int(val)
+            elif set in {"gsl", "guess_size_limit"}:
+                self.tmp_sets["gsl"] = int(val)
+            elif set in {"mg", "max_guesses"}:
+                self.tmp_sets["mg"] = int(val)
+            elif set in {"ca", "custom_answer"}:
+                self.tmp_sets["ca"] = val
+            else:
+                raise ValueError
 
-                if set in {"rl", "range_limit"}:
-                    tmp_sets["rl"] = int(val)
-                elif set in {"gsl", "guess_size_limit"}:
-                    tmp_sets["gsl"] = int(val)
-                elif set in {"mg", "max_guesses"}:
-                    tmp_sets["mg"] = int(val)
-                elif set in {"ca", "custom_answer"}:
-                    tmp_sets["ca"] = val
-        except ValueError:
-            return False
+    def sets_in_range(self):
+        return 1 <= self.tmp_sets["rl"] <= 100 and 1 <= self.tmp_sets["gsl"] <= 25 and 1 <= self.tmp_sets["mg"] <= 100
+
+    def rep_possible(self):
+        return self.tmp_sets["gsl"] > self.tmp_sets["rl"]
+
+    def set_custom_ans(self):
+        if self.tmp_sets["ca"] is None:
+            self.answer = self.create_answer(f"1-{self.tmp_sets['rl']}:3")
+            self.tmp_sets["ca"] = f"1-{self.tmp_sets['rl']}:3"
         else:
-            return True
+            self.answer = self.create_answer(self.tmp_sets["ca"])
+
+        self.answer.sort()
+
+    def range_intersect(self):
+        self.ranges.sort()
+
+        if len(self.ranges) > 1:
+            for i in range(len(self.ranges)-1):
+                # Intersection exist
+                if self.ranges[i][1] > self.ranges[i+1][0]:
+                    return True
+
+        return False
 
     def valid_settings(self):
-        """
-        |rl  |gsl |mg  |
-        |x   |    |    |
-        |    |x   |    |
-        |    |    |x   |
-        |x   |x   |    |
-        |x   |    |x   |
-        |    |x   |x   |
-        |x   |x   |x   |
-        """
-
-        tmp_sets = {
-            "rl": None,
-            "gsl": None,
-            "mg": None,
-            "ca": None
-        }
+        """"""
+        # TODO remove comments when log message becomes self documenting
 
         # No settings passed = classic mode
         if self.is_classic():
             return True
 
         # Parsing settings, making sure input is valid
-        if not self.valid_input():
+        try:
+            self.parse_settings()
+        except ValueError:
             return False
 
         # Overriding missing settings with default values (temporary)
-        for key, val in tmp_sets.items():
-            print(key, val)
+        for key, val in self.tmp_sets.items():
             if val is None:
-                tmp_sets[key] = self.sets_dict[key]
+                self.tmp_sets[key] = self.sets_dict[key]
 
         # Exceeding limits for custom settings
-        if not (1 <= tmp_sets["rl"] <= 100) or not (1 <= tmp_sets["gsl"] <= 25) or not (1 <= tmp_sets["mg"] <= 100):
+        if not self.sets_in_range():
             return False
 
         # Isn't possible to guess more than the range of numbers without repeats
-        if tmp_sets["gsl"] > tmp_sets["rl"]:
+        if self.rep_possible():
             return False
 
         # No custom answer provided
-        if tmp_sets["ca"] is None:
-            self.answer = self.create_answer(f"1-{tmp_sets['rl']}:3")
-            tmp_sets["ca"] = f"1-{tmp_sets['rl']}:3"
-        else:
-            # TODO regex checking or smth
-            self.answer = self.create_answer(tmp_sets["ca"])
-            # check ans acc fits in the range
-
-        self.ranges.sort()
+        try:
+            self.set_custom_ans()
+        except ValueError:
+            return False
 
         # Checks for range intersections
-        # TODO add "more numbers in range" here checking
-        if len(self.ranges) > 1:
-            for i in range(len(self.ranges)-1):
-                # Intersection exist
-                if self.ranges[i][1] > self.ranges[i+1][0]:
-                    return False
-
-        # TODO max checking
-        # TODO also check answer size
+        if self.range_intersect():
+            return False
 
         # Applying custom settings
-        for key, val in tmp_sets.items():
-            self.sets_dict[key] = tmp_sets[key]
+        for key, val in self.tmp_sets.items():
+            self.sets_dict[key] = self.tmp_sets[key]
 
         return True
