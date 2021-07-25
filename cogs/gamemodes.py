@@ -95,8 +95,51 @@ class Gamemodes(commands.Cog):
     @commands.command(aliases=["cs"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def custom(self, ctx, *, settings: str = None):
-        # TODO update with custom, finish help page for this command
-        """Starts a Mathtermind game in custom mode"""
+        """Starts a Mathtermind game in custom mode
+
+        This gamemode allows the user to play a customized version of classic mode with
+        modified settings.
+
+        The following settings are available:
+            range_limit|rl       Range of the numbers the user can guess (50 max)
+            guess_size_limit|gsl Maximum amount of numbers in the user's guess (50 max)
+            max_guesses|mg       Available rounds for guessing, excluding final gueses
+                                 (50 max)
+            custom_answer|ca     Ccustom answer settings (50 numbers max)
+
+        Settings are passed as follows:
+            ;custom range_limit=15 guess_size_limit=4 max_guesses=7 custom_answer=1-15:3
+            ;custom gsl=5 mg=10 range_limit=20
+
+        Make sure that each individual setting contains no spaces and separate
+        individual settings with a space. The order and number of settings doesn't
+        matter and both the long or short form can be used.
+
+        For settings that are not passed, the defaults for classic mode will be used
+        instead. The only exception is when the user passes in a range limit but not a
+        custom answer, which will cause the game to generate 3 random numbers from 1 to
+        the range limit.
+
+        If settings are syntactically correct but are unable to create a proper game,
+        no game will be created.
+
+        Generally, custom answers are comma separated blocks of <ranges>:<choose> where
+        ranges represent possible numbers to randomly pick from, and choose (defaults to
+        1 if it isn't provided) represents the amount of numbers to randomly pick.
+        Ranges from multiple blocks can't intersect.
+
+        There are certain operations for ranges:
+            x|y Union of 2 non-intersecting ranges
+            x-y Range of numbers from x to y inclusive
+            x   A single number
+
+        For example, ca=1|3|5-7:2,9-11,13 will generate an answer consisting of:
+            2 numbers from (1, 3, 5, 6, 7)
+            1 number from (9, 10, 11)
+            13 itself
+
+        To start a custom game, enter ;cs followed by some settings
+        """
 
         await self.create_game(ctx, Custom(ctx, settings))
 

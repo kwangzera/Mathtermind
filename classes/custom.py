@@ -104,7 +104,7 @@ class Custom(Classic):
         try:
             self.parse_settings()
         except ValueError:
-            self.log_msg.description = "Please make sure your settings can be parsed properly"
+            self.log_msg.description = "Please make sure the syntax of your settings are valid"
             return False
 
         # Overriding missing settings with default values (temporary)
