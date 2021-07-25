@@ -23,12 +23,12 @@ class Gameplay(commands.Cog):
         """Makes a guess
 
         The guess command can be used as follows:
-            ;guess 1 2      -> guesses 1 and 2
-            ;guess 10 7 8 4 -> guesses 10, 7, 8, and 4
+            ;guess 1 2      → guesses 1 and 2
+            ;guess 10 7 8 4 → guesses 10, 7, 8, and 4
 
         Duplicate guesses are allowed in repeat mode:
-            ;guess 12 5 5   -> guesses one 12 and two 5s
-            ;guess 7 7 7    -> guesses three 7s
+            ;guess 12 5 5   → guesses one 12 and two 5s
+            ;guess 7 7 7    → guesses three 7s
 
         The bot will respond with the number of numbers from the winning combination
         that matches the user's guess. This is a one-for-one match, and can be
@@ -78,8 +78,8 @@ class Gameplay(commands.Cog):
         """Identifies a lie in detective mode
 
         The identify command can be used as follows:
-            ;identify 1 -> attempts to identify guess 1 as the lie
-            ;identify 4 -> attempts to identify guess 4 as the lie
+            ;identify 1 → attempts to identify guess 1 as the lie
+            ;identify 4 → attempts to identify guess 4 as the lie
 
         This detective mode exclusive command can be only used when the user has made at
         least 4 guesses, can only identify unverified guesses (those preceded by a ❓)
