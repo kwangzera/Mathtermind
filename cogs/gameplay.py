@@ -273,10 +273,9 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["sv"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def solve(self, ctx):
-        # TODO update with custom, solve doesn't work with custom
         """Lists out all the possible solutions for the user's current game
 
-        A possible solution consists of 3 numbers that could be the winning combination
+        A possible solution consists of numbers that could be the winning combination
         for a given gamestate. For classic and detective mode, possible solutions may
         include (1, 2, 3), (1, 2, 4), (1, 2, 5), ... (13, 14, 15). For repeat mode,
         (1, 1, 1), (1, 1, 2), (1, 1, 3), ... (15, 15, 15). The possible solutions will
@@ -286,7 +285,10 @@ class Gameplay(commands.Cog):
         (where the user is certain that the number of matches is true). Verified guesses
         include guesses 5 to 8 and guesses 1 to 4 preceded by a ✅.
 
-        All guesses are verified in classic and repeat mode.
+        In custom mode, the winning combination instead of the possible solutions will
+        be shown.
+
+        All guesses are verified in classic, repeat, and custom mode.
         """
 
         if self.key(ctx) not in self.bot.games:
