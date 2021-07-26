@@ -187,7 +187,6 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["lv"])
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def leave(self, ctx):
-        # TODO update with custom, logged only for the 3 og
         """Leaves the user's current game
 
         The user can leave their game at any point by using this command. This will not
@@ -219,7 +218,6 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["sh"])
     @commands.cooldown(rate=1, per=1, type=commands.BucketType.member)
     async def show(self, ctx):
-        # TODO update with custom, explain pagination for custom mode
         """Shows the full guess history of the user's current game
 
         Every single round except for the one where the user makes their final guess
@@ -230,6 +228,9 @@ class Gameplay(commands.Cog):
         doesn't know which guess contains a false number of matches (the lie). Those
         first 4 guesses will be preceded by a ✅ instead if the user knows for certain
         the number of matches (see ;help identify for more details).
+
+        In custom mode, it's possible to make many guesses. If that is the case, rounds
+        will be displayed 10 at a time.
         """
 
         if self.key(ctx) not in self.bot.games:
