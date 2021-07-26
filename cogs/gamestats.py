@@ -191,7 +191,7 @@ class Gamestats(commands.Cog):
         while True:
             try:
                 # Only the user who used this command can interact with this embed
-                react, user = await self.bot.wait_for("reaction_add", timeout=60, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
+                react, user = await self.bot.wait_for("reaction_add", timeout=120, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
             except asyncio.TimeoutError:
                 stat_emb.set_footer(text="Page Expired")
                 return await page.edit(embed=stat_emb)

@@ -31,7 +31,7 @@ class Detective(Classic):
             return match
 
     def win(self, guess):
-        # Must be a verified guess for a win
+        # Must be a verified guess to win
         return (self.matches[-1] == len(guess) == 3) and self.round_number > 4
 
     def lose(self):
@@ -58,7 +58,7 @@ class Detective(Classic):
         probs = {0: 6, 1: 9, 2: 4, 3: 1}
         guess_len = 3 if guess_len == 4 else guess_len
 
-        # Filtering out the true match
+        # Filtering out the True match
         ret_probs = Counter({i: probs[i] for i in range(0, guess_len+1)})
         del ret_probs[actual]
 

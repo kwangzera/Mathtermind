@@ -22,7 +22,7 @@ class Repeat(Classic):
         """Generates the winning combination for repeat mode"""
 
         rng = random()*100
-        a, b = sample(range(1, 16), 2)  # Not sorted
+        a, b = sample(range(1, 16), 2)  # Not sorted for fair answer generation
 
         if rng < 5:  # 5% chance of generating 3 duplicates
             return sorted((a, a, a))

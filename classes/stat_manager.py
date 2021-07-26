@@ -47,13 +47,14 @@ class StatManager:
             self.con.commit()
 
     def calc_streak(self, ctx, game_id, result):
-        """Calculates all types of streaks (win/lose/current) and updates wins and losses"""
+        """Calculates all types of streaks and updates wins and losses"""
 
         prev = self.query(ctx, game_id, "prev_result")
         cur_win = self.query(ctx, game_id, "cur_win")
         cur_loss = self.query(ctx, game_id, "cur_loss")
 
-        if result:  # Win
+        # Win
+        if result:
             cur_win += 1
             self.increment(ctx, game_id, "cur_win")
             self.increment(ctx, game_id, "wins")
@@ -64,7 +65,8 @@ class StatManager:
             # Update current win streak
             self.update(ctx, game_id, current_streak=cur_win)
 
-        else:  # Lose
+        # Lose
+        else:
             cur_loss += 1
             self.increment(ctx, game_id, "cur_loss")
             self.increment(ctx, game_id, "losses")

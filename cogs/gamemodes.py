@@ -124,8 +124,8 @@ class Gamemodes(commands.Cog):
         1 if it isn't provided) represents the number of numbers to randomly pick.
         Ranges from multiple blocks can't intersect.
 
-        There are certain operations for ranges:
-            x|y → Union of 2 smaller, non-intersecting ranges
+        There are certain operations for ranges within a block:
+            x|y → Union of 2 non-intersecting ranges
             x-y → Range of numbers from x to y inclusive
             x   → A single number
 
@@ -141,7 +141,7 @@ class Gamemodes(commands.Cog):
 
     async def create_game(self, ctx, gametype):
         if self.key(ctx) not in self.bot.games:
-            # Check if valid settings for custom mode
+            # Check if settings are valid for custom mode
             if gametype.game_id == 3 and not gametype.valid_settings():
                 return await ctx.send(embed=gametype.log_msg)
 

@@ -44,7 +44,7 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You are not in a game", color=Colour.red()))
 
         game = self.bot.games[self.key(ctx)]
-        unknown = game.game_id == 2 and game.round_number < 4  # Determines if a question mark should be put in front of a guess
+        unknown = game.game_id == 2 and game.round_number < 4  # If True, then guess is unverified
 
         if not game.valid_guess(nums):
             return await ctx.send(embed=game.log_msg)
@@ -59,7 +59,7 @@ class Gameplay(commands.Cog):
             if self.manager.user_in_db(ctx) and game.game_id != 3:
                 if self.manager.query(ctx, 0, "logging"):
                     self.manager.calc_streak(ctx, game.game_id, game.game_over-1)  # Logging streaks, wins, losses
-                    self.manager.incr_raw(ctx, game.game_id, game.game_over-1)  # Logging raw (game history binary string)
+                    self.manager.incr_raw(ctx, game.game_id, game.game_over-1)  # Logging raw
                     game.game_over_msg.set_footer(text="Logging is on")
                 else:
                     game.game_over_msg.set_footer(text="Logging is off")
@@ -117,7 +117,7 @@ class Gameplay(commands.Cog):
             # Loop through the first 4 unverified guesses
             for idx in range(4):
                 name, value = fields[idx].name, fields[idx].value
-                game.verified[idx] = True  # All guesses verified now
+                game.verified[idx] = True  # Updating guesses to verified
 
                 if idx == game.lie_index - 1:
                     game.matches[idx] = game.actual_match  # Replacing the lie with actual number of matches
@@ -244,7 +244,7 @@ class Gameplay(commands.Cog):
         pages = ceil(len(game.board_info)/10)
         page_num = 0
 
-        # Default page, pagination haven't been added
+        # Display first page without pagination yet
         game.gen_board(page_num, pages)
         page = await ctx.send(embed=game.board)
 
@@ -258,7 +258,7 @@ class Gameplay(commands.Cog):
         while True:
             try:
                 # Only the user who used this command can interact with this embed
-                react, user = await self.bot.wait_for("reaction_add", timeout=2, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
+                react, user = await self.bot.wait_for("reaction_add", timeout=120, check=lambda r, u: r.message.id == page.id and u.id == ctx.author.id and r.emoji in {"⏪", "⏩"})
             except asyncio.TimeoutError:
                 game.board.set_footer(text="Page Expired")
                 return await page.edit(embed=game.board)

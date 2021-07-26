@@ -9,16 +9,16 @@ class Classic:
     def __init__(self, ctx):
         # Changeable settings
         self.round_number = 0
-        self.game_over = 0  # 1: lose, 2: win
-        self.logging = True  # logging variable for other gamemodes are unused (placeholder)
+        self.game_over = 0  # 1 = lose, 2 = win
+        self.logging = True  # Variable in this class controls all logging
         self.rounds = []
         self.matches = []
-        self.verified = []  # Used in detective mode, all guesses here are verified
-        self.board_info = []  # Contains the guess history to be displayed on the board
+        self.verified = []  # True = verified guess, False = unverified guess
+        self.board_info = []
 
         # Unchangeable settings
         self.game_id = 0
-        self.sets_dict = {"rl": 15, "gsl": 4, "mg": 7, "ca": None}  # Classic mode default settings (see gamemodes.py)
+        self.sets_dict = {"rl": 15, "gsl": 4, "mg": 7, "ca": None}  # Classic mode default settings
         self.answer = sorted(sample(range(1, 16), 3))
 
         # Embeds
@@ -67,7 +67,7 @@ class Classic:
 
     def is_unique(self, guess):
         # Set of numbers must be the same as the numbers (no duplicates)
-        return sorted(set(guess)) == guess
+        return sorted(set(guess)) == sorted(guess)
 
     def in_range(self, guess):
         for g in guess:

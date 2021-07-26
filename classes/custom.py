@@ -29,8 +29,6 @@ class Custom(Classic):
             if not repeat:
                 repeat = "1"
 
-            repeat = int(repeat)
-
             # Splitting by ranges
             for subpart in rest.split("|"):
                 start, _, end = subpart.partition("-")
@@ -44,11 +42,11 @@ class Custom(Classic):
                 if start < 1 or end > self.tmp_sets["rl"]:
                     raise ValueError
 
-                # Adding numbers from range to temp array to pick a random sample from
+                # Adding numbers from range to temp array, then picking a random sample from it
                 range_rng += range(start, end+1)
                 self.ranges.append((start, end))
 
-            answer += sample(range_rng, repeat)
+            answer += sample(range_rng, int(repeat))
 
         return sorted(answer)
 
@@ -104,7 +102,7 @@ class Custom(Classic):
         try:
             self.parse_settings()
         except ValueError:
-            self.log_msg.description = "Please make sure the syntax of your settings are valid"
+            self.log_msg.description = "Please make sure the syntax of your settings is correct"
             return False
 
         # Overriding missing settings with default values (temporary)
