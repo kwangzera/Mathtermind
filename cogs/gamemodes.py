@@ -125,7 +125,7 @@ class Gamemodes(commands.Cog):
         Ranges from multiple blocks can't intersect.
 
         There are certain operations for ranges:
-            x|y → Union of 2 non-intersecting ranges
+            x|y → Union of 2 smaller, non-intersecting ranges
             x-y → Range of numbers from x to y inclusive
             x   → A single number
 
