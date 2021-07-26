@@ -32,10 +32,10 @@ class Gameplay(commands.Cog):
 
         The bot will respond with the number of numbers from the winning combination
         that matches the user's guess. This is a one-for-one match, and can be
-        visualized as follows: Imagine 2 sets of numbers, the winning combination and
-        the user's guess. Numbers appearing in both sets are removed from both sets, and
-        the removal process repeats until nothing can be removed. The number of pairs
-        removed is the number of matches.
+        visualized as follows: Imagine 2 groups of numbers, the winning combination and
+        the user's guess. Numbers appearing in both groups are removed from both groups,
+        and the removal process repeats until nothing can be removed. The number of
+        pairs removed is the number of matches.
 
         After the user's final guess, the bot will respond with a win/lose message.
         """
@@ -137,11 +137,13 @@ class Gameplay(commands.Cog):
     @commands.command(aliases=["if"])
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def info(self, ctx):
-        # TODO update with custom, displaying settings
         """Displays the user's general information
 
-        The info command displays general information regarding the user's current game
-        and logging status (see ;help logging for more details) when they are available.
+        The info command displays general information about the user's current game and
+        logging status (see ;help logging for more details) when they are available.
+
+        For custom mode, additional infomation about the user's game settings will be
+        displayed.
         """
 
         info_embed = discord.Embed()
@@ -224,7 +226,7 @@ class Gameplay(commands.Cog):
         will be displayed, containing the guess number, the sequence of guessed numbers,
         and the number of matches.
 
-        In detective mode the first 4 guesses will be preceded by a ❓ since the user
+        In detective mode, the first 4 guesses will be preceded by a ❓ since the user
         doesn't know which guess contains a false number of matches (the lie). Those
         first 4 guesses will be preceded by a ✅ instead if the user knows for certain
         the number of matches (see ;help identify for more details).

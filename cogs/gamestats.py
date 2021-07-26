@@ -64,7 +64,6 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["lg"], cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def logging(self, ctx, toggle: bool = None):
-        # TODO update with custom, talk about how logging can be disabled
         """Toggles the user's data logging status on or off
 
         The logging command can be used as follows:
@@ -79,7 +78,7 @@ class Gamestats(commands.Cog):
         and losses will be logged if they finish the game. Nothing will be logged if the
         user has logging turned off.
 
-        This command requires the user to be added to the database first.
+        Logging is disabled for custom mode.
         """
 
         if not self.manager.user_in_db(ctx):
@@ -94,7 +93,6 @@ class Gamestats(commands.Cog):
     @commands.command(cooldown_after_parsing=True)
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.member)
     async def raw(self, ctx, gamemode: str = None):
-        # TODO update with custom, no raw for custom
         """Outputs the user's raw game data of any gamemode as a .txt file
 
         The logging command can be used as follows:
@@ -106,7 +104,7 @@ class Gamestats(commands.Cog):
         of 1s (wins) and 0s (losses). The values for gamemode are the same values that
         are used to start a game.
 
-        This command requires the user to be added to the database first.
+        No raw data will be generated for custom mode.
         """
 
         if not self.manager.user_in_db(ctx):
@@ -133,8 +131,6 @@ class Gamestats(commands.Cog):
         Upon using this command, A message will show up to confirming if the user would
         like to wipe their game data. If the user doesn't respond within 60 seconds,
         their information will not be removed.
-
-        This command requires the user to be added to the database first.
         """
 
         if not self.manager.user_in_db(ctx):
@@ -170,14 +166,13 @@ class Gamestats(commands.Cog):
     @commands.command(aliases=["st"])
     @commands.cooldown(rate=1, per=3, type=commands.BucketType.member)
     async def stats(self, ctx):
-        # TODO update with custom, all 3 gamemodes to the 3 allowed gamemodes
         """Displays the user's game stats
 
-        The stats command is used to show tabulated game data for all 3 gamemodes, which
-        contain information about wins/losses, streaks, and more. The tables are
-        paginated by gamemode and will expire after 60 seconds.
+        This command is used to show the user's game stats, which contain information
+        about wins/losses, streaks, and more. The tables are paginated by gamemode and
+        will expire after 60 seconds.
 
-        This command requires the user to be added to the database first.
+        No game stats will be displayed for custom mode.
         """
 
         if not self.manager.user_in_db(ctx):
