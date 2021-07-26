@@ -129,8 +129,8 @@ class Gamemodes(commands.Cog):
             x   → A single number
 
         For example, ca=1|3|5-7:2,9-11,13 will generate an winning combination of:
-            2 random numbers from (1, 3, 5, 6, 7),
-            1 random number from (9, 10, 11),
+            2 numbers from (1, 3, 5, 6, 7),
+            1 number from (9, 10, 11),
             13 by itself
 
         To start a custom game, enter ;cs followed by some settings
