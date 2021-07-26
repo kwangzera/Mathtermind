@@ -10,7 +10,7 @@ class Classic:
         # Changeable settings
         self.round_number = 0
         self.game_over = 0  # 1 = lose, 2 = win
-        self.logging = True  # Variable in this class controls all logging
+        self.logging = True  # Only this variable controls logging
         self.rounds = []
         self.matches = []
         self.verified = []  # True = verified guess, False = unverified guess
