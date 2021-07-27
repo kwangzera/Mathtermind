@@ -103,35 +103,39 @@ class Gameplay(commands.Cog):
         if game.game_id != 2:
             return await ctx.send(embed=discord.Embed(description="This command is not available for the current gamemode", color=Colour.red()))
 
-        if target is None or game.round_number < 4 or not (1 <= target <= 4):
-            return await ctx.send(embed=discord.Embed(description="You can only identify one of guesses 1 to 4 as a lie after making at least 4 guesses", color=Colour.red()))
+        if target is None or game.round_number < 4:
+            return await ctx.send(embed=discord.Embed(description="Please make at least 4 guesses before using this command", color=Colour.red()))
+
+        if not (1 <= target <= 4):
+            return await ctx.send(embed=discord.Embed(description="Please make sure the guess you identify as the lie is between 1 to 4", color=Colour.red()))
 
         if game.used_identify:
             return await ctx.send(embed=discord.Embed(description="This command can only be used once per game", color=Colour.red()))
 
         game.used_identify = True
-        fields = game.board.fields
+        fields = game.board_info
 
         # Correctly identified the lie
         if target == game.lie_index:
             # Loop through the first 4 unverified guesses
             for idx in range(4):
-                name, value = fields[idx].name, fields[idx].value
+                name, value = fields[idx]
                 game.verified[idx] = True  # Updating guesses to verified
 
                 if idx == game.lie_index - 1:
                     game.matches[idx] = game.actual_match  # Replacing the lie with actual number of matches
                     value = f"~~{value}~~\n✅ {game.actual_match} match{'es'*(game.actual_match != 1)}"
-                    game.board.set_field_at(idx, name=name, value=value, inline=False)
                 else:
-                    game.board.set_field_at(idx, name=name, value=f"✅ {value[1:]}", inline=False)
+                    value = f"✅ {value[1:]}"
+
+                fields[idx] = (name, value)
 
             return await ctx.send(embed=discord.Embed(description="You have successfully identified the lie", color=Colour.green()))
 
         target -= 1  # 0-indexed
         game.verified[target] = True  # Incorrectly identified lie must be a verified guess
-        name, value = fields[target].name, fields[target].value
-        game.board.set_field_at(target, name=name, value=f"✅ {value[1:]}", inline=False)
+        name, value = fields[target]
+        fields[target] = (name, f"✅ {value[1:]}")
         await ctx.send(embed=discord.Embed(description="You have failed to identify the lie", color=Colour.red()))
 
     @commands.command(aliases=["if"])
