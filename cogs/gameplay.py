@@ -89,9 +89,9 @@ class Gameplay(commands.Cog):
         the user did, guesses from 1 to 4 will all be verified and the game will cross
         out the former incorrect number of matches and replace it with the correct one.
         Otherwise, only the guess that was falsely identified as a lie could be
-        verified as true.
+        verified as True.
 
-        Unverified guesses that are verified to be true will be updated to be preceded
+        Unverified guesses that are verified to be True will be updated to be preceded
         by a ✅.
         """
 
@@ -107,7 +107,7 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="Please make at least 4 guesses before using this command", color=Colour.red()))
 
         if not (1 <= target <= 4):
-            return await ctx.send(embed=discord.Embed(description="Your targeted guess number must be between 1 to 4", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="The guess you target must be from 1 to 4", color=Colour.red()))
 
         if game.used_identify:
             return await ctx.send(embed=discord.Embed(description="This command can only be used once per game", color=Colour.red()))
@@ -289,7 +289,7 @@ class Gameplay(commands.Cog):
         not be listed out in sorted order if there are more than 64.
 
         In detective mode, possible solutions are generated based on verified guesses
-        (where the user is certain that the number of matches is true). Verified guesses
+        (where the user is certain that the number of matches is True). Verified guesses
         include guesses 5 to 8 and guesses 1 to 4 preceded by a ✅.
 
         In custom mode, the winning combination instead of the possible solutions will

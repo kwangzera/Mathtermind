@@ -29,10 +29,9 @@ class Gamemodes(commands.Cog):
         round. After each guess the game will respond with the number of numbers in the
         winning combination that match those in the user's guess.
 
-        On the final round, the user is required to make a guess containing no
-        duplicates of the same size as the winning combination. If the user's guess (in
-        any particular order) matches the winning combination, they win. Otherwise, they
-        lose.
+        On the final round, the user is required to make a duplicate-free guess of the
+        same size as the winning combination. If the user's guess (in any particular
+        order) matches the winning combination, they win. Otherwise, they lose.
 
         Enter ;classic to start the game or see ;help guess for more detailed
         information about guessing.
@@ -82,10 +81,9 @@ class Gamemodes(commands.Cog):
         chance to try to identify which guess had an incorrect number of matches (see
         ;help identify for more details).
 
-        On the final round, the user is required to make a guess containing no
-        duplicates of the same size as the winning combination. If the user's guess (in
-        any particular order) matches the winning combination, they win. Otherwise, they
-        lose.
+        On the final round, the user is required to make a duplicate-free guess of the
+        same size as the winning combination. If the user's guess (in any particular
+        order) matches the winning combination, they win. Otherwise, they lose.
 
         Enter ;detective to start the game or see ;help guess for more detailed
         information about guessing.

@@ -111,7 +111,7 @@ class Custom(Classic):
                 self.tmp_sets[key] = self.sets_dict[key]
 
         if not self.sets_in_range():
-            self.log_msg.description = "Some of your settings go over their range limits"
+            self.log_msg.description = "Some of your settings are not within their range limits"
             return False
 
         # Isn't possible to guess more than the range of numbers without repeats
