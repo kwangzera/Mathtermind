@@ -107,7 +107,7 @@ class Gameplay(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="Please make at least 4 guesses before using this command", color=Colour.red()))
 
         if not (1 <= target <= 4):
-            return await ctx.send(embed=discord.Embed(description="Please make sure the guess you identify as the lie is between 1 to 4", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="Your targeted guess number must be between 1 to 4", color=Colour.red()))
 
         if game.used_identify:
             return await ctx.send(embed=discord.Embed(description="This command can only be used once per game", color=Colour.red()))

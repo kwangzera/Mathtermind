@@ -90,15 +90,15 @@ class Classic:
             flag = False
 
         if not self.in_range(guess):
-            self.log_msg.description = f"""Please input {f"numbers from 1 to {self.sets_dict['rl']}" if self.sets_dict['rl'] != 1 else "1 as your only guess"}"""
+            self.log_msg.description = f"""You can only input {f"numbers from 1 to {self.sets_dict['rl']}" if self.sets_dict['rl'] != 1 else "1 as your guess"}"""
             flag = False
 
         if not self.is_unique(guess):
-            self.log_msg.description = f"Please make sure all numbers in your guess are unique"
+            self.log_msg.description = f"Make sure all numbers in your guess are unique"
             flag = False
 
         if self.last_guess(guess, flag):
-            self.log_msg.description = f"Please input {len(self.answer)} number{'s'*(len(self.answer)!=1)} as your final guess"
+            self.log_msg.description = f"Please input {len(self.answer)} number{'s'*(len(self.answer)!=1)} for the final guess"
             flag = False
 
         return flag

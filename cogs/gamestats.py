@@ -82,10 +82,10 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database", color=Colour.red()))
 
         if toggle is None:
-            return await ctx.send(embed=discord.Embed(description="Please specify a boolean value to set your logging status to", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="Please specify a proper boolean value", color=Colour.red()))
 
         self.manager.update(ctx, 0, logging=toggle)
         await ctx.send(ctx.author.mention, embed=discord.Embed(description=f"Successfully set logging status to `{toggle}`", color=Colour.green()))
@@ -108,7 +108,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database.", color=Colour.red()))
 
         if gamemode in {"classic", "cl"}:
             await self.gen_file(ctx, 0, "classic")
@@ -117,7 +117,7 @@ class Gamestats(commands.Cog):
         elif gamemode in {"detective", "lie"}:
             await self.gen_file(ctx, 2, "detective")
         else:
-            await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode for raw file generation", color=Colour.red()))
+            await ctx.send(embed=discord.Embed(description="Please input the name of a proper gamemode", color=Colour.red()))
 
     @commands.command(aliases=["rm"])
     @commands.cooldown(rate=1, per=10, type=commands.BucketType.member)
@@ -134,7 +134,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database", color=Colour.red()))
 
         confirm = await ctx.send(ctx.author.mention, embed=discord.Embed(description="Remove yourself from the database? This action cannot be undone and will erase your game data.", color=Colour.gold()))
         await confirm.add_reaction("✅")
@@ -176,7 +176,7 @@ class Gamestats(commands.Cog):
         """
 
         if not self.manager.user_in_db(ctx):
-            return await ctx.send(embed=discord.Embed(description="You do not exist in the database. Enter `;add` to be added.", color=Colour.red()))
+            return await ctx.send(embed=discord.Embed(description="You do not exist in the database", color=Colour.red()))
 
         stat_emb = discord.Embed()
         page_num = 0

@@ -102,7 +102,7 @@ class Custom(Classic):
         try:
             self.parse_settings()
         except ValueError:
-            self.log_msg.description = "Please make sure the syntax of your settings is correct"
+            self.log_msg.description = "Your settings cannot be parsed properly"
             return False
 
         # Overriding missing settings with default values (temporary)
@@ -111,22 +111,22 @@ class Custom(Classic):
                 self.tmp_sets[key] = self.sets_dict[key]
 
         if not self.sets_in_range():
-            self.log_msg.description = "Please make sure your individual settings are within their limits"
+            self.log_msg.description = "Some of your settings go over their range limits"
             return False
 
         # Isn't possible to guess more than the range of numbers without repeats
         if self.rep_possible():
-            self.log_msg.description = "Please make sure your guess size limit doesn't exceed your range limit"
+            self.log_msg.description = "Your guess size limit cannot exceed your range limit"
             return False
 
         try:
             self.set_custom_ans()
         except ValueError:
-            self.log_msg.description = "Please make sure your custom answer settings are valid"
+            self.log_msg.description = "Check your custom answer settings for range and syntax issues"
             return False
 
         if self.range_intersect():
-            self.log_msg.description = "Please make sure your custom answer ranges don't intersect"
+            self.log_msg.description = "Your custom answer ranges cannot intersect"
             return False
 
         # Applying custom settings
