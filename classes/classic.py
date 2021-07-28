@@ -41,7 +41,7 @@ class Classic:
         self.verified.append(True)
 
     def add_round(self, guess):
-        """Updates the Classic game with a new round"""
+        """Updates the classic game with a new round"""
 
         self.update_stats(guess)
 

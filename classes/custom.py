@@ -95,7 +95,7 @@ class Custom(Classic):
     def valid_settings(self):
         """Checks if passed settings are valid or not by making use of the previous helper methods."""
 
-        # No settings passed = Classic mode
+        # No settings passed = classic mode
         if self.is_classic():
             return True
 

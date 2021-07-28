@@ -10,7 +10,7 @@ class ClassicSolver:
         self.valid = []
         self.rounds = rounds
         self.matches = matches
-        self.verified = verified  # All True for classic
+        self.verified = verified  # All True for classic mode
         self.combos = list(c(range(1, 16), 3))
 
         # Embeds
