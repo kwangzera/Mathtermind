@@ -68,10 +68,10 @@ class Gamestats(commands.Cog):
 
         The logging command can be used as follows:
             ;logging True  → turns on logging
-            ;logging False → turns off logging.
+            ;logging False → turns off logging
 
-        The value for toggle can be any boolean value supported by PostgreSQL. Some
-        examples include "1", "0", "on", "off", "t", "f", "yes", and "no".
+        Other valid boolean values include "t", "f", "1", "0", "yes", "no", "y", "n",
+        "on", and "off".
 
         If the user has logging turned on, the number of times they leave a game will be
         logged if they decide to end a game early. Additionally, information about wins
