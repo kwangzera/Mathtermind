@@ -33,7 +33,7 @@ class Classic:
         return self.round_number == self.sets_dict["mg"] + 1
 
     def update_stats(self, guess):
-        """Executes all necessary operations after a user makes a guess"""
+        """Executes all necessary operations after the user makes a guess"""
 
         self.round_number += 1
         self.rounds.append(guess)
@@ -58,7 +58,7 @@ class Classic:
             return
 
     def match_ans(self, guess):
-        # Number of matches is sum of values from the intersection of 2 counters
+        # Number of matches is sum of values from intersection of the 2 counters
         return sum((Counter(guess) & Counter(self.answer)).values())
 
     def valid_len(self, guess):

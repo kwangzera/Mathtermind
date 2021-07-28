@@ -86,7 +86,7 @@ class Custom(Classic):
 
         if len(self.ranges) > 1:
             for i in range(len(self.ranges)-1):
-                # Intersection exist
+                # Intersection exists
                 if self.ranges[i][1] >= self.ranges[i+1][0]:
                     return True
 
@@ -95,7 +95,7 @@ class Custom(Classic):
     def valid_settings(self):
         """Checks if passed settings are valid or not by making use of the previous helper methods."""
 
-        # No settings passed = classic mode
+        # No settings passed = Classic mode
         if self.is_classic():
             return True
 
@@ -105,7 +105,7 @@ class Custom(Classic):
             self.log_msg.description = "Your settings cannot be parsed properly"
             return False
 
-        # Overriding missing settings with default values (temporary)
+        # Overriding missing temp settings with default values
         for key, val in self.tmp_sets.items():
             if val is None:
                 self.tmp_sets[key] = self.sets_dict[key]

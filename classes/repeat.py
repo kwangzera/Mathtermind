@@ -24,7 +24,7 @@ class Repeat(Classic):
         rng = random()*100
         a, b = sample(range(1, 16), 2)  # Not sorted for fair answer generation
 
-        if rng < 5:  # 5% chance of generating 3 duplicates
+        if rng < 5:  # 5% for 3 duplicates
             return sorted((a, a, a))
-        elif rng < 60:  # 55% chance of generating 2 duplicates
+        elif rng < 60:  # 55% for 2 duplicates
             return sorted((a, a, b))

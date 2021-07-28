@@ -58,7 +58,7 @@ class Detective(Classic):
         probs = {0: 6, 1: 9, 2: 4, 3: 1}
         guess_len = 3 if guess_len == 4 else guess_len
 
-        # Filtering out the True match
+        # Filtering out the true match
         ret_probs = Counter({i: probs[i] for i in range(0, guess_len+1)})
         del ret_probs[actual]
 

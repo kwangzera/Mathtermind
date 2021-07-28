@@ -77,7 +77,7 @@ class StatManager:
             # Update current loss streak
             self.update(ctx, game_id, current_streak=cur_loss)
 
-        # Constant time streak processing
+        # Constant time streak updating
         self.update(ctx, game_id, longest_win_streak=max(self.query(ctx, game_id, "longest_win_streak"), cur_win))
         self.update(ctx, game_id, longest_loss_streak=max(self.query(ctx, game_id, "longest_loss_streak"), cur_loss))
         self.update(ctx, game_id, prev_result=result)

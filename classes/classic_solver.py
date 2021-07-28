@@ -25,7 +25,7 @@ class ClassicSolver:
                 if not vr:
                     continue
 
-                # Number of matches is sum of values from the intersection of 2 counters
+                # Number of matches is sum of values from intersection of the 2 counters
                 cnt = sum((Counter(cb) & Counter(rnd)).values())
 
                 # Not a possible solution
