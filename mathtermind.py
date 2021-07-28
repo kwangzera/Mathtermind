@@ -76,4 +76,6 @@ with bot.con.cursor() as cur:
 
 # Token saved to environment variable
 bot.run(os.environ["MTM_TOKEN"])
+
+# Closing database connection
 bot.con.close()
