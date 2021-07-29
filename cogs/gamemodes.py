@@ -131,7 +131,7 @@ class Gamemodes(commands.Cog):
             • 1 number from {9, 10, 11}
             • 13 by itself
 
-        To start a custom game, enter ;cs followed by some settings
+        To start a custom game, enter ;cs followed by some settings.
         """
 
         await self.create_game(ctx, Custom(ctx, settings))
