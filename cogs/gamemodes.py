@@ -99,10 +99,10 @@ class Gamemodes(commands.Cog):
         customizable settings.
 
         The following settings are available:
-            range_limit|rl       -> Limit to the range of guessed numbers (1 to 50)
-            guess_size_limit|gsl -> Maximum amount of numbers in a guess (1 to 50)
-            max_guesses|mg       -> Rounds before the final guess (1 to 50)
-            custom_answer|ca     -> Custom answer settings (1 to 50 numbers)
+            range_limit|rl       → Upper bound to the range of guessed numbers (1 to 50)
+            guess_size_limit|gsl → Maximum amount of numbers in a guess (1 to 50)
+            max_guesses|mg       → Rounds before the final guess (1 to 50)
+            custom_answer|ca     → Custom answer settings (1 to 50 numbers)
 
         Individual settings are space-separated and formatted as <setting>=<value>.
         Their order doesn't matter when passed and the user doesn't have to include all
@@ -111,10 +111,10 @@ class Gamemodes(commands.Cog):
         limit but not a custom answer.
 
         The command ;custom gsl=5 mg=10 range_limit=12 creates the following game:
-            - 1 to 5 numbers allowed per guess
-            - 10 guesses before the final round
-            - The user can guess numbers from 1 to 12
-            - A winning combination of 3 numbers from 1 to 12, as opposed the default
+            • 1 to 5 numbers allowed per guess
+            • 10 guesses before the final round
+            • The user can guess numbers from 1 to 12
+            • A winning combination of 3 numbers from 1 to 12, as opposed the default
 
         Generally, custom answers are comma-separated blocks of <ranges>:<choose> where
         ranges represent possible numbers to randomly pick from, and choose (defaults to
@@ -122,14 +122,14 @@ class Gamemodes(commands.Cog):
         Ranges from multiple blocks can't intersect.
 
         There are certain operations for ranges within a block:
-            x|y -> Union of 2 non-intersecting ranges
-            x-y -> Range of numbers from x to y inclusive
-            x   -> A single number
+            x|y → Union of 2 non-intersecting ranges
+            x-y → Range of numbers from x to y inclusive
+            x   → A single number
 
         For example, ca=1|3|5-7:2,9-11,13 generates an winning combination of:
-            - 2 numbers from {1, 3, 5, 6, 7}
-            - 1 number from {9, 10, 11}
-            - 13 by itself
+            • 2 numbers from {1, 3, 5, 6, 7}
+            • 1 number from {9, 10, 11}
+            • 13 by itself
 
         To start a custom game, enter ;cs followed by some settings
         """

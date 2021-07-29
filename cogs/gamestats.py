@@ -67,8 +67,8 @@ class Gamestats(commands.Cog):
         """Toggles the user's data logging status on or off
 
         The logging command can be used as follows:
-            ;logging True  -> turns on logging
-            ;logging False -> turns off logging
+            ;logging True  → turns on logging
+            ;logging False → turns off logging
 
         Other valid boolean values for toggle include "t", "f", "1", "0", "yes", "no",
         "y", "n", "on", and "off".
@@ -96,9 +96,9 @@ class Gamestats(commands.Cog):
         """Outputs the user's raw game data of any gamemode as a .txt file
 
         The logging command can be used as follows:
-            ;raw classic -> outputs raw data as classic.txt
-            ;raw cl      -> outputs raw data as classic.txt
-            ;raw repeat  -> outputs raw data as repeat.txt
+            ;raw classic → outputs raw data as classic.txt
+            ;raw cl      → outputs raw data as classic.txt
+            ;raw repeat  → outputs raw data as repeat.txt
 
         The user's raw game data is also their full game history, a binary string
         consisting of 1s (wins) and 0s (losses). The values for gamemode are the same
