@@ -48,8 +48,8 @@ class Gamemodes(commands.Cog):
         and the user's goal is to guess those numbers. The user is given 7 guesses to
         try to figure out what the winning combination is and an 8th to determine it.
 
-        For this gamemode, the user is allowed to guess 1 to 4 numbers each round.
-        After each guess the game will respond with the number of numbers in the winning
+        For this gamemode, the user is allowed to guess 1 to 4 numbers each round. After
+        each guess the game will respond with the number of numbers in the winning
         combination that match those in the user's guess.
 
         On the final round, the user is required to make a guess of the same size as the
@@ -69,8 +69,8 @@ class Gamemodes(commands.Cog):
 
         A winning combination of 3 unique numbers is randomly selected and the user's
         goal is to guess those numbers. The user is given 8 guesses to try to figure out
-        what the winning combination is and a 9th to determine it. However, with an
-        extra guess comes with a twist.
+        what the winning combination is and a 9th to determine it. However, an extra
+        guess comes with a twist.
 
         For this gamemode, the user is allowed to guess 1 to 4 unique numbers each
         round. After each guess the game will respond with the number of numbers in the
@@ -78,8 +78,7 @@ class Gamemodes(commands.Cog):
 
         In one of the first 4 guesses, the game will deliberately try to trick the user
         by returning an incorrect number of matches. However, the game gives the user a
-        chance to try to identify which guess had an incorrect number of matches (see
-        ;help identify for more details).
+        chance to try to identify the lie (see ;help identify for more details).
 
         On the final round, the user is required to make a duplicate-free guess of the
         same size as the winning combination. If the user's guess (in any particular
@@ -112,10 +111,10 @@ class Gamemodes(commands.Cog):
         limit but not a custom answer.
 
         The command ;custom gsl=5 mg=10 range_limit=12 creates the following game:
-            1 to 5 numbers allowed per guess,
-            10 guesses before the final round,
-            The user can guess numbers from 1 to 12,
-            A winning combination of 3 numbers from 1 to 12, as opposed the default
+            • 1 to 5 numbers allowed per guess
+            • 10 guesses before the final round
+            • The user can guess numbers from 1 to 12
+            • A winning combination of 3 numbers from 1 to 12, as opposed the default
 
         Generally, custom answers are comma-separated blocks of <ranges>:<choose> where
         ranges represent possible numbers to randomly pick from, and choose (defaults to
@@ -127,10 +126,10 @@ class Gamemodes(commands.Cog):
             x-y → Range of numbers from x to y inclusive
             x   → A single number
 
-        For example, ca=1|3|5-7:2,9-11,13 will generate an winning combination of:
-            2 numbers from (1, 3, 5, 6, 7),
-            1 number from (9, 10, 11),
-            13 by itself
+        For example, ca=1|3|5-7:2,9-11,13 generates an winning combination of:
+            • 2 numbers from {1, 3, 5, 6, 7}
+            • 1 number from {9, 10, 11}
+            • 13 by itself
 
         To start a custom game, enter ;cs followed by some settings
         """

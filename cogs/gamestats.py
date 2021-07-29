@@ -70,8 +70,8 @@ class Gamestats(commands.Cog):
             ;logging True  → turns on logging
             ;logging False → turns off logging
 
-        Other valid boolean values include "t", "f", "1", "0", "yes", "no", "y", "n",
-        "on", and "off".
+        Other valid boolean values for toggle include "t", "f", "1", "0", "yes", "no",
+        "y", "n", "on", and "off".
 
         If the user has logging turned on, the number of times they leave a game will be
         logged if they decide to end a game early. Additionally, information about wins
@@ -100,9 +100,9 @@ class Gamestats(commands.Cog):
             ;raw cl      → outputs raw data as classic.txt
             ;raw repeat  → outputs raw data as repeat.txt
 
-        Raw game data is also the user's full game history, a binary string consisting
-        of 1s (wins) and 0s (losses). The values for gamemode are the same values that
-        are used to start a game.
+        The user's raw game data is also their full game history, a binary string
+        consisting of 1s (wins) and 0s (losses). The values for gamemode are the same
+        ones that are used to start a game.
 
         No raw data will be generated for custom mode.
         """
@@ -130,7 +130,7 @@ class Gamestats(commands.Cog):
 
         Upon using this command, A message will show up to confirming if the user would
         like to wipe their game data. If the user doesn't respond within 60 seconds,
-        their information will not be removed.
+        their data will not be removed.
         """
 
         if not self.manager.user_in_db(ctx):
@@ -168,9 +168,8 @@ class Gamestats(commands.Cog):
     async def stats(self, ctx):
         """Displays the user's game stats
 
-        This command is used to show the user's game stats, which contain information
-        about wins/losses, streaks, and more. The tables are paginated by gamemode and
-        will expire after 60 seconds.
+        This command is used to show the user's game stats for each gamemode, which
+        contains information about wins, losses, streaks, and more.
 
         No game stats will be displayed for custom mode.
         """

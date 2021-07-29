@@ -33,9 +33,8 @@ class Gameplay(commands.Cog):
         The bot will respond with the number of numbers from the winning combination
         that matches the user's guess. This is a one-for-one match, and can be
         visualized as follows: Imagine 2 groups of numbers, the winning combination and
-        the user's guess. Numbers appearing in both groups are removed from both groups,
-        and the removal process repeats until nothing can be removed. The number of
-        pairs removed is the number of matches.
+        the user's guess. Numbers appearing in both groups get continuously removed from
+        both groups. In the end, the number of pairs removed is the number of matches.
 
         After the user's final guess, the bot will respond with a win/lose message.
         """
@@ -81,18 +80,18 @@ class Gameplay(commands.Cog):
             ;identify 1 → attempts to identify guess 1 as the lie
             ;identify 4 → attempts to identify guess 4 as the lie
 
-        This detective mode exclusive command can be only used when the user has made at
-        least 4 guesses, can only identify unverified guesses (those preceded by a ❓)
-        to be a lie or not, and can be only used once per game.
+        The use of this command requires several conditions to be met:
+            • The user is playing a game in detective mode
+            • The user has made at least 4 guesses
+            • The lie identified is unverified (preceded by a ❓ in the guess history)
 
         The bot will then tell the user if they correctly identified the lie or not. If
         the user did, guesses from 1 to 4 will all be verified and the game will cross
         out the former incorrect number of matches and replace it with the correct one.
-        Otherwise, only the guess that was falsely identified as a lie could be
-        verified as True.
+        Otherwise, only the guess that was falsely identified as a lie will be verified
+        as True, and thus, updated to be preceded by a ✅ in the guess history.
 
-        Unverified guesses that are verified to be True will be updated to be preceded
-        by a ✅.
+        This command can be used only once per game.
         """
 
         if self.key(ctx) not in self.bot.games:
@@ -195,8 +194,8 @@ class Gameplay(commands.Cog):
     async def leave(self, ctx):
         """Leaves the user's current game
 
-        The user can leave their game at any point by using this command. This will not
-        effect the user's number of wins and losses. However, the number of times this
+        By using this command, the user can leave their game at any point. This will not
+        affect the user's number of wins and losses. However, the number of times this
         command gets used may be logged (see ;help logging for more details).
 
         The user will automatically leave the game when it is finished.
@@ -226,17 +225,13 @@ class Gameplay(commands.Cog):
     async def show(self, ctx):
         """Shows the full guess history of the user's current game
 
-        Every single round except for the one where the user makes their final guess
-        will be displayed, containing the guess number, the sequence of guessed numbers,
-        and the number of matches.
+        Every single round except for the final will be displayed, containing the guess
+        number, the sequence of guessed numbers, and the number of matches.
 
         In detective mode, the first 4 guesses will be preceded by a ❓ since the user
         doesn't know which guess contains a false number of matches (the lie). Those
         first 4 guesses will be preceded by a ✅ instead if the user knows for certain
         the number of matches (see ;help identify for more details).
-
-        In custom mode, it's possible to make many guesses. If that is the case, rounds
-        will be displayed 10 at a time.
         """
 
         if self.key(ctx) not in self.bot.games:
@@ -286,14 +281,14 @@ class Gameplay(commands.Cog):
         for a given gamestate. For classic and detective mode, possible solutions may
         include (1, 2, 3), (1, 2, 4), (1, 2, 5), ... (13, 14, 15). For repeat mode,
         (1, 1, 1), (1, 1, 2), (1, 1, 3), ... (15, 15, 15). The possible solutions will
-        not be listed out in sorted order if there are more than 64.
+        not be listed out if there are more than 64.
 
         In detective mode, possible solutions are generated based on verified guesses
         (where the user is certain that the number of matches is True). Verified guesses
         include guesses 5 to 8 and guesses 1 to 4 preceded by a ✅.
 
-        In custom mode, the winning combination instead of the possible solutions will
-        be shown.
+        In custom mode, only the winning combination will be shown, out of all possible
+        solutions.
 
         All guesses are verified in classic, repeat, and custom mode.
         """
