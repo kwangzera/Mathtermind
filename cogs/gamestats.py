@@ -25,7 +25,7 @@ class Gamestats(commands.Cog):
             return await ctx.send(embed=discord.Embed(description="You already exist in the database", color=Colour.red()))
 
         with self.bot.con.cursor() as cur:
-            # Loops 0, 1, 2, the game ids (skips 3, custom mode)
+            # Loops through 0, 1, 2, the game ids (skips 3, custom mode)
             for game_id in range(3):
                 # Table for game stats
                 sql = f"""
@@ -181,7 +181,7 @@ class Gamestats(commands.Cog):
         stat_emb = discord.Embed()
         page_num = 0
 
-        # Defaults to classic stats
+        # Defaults to classic mode stats
         self.gen_page(ctx, 0, "Classic", stat_emb)
 
         page = await ctx.send(embed=stat_emb)

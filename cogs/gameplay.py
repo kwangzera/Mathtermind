@@ -120,7 +120,7 @@ class Gameplay(commands.Cog):
             # Loop through the first 4 unverified guesses
             for idx in range(4):
                 name, value = fields[idx]
-                game.verified[idx] = True  # Updating guesses to verified
+                game.verified[idx] = True  # Updating guesses to be verified
 
                 if idx == game.lie_index - 1:
                     game.matches[idx] = game.actual_match  # Replacing the lie with actual number of matches
@@ -170,7 +170,7 @@ class Gameplay(commands.Cog):
                 inline=False
             )
 
-            # Settings displayed for only custom game
+            # Settings displayed for custom game only
             if game.game_id == 3:
                 info_embed.add_field(
                     name="Game Settings",
