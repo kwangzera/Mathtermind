@@ -9,7 +9,7 @@ from discord.ext import commands
 # Initializing bot
 bot = commands.Bot(command_prefix=";")
 
-# Initializing database, Postgres URL saved to environment variable
+# Initializing database
 conn = psycopg2.connect(os.environ["DATABASE_URL"])
 print("Database opened successfully")
 
