@@ -67,15 +67,15 @@ class Gamestats(commands.Cog):
         """Toggles the user's data logging status on or off
 
         The logging command can be used as follows:
-            ;logging True  → turns on logging
-            ;logging False → turns off logging
+            ;logging True  -> turns on logging
+            ;logging False -> turns off logging
 
         Other valid boolean values for toggle include "t", "f", "1", "0", "yes", "no",
         "y", "n", "on", and "off".
 
         If the user has logging turned on, the number of times they leave a game will be
-        logged if they decide to end a game early. Additionally, information about wins
-        and losses will be logged if they finish the game. Nothing will be logged if the
+        logged if they decide to end a game early. However, information about wins and
+        losses will be logged if they finish the game. Nothing will be logged if the
         user has logging turned off.
 
         Logging is disabled for custom mode.
@@ -96,9 +96,9 @@ class Gamestats(commands.Cog):
         """Outputs the user's raw game data of any gamemode as a .txt file
 
         The logging command can be used as follows:
-            ;raw classic → outputs raw data as classic.txt
-            ;raw cl      → outputs raw data as classic.txt
-            ;raw repeat  → outputs raw data as repeat.txt
+            ;raw classic -> outputs raw data as classic.txt
+            ;raw cl      -> outputs raw data as classic.txt
+            ;raw repeat  -> outputs raw data as repeat.txt
 
         The user's raw game data is also their full game history, a binary string
         consisting of 1s (wins) and 0s (losses). The values for gamemode are the same
@@ -125,8 +125,7 @@ class Gamestats(commands.Cog):
         """Removes the user from the database
 
         When the user is removed from the database, all of their game data gets deleted.
-        The ;add command must be used again if the user wants to be readded the
-        database.
+        The ;add command must be used if the user wants to be readded the database.
 
         Upon using this command, A message will show up to confirming if the user would
         like to wipe their game data. If the user doesn't respond within 60 seconds,
