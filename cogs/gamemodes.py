@@ -99,7 +99,7 @@ class Gamemodes(commands.Cog):
         customizable settings.
 
         The following settings are available:
-            range_limit|rl       -> Upper bound to guessed numbers (1 to 50)
+            range_limit|rl       -> Upper bound of guessed numbers (1 to 50)
             guess_size_limit|gsl -> Maximum amount of numbers in a guess (1 to 50)
             max_guesses|mg       -> Rounds before the final guess (1 to 50)
             custom_answer|ca     -> Custom answer settings (1 to 50 numbers)
@@ -116,17 +116,17 @@ class Gamemodes(commands.Cog):
             - Numbers from 1 to 12 can be guessed
             - A winning combination of 3 numbers from 1 to 12, as opposed the default
 
-        Generally, custom answers are comma-separated blocks of <ranges>:<choose> where
-        ranges represent possible numbers to randomly pick from, and choose (defaults to
-        1 if it isn't provided) represents the number of numbers that gets randomly
-        picked. Ranges from multiple blocks can't intersect.
+        Generally, custom answers are comma-separated blocks of <ranges>:<choose>
+        without spaces in between. Ranges represent possible numbers to randomly pick
+        from, and choose (defaults to 1 if it isn't provided) represents the number of
+        numbers that gets randomly picked. Ranges from multiple blocks can't intersect.
 
         There are certain operations for ranges within a block:
             x|y -> Union of 2 non-intersecting ranges
             x-y -> Range of numbers from x to y inclusive
             x   -> A single number
 
-        For example, ca=1|3|5-7:2,9-11,13 generates an winning combination of:
+        The custom answer ca=1|3|5-7:2,9-11,13 generates an winning combination of:
             - 2 numbers from {1, 3, 5, 6, 7}
             - 1 number from {9, 10, 11}
             - 13 by itself

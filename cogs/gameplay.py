@@ -33,8 +33,8 @@ class Gameplay(commands.Cog):
         The bot will respond with the number of numbers from the winning combination
         that matches the user's guess. This is a one-for-one match, and can be
         visualized as follows: Imagine 2 groups of numbers, the winning combination and
-        the user's guess. Numbers appearing in both groups get continuously removed from
-        both groups. The total number of pairs removed is the number of matches.
+        the user's guess. Numbers appearing in both groups get removed from both groups.
+        The total number of pairs that can be removed is the number of matches.
 
         After the user's final guess, the bot will respond with a win/lose message.
         """
@@ -85,14 +85,15 @@ class Gameplay(commands.Cog):
             - The user has made at least 4 guesses
             - The guess is unverified
 
-        The bot will then tell the user if they correctly identified the lie or not. If
-        the user did, guesses from 1 to 4 will all be verified and the game will replace
-        the former incorrect number of matches with the correct one. Otherwise, only the
-        guess that was falsely identified as a lie will be verified.
+        In an unverified guess, the user doesn't know if the number of matches is true
+        or not, whereas in a verified one, they know for certain that the number of
+        matches is true.
 
-        In the guess history for detective mode, verified guesses from 1 to 4 will be
-        preceded by a ✅ while unverified guesses from 1 to 4 will be preceded by a ❓
-        (see ;help show for more details).
+        After using this command, the bot will tell the user if they correctly
+        identified the lie or not. If the user did, guesses from 1 to 4 will all be
+        verified and the game will replace the former incorrect number of matches with
+        the correct one. Otherwise, only the guess that was falsely identified as a lie
+        will be verified.
 
         This command can be used only once per game.
         """
@@ -229,12 +230,10 @@ class Gameplay(commands.Cog):
         """Shows the full guess history of the user's current game
 
         Every single round except for the final will be displayed, containing the guess
-        number, the sequence of guessed numbers, and the number of matches.
+        number, the sequence of numbers guessed, and the number of matches.
 
-        In detective mode, the first 4 guesses will be initially preceded by a ❓ since
-        the user doesn't know which guess contains a false number of matches. Those
-        first 4 guesses will be preceded by a ✅ instead if the user knows for certain
-        the number of matches.
+        For guesses 1 to 4 In detective mode, unverified guesses will be preceded by a ❓
+        while verified ones will be preceded by a ✅.
         """
 
         if self.key(ctx) not in self.bot.games:
@@ -286,8 +285,8 @@ class Gameplay(commands.Cog):
         (1, 1, 1), (1, 1, 2), (1, 1, 3), ... (15, 15, 15). The possible solutions will
         not be listed out if there are more than 64.
 
-        In detective mode, possible solutions will not take into account unverified
-        guesses (see ;help show for more details).
+        In detective mode, possible solutions will not be determined based on unverified
+        guesses (see ;help identify for more details).
 
         In custom mode, the winning combination will be shown instead of all possible
         solutions.

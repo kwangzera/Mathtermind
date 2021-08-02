@@ -9,4 +9,4 @@ class CustomSolver(ClassicSolver):
     def solve(self):
         # Custom games won't to be solved
         self.sol_panel.title = f"Valid Solutions Unavailable"
-        self.sol_panel.description = f"Since you are in a custom game, possible solutions other than the winning combination will not be listed: ||`{self.ans_str}`||."
+        self.sol_panel.description = f"Since you are in a custom game, possible solutions other than the winning combination will not be listed: ||`{self.ans_str}`||"
