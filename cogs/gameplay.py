@@ -92,8 +92,8 @@ class Gameplay(commands.Cog):
         After using this command, the bot will tell the user if they correctly
         identified the lie or not. If the user did, guesses from 1 to 4 will all be
         verified and the game will replace the former incorrect number of matches with
-        the correct one. Otherwise, only the guess that was falsely identified as a lie
-        will be verified.
+        the correct one. Otherwise, only the guess that was falsely identified as the
+        lie will be verified.
 
         This command can be used only once per game.
         """
@@ -232,7 +232,7 @@ class Gameplay(commands.Cog):
         Every single round except for the final will be displayed, containing the guess
         number, the sequence of numbers guessed, and the number of matches.
 
-        For guesses 1 to 4 In detective mode, unverified guesses will be preceded by a ❓
+        For guesses 1 to 4 in detective mode, unverified guesses will be preceded by a ❓
         while verified ones will be preceded by a ✅.
         """
 
