@@ -101,8 +101,8 @@ class Gamestats(commands.Cog):
             ;raw repeat  -> outputs raw data as repeat.txt
 
         The user's raw game data is also their full game history, a binary string
-        consisting of 1s (wins) and 0s (losses). The values for gamemode are the same
-        ones that are used to start a game.
+        consisting of 1s (wins) and 0s (losses). The values passed for gamemode are the
+        same ones that are used to start a game.
 
         No raw data will be generated for custom mode.
         """
